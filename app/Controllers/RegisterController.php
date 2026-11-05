@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Middleware\AuthMiddleware;
+use App\Services\AuthService;
+use App\Services\UserService;
+use App\Validators\RegisterValidator;
+
+/**
+ * Public registration (Module 1): customer accounts and restaurant
+ * owner accounts. The restaurant profile itself (the tenant) is
+ * created in Module 2 — registration here creates the account only.
+ */
+class RegisterController
+{
+    public function showCustomer(): void
+    {
+        view('auth/register', [
+            'title'   => 'Create your customer account',
+            'action'  => url('/register'),
+            'heading' => 'Create your OmniEats account',
+            'subtext' => 'Browse restaurants, order food and track your orders.',
+            'isOwner' => false,
+        ]);
+    }
+
+    public function showOwner(): void
+    {
+        view('auth/register', [
+            'title'   => 'Register your restaurant account',
+            'action'  => url('/register/restaurant'),
+            'heading' => 'Start selling on OmniEats',
+            'subtext' => 'Create your restaurant owner account. Your restaurant profile and subscription are set up in the next steps.',
+            'isOwner' => true,
+        ]);
+    }
+
+    public function customer(): void
+    {
+        $this->register('customer', '/register');
+    }
+
+    public function owner(): void
+    {
+        $this->register('restaurant_owner', '/register/restaurant');
+    }
+
+    private function register(string $role, string $backPath): void
+    {
+        $data = [
+            'name'                  => trim((string) ($_POST['name'] ?? '')),
+            'email'                 => trim((string) ($_POST['email'] ?? '')),
+            'phone'                 => trim((string) ($_POST['phone'] ?? '')),
+            'password'              => (string) ($_POST['password'] ?? ''),
+            'password_confirmation' => (string) ($_POST['password_confirmation'] ?? ''),
+        ];
+        $_SESSION['_old'] = $data;
+
+        $validator = new RegisterValidator($data);
+        if ($validator->fails()) {
+            flash('error', $validator->firstError());
+            redirect($backPath);
+        }
+
+        if (!UserService::register($data, $role)) {
+            redirect($backPath);
+        }
+
+        flash('success', 'Welcome to OmniEats! Your account has been created.');
+        redirect(AuthMiddleware::homeFor(AuthService::user()));
+    }
+}

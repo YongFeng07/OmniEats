@@ -81,7 +81,7 @@ docs/           assignment documentation
 - [x] Phase 2 — planning (blueprint, database design)
 - [x] Phase 3 — database implementation (schema + seed verified in MariaDB)
 - [x] Phase 4 — core application (routing, auth, sessions, CSRF, RBAC, layouts)
-- [ ] Phase 5 — module development (M1 → M6)
+- [ ] Phase 5 — module development (M1 → M6) — **M1 User & Auth done**: registration (customer + owner), login, profile, password change, admin user CRUD with search/filter, role assignment, soft delete
 - [ ] Phase 6 — integration testing
 - [ ] Phase 7 — UI/UX polish
 - [ ] Phase 8 — final testing & documentation

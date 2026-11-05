@@ -74,6 +74,50 @@ abstract class Validator
         return $this;
     }
 
+    /** Optional phone number: when present, 8-20 digits/space/+/-/(). */
+    public function phone(string $field): static
+    {
+        $value = (string) ($this->data[$field] ?? '');
+        if ($value !== '' && !preg_match('/^[0-9+\-() ]{8,20}$/', $value)) {
+            $this->errors[$field][] = 'Please enter a valid phone number (8-20 characters).';
+        }
+        return $this;
+    }
+
+    /** Value must be one of an allowed list (role names, statuses...). */
+    public function inList(string $field, array $allowed): static
+    {
+        $value = (string) ($this->data[$field] ?? '');
+        if ($value !== '' && !in_array($value, $allowed, true)) {
+            $this->errors[$field][] = 'Please choose a valid option.';
+        }
+        return $this;
+    }
+
+    /** Required only when another field holds one of the given values. */
+    public function requiredIf(string $field, string $otherField, array $values): static
+    {
+        $other = (string) ($this->data[$otherField] ?? '');
+        $value = trim((string) ($this->data[$field] ?? ''));
+        if (in_array($other, $values, true) && $value === '') {
+            $this->errors[$field][] = 'This field is required.';
+        }
+        return $this;
+    }
+
+    /** At least 8 characters containing both a letter and a number. */
+    public function passwordStrength(string $field): static
+    {
+        $value = (string) ($this->data[$field] ?? '');
+        if ($value === '') {
+            return $this;
+        }
+        if (mb_strlen($value) < 8 || !preg_match('/[A-Za-z]/', $value) || !preg_match('/\d/', $value)) {
+            $this->errors[$field][] = 'Must be at least 8 characters and contain both letters and numbers.';
+        }
+        return $this;
+    }
+
     public function fails(): bool
     {
         return $this->errors !== [];
@@ -88,5 +132,16 @@ abstract class Validator
     public function first(string $field): ?string
     {
         return $this->errors[$field][0] ?? null;
+    }
+
+    /** First error message across all fields, or null. */
+    public function firstError(): ?string
+    {
+        foreach ($this->errors as $messages) {
+            if ($messages !== []) {
+                return $messages[0];
+            }
+        }
+        return null;
     }
 }

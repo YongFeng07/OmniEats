@@ -42,14 +42,23 @@ class AuthService
             return false;
         }
 
-        session_regenerate_id(true);      // prevent session fixation
+        self::loginUser($user);
+
+        return true;
+    }
+
+    /**
+     * Start a session for a user whose identity is already verified
+     * (used by login and by registration, which auto-signs the user in).
+     */
+    public static function loginUser(array $user): void
+    {
+        session_regenerate_id(true);
         $_SESSION['user_id'] = (int) $user['id'];
-        self::$userLoaded = false;        // session changed — re-resolve user
+        self::$userLoaded = false;
         unset($_SESSION['_old']);
 
         activity('login');
-
-        return true;
     }
 
     public static function logout(): void

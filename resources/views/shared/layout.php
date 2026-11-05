@@ -28,6 +28,10 @@ $roleHome = $user ? App\Middleware\AuthMiddleware::homeFor($user) : '/';
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                 <li class="nav-item"><a class="nav-link" href="<?= url('/') ?>">Home</a></li>
                 <?php if ($user): ?>
+                    <li class="nav-item"><a class="nav-link" href="<?= url('/profile') ?>">Profile</a></li>
+                    <?php if (in_array('super_admin', $user['roles'], true)): ?>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>
+                    <?php endif; ?>
                     <li class="nav-item">
                         <span class="navbar-text me-lg-2">Hi, <?= e($user['name']) ?></span>
                     </li>
@@ -39,6 +43,7 @@ $roleHome = $user ? App\Middleware\AuthMiddleware::homeFor($user) : '/';
                         </form>
                     </li>
                 <?php else: ?>
+                    <li class="nav-item"><a class="nav-link" href="<?= url('/register') ?>">Register</a></li>
                     <li class="nav-item">
                         <a class="btn btn-sm btn-light px-3" href="<?= url('/login') ?>">Sign in</a>
                     </li>

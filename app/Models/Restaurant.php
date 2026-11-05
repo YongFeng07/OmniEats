@@ -14,4 +14,10 @@ class Restaurant extends Model
         $stmt->execute(['id' => $id]);
         return $stmt->fetch() ?: null;
     }
+
+    /** All restaurants (admin dropdowns etc.). */
+    public static function all(): array
+    {
+        return self::db()->query('SELECT id, name, status FROM restaurants ORDER BY name')->fetchAll();
+    }
 }
