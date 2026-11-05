@@ -42,6 +42,7 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                             <a class="nav-link" href="<?= url($user['restaurant_id'] ? '/owner/restaurant/edit' : '/owner/restaurant/create') ?>">My Restaurant</a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/branches') ?>">Branches</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/owner/foods') ?>">Menu</a></li>
                     <?php endif; ?>
                     <li class="nav-item">
                         <span class="navbar-text me-lg-2">Hi, <?= e($user['name']) ?></span>

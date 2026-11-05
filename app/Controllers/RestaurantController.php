@@ -3,11 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\Branch;
+use App\Models\Category;
+use App\Models\FoodItem;
 use App\Models\Restaurant;
 
 /**
- * Public restaurant browsing (Module 2). Only APPROVED restaurants are
- * visible here — pending and deactivated tenants stay private.
+ * Public restaurant browsing (Module 2 & 3). Only APPROVED restaurants
+ * are visible here — pending and deactivated tenants stay private.
  */
 class RestaurantController
 {
@@ -33,10 +35,28 @@ class RestaurantController
             abort(404);
         }
 
+        // Menu (Module 3): search text and category filter, both
+        // whitelisted against this restaurant's own categories.
+        $q = trim((string) ($_GET['q'] ?? ''));
+        $categories = Category::allForRestaurant((int) $restaurant['id']);
+        $categoryId = (int) ($_GET['category'] ?? 0);
+        $validIds = array_map(fn (array $c): int => (int) $c['id'], $categories);
+        if ($categoryId > 0 && !in_array($categoryId, $validIds, true)) {
+            $categoryId = 0;
+        }
+
         view('restaurants/show', [
-            'title'      => $restaurant['name'],
-            'restaurant' => $restaurant,
-            'branches'   => Branch::allForRestaurant((int) $restaurant['id']),
+            'title'       => $restaurant['name'],
+            'restaurant'  => $restaurant,
+            'branches'    => Branch::allForRestaurant((int) $restaurant['id']),
+            'categories'  => $categories,
+            'menuItems'   => FoodItem::menuForRestaurant(
+                (int) $restaurant['id'],
+                $q !== '' ? $q : null,
+                $categoryId > 0 ? $categoryId : null
+            ),
+            'q'           => $q,
+            'fCategory'   => $categoryId,
         ]);
     }
 }

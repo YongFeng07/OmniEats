@@ -71,6 +71,7 @@ $statusBadge = fn (string $status): string => match ($status) {
                         <div class="d-flex flex-wrap gap-2">
                             <a class="btn btn-sm btn-outline-secondary" href="<?= url('/owner/restaurant/edit') ?>">Edit profile</a>
                             <a class="btn btn-sm btn-outline-secondary" href="<?= url('/owner/branches') ?>">Branches</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="<?= url('/owner/foods') ?>">Menu</a>
                             <?php if ($isOwner): ?>
                                 <form method="post" action="<?= url('/owner/restaurant/toggle-open') ?>">
                                     <?= csrf_field() ?>
@@ -103,12 +104,10 @@ $statusBadge = fn (string $status): string => match ($status) {
                 <li>Subscription Plan Management (M4)</li>
                 <li>Subscription Monitoring &amp; Activity Overview (M4)</li>
             <?php elseif ($isRestaurant): ?>
-                <li>Menu Categories &amp; Food Items (M3)</li>
                 <li>Order Management (M5)</li>
                 <li>Payment &amp; Fulfilment Management (M6)</li>
                 <li>Subscription Management (M4)</li>
             <?php else: ?>
-                <li>Food Menu Browsing (M3)</li>
                 <li>Shopping Cart &amp; Checkout (M5)</li>
                 <li>Payment (M6)</li>
                 <li>Order Tracking &amp; History (M5)</li>

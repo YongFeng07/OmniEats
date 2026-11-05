@@ -61,6 +61,24 @@ $router->get('/admin/restaurants/{id}', 'App\Controllers\Admin\RestaurantControl
 $router->post('/admin/restaurants/{id}/approve', 'App\Controllers\Admin\RestaurantController@approve', ['roles:super_admin']);
 $router->post('/admin/restaurants/{id}/toggle-status', 'App\Controllers\Admin\RestaurantController@toggleStatus', ['roles:super_admin']);
 
+// Public food item detail (Module 3)
+$router->get('/foods/{id}', 'App\Controllers\FoodController@show');
+
+// Owner menu management (Module 3) — owner + staff, tenant from session
+$router->get('/owner/categories', 'App\Controllers\Owner\CategoryController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/categories/create', 'App\Controllers\Owner\CategoryController@create', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/categories/create', 'App\Controllers\Owner\CategoryController@store', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/categories/{id}/edit', 'App\Controllers\Owner\CategoryController@edit', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/categories/{id}/edit', 'App\Controllers\Owner\CategoryController@update', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/categories/{id}/delete', 'App\Controllers\Owner\CategoryController@delete', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/foods', 'App\Controllers\Owner\FoodItemController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/foods/create', 'App\Controllers\Owner\FoodItemController@create', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/foods/create', 'App\Controllers\Owner\FoodItemController@store', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/foods/{id}/edit', 'App\Controllers\Owner\FoodItemController@edit', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/foods/{id}/edit', 'App\Controllers\Owner\FoodItemController@update', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/foods/{id}/delete', 'App\Controllers\Owner\FoodItemController@delete', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/foods/{id}/toggle-available', 'App\Controllers\Owner\FoodItemController@toggleAvailable', ['roles:restaurant_owner,restaurant_staff']);
+
 // Role dashboards
 $router->get('/dashboard', 'App\Controllers\DashboardController@index', ['auth']);
 $router->get('/admin', 'App\Controllers\DashboardController@admin', ['roles:super_admin']);
