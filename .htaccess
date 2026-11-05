@@ -1,0 +1,5 @@
+# Project root (Apache only): redirect to the public/ front controller,
+# so http://localhost/omnieats/ opens the app directly instead of a
+# directory listing. The PHP built-in server ignores this file.
+RewriteEngine On
+RewriteRule ^$ %{REQUEST_URI}public/ [L,R=302]
