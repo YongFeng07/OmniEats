@@ -42,6 +42,15 @@ function redirect(string $path): never
     exit;
 }
 
+/**
+ * Absolute URL for a file inside public/, e.g. asset('uploads/x.png').
+ * Used for uploaded images whose paths are stored in the database.
+ */
+function asset(string $path): string
+{
+    return url('/' . ltrim($path, '/'));
+}
+
 /** Read (or, given a $message, set) a one-time flash message. */
 function flash(string $key, ?string $message = null): ?string
 {

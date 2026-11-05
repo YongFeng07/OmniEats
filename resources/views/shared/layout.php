@@ -6,6 +6,9 @@
  */
 $user = auth_user();
 $roleHome = $user ? App\Middleware\AuthMiddleware::homeFor($user) : '/';
+$isAdmin = $user && in_array('super_admin', $user['roles'], true);
+$isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
+    || in_array('restaurant_staff', $user['roles'], true));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,10 +30,18 @@ $roleHome = $user ? App\Middleware\AuthMiddleware::homeFor($user) : '/';
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                 <li class="nav-item"><a class="nav-link" href="<?= url('/') ?>">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= url('/restaurants') ?>">Restaurants</a></li>
                 <?php if ($user): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/profile') ?>">Profile</a></li>
-                    <?php if (in_array('super_admin', $user['roles'], true)): ?>
+                    <?php if ($isAdmin): ?>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
+                    <?php endif; ?>
+                    <?php if ($isRestaurant): ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= url($user['restaurant_id'] ? '/owner/restaurant/edit' : '/owner/restaurant/create') ?>">My Restaurant</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/owner/branches') ?>">Branches</a></li>
                     <?php endif; ?>
                     <li class="nav-item">
                         <span class="navbar-text me-lg-2">Hi, <?= e($user['name']) ?></span>
