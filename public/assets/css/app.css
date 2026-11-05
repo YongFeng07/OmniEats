@@ -43,3 +43,61 @@
 .omnieats-progress {
     background-color: var(--omnieats-orange);
 }
+
+/* ★ Order status timeline (Module 5 unique feature) */
+.omnieats-timeline {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.timeline-step {
+    flex: 1;
+    text-align: center;
+    color: #adb5bd;
+    position: relative;
+}
+
+.timeline-step::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: -50%;
+    width: 100%;
+    height: 3px;
+    background-color: #dee2e6;
+    z-index: 0;
+}
+
+.timeline-step:first-child::before {
+    display: none;
+}
+
+.timeline-dot {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 0.35rem;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+}
+
+.timeline-step.done { color: #198754; }
+.timeline-step.done::before { background-color: #198754; }
+.timeline-step.done .timeline-dot { background-color: #198754; }
+
+.timeline-step.current { color: var(--omnieats-orange); font-weight: 600; }
+.timeline-step.current::before { background-color: var(--omnieats-orange); }
+.timeline-step.current .timeline-dot {
+    background-color: var(--omnieats-orange);
+    box-shadow: 0 0 0 4px rgba(217, 72, 15, 0.2);
+}
+
+.timeline-label { font-size: 0.8rem; }
+.timeline-time { font-size: 0.7rem; color: #adb5bd; }

@@ -111,9 +111,19 @@ $statusBadge = fn (string $status): string => match ($status) {
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h2 class="h5">My Profile</h2>
-                    <p class="text-muted small">Update your name, email, phone and password.</p>
-                    <a class="btn btn-outline-secondary btn-sm" href="<?= url('/profile') ?>">Edit profile</a>
+                    <?php if ($isAdmin || $isRestaurant): ?>
+                        <h2 class="h5">My Profile</h2>
+                        <p class="text-muted small">Update your name, email, phone and password.</p>
+                        <a class="btn btn-outline-secondary btn-sm" href="<?= url('/profile') ?>">Edit profile</a>
+                    <?php else: ?>
+                        <h2 class="h5">Order food</h2>
+                        <p class="text-muted small">Browse restaurants, add to cart and track your orders.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn omnieats-btn btn-sm" href="<?= url('/restaurants') ?>">Browse restaurants</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="<?= url('/cart') ?>">My cart</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="<?= url('/orders') ?>">My orders</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

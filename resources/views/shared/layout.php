@@ -32,6 +32,15 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                 <li class="nav-item"><a class="nav-link" href="<?= url('/') ?>">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= url('/restaurants') ?>">Restaurants</a></li>
                 <?php if ($user): ?>
+                    <?php if (in_array('customer', $user['roles'], true)): ?>
+                        <?php $cartCount = App\Services\CartService::cartCount((int) $user['id']); ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= url('/cart') ?>">
+                                Cart<?= $cartCount > 0 ? ' <span class="badge text-bg-light text-dark">' . $cartCount . '</span>' : '' ?>
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/orders') ?>">My Orders</a></li>
+                    <?php endif; ?>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/profile') ?>">Profile</a></li>
                     <?php if ($isAdmin): ?>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>

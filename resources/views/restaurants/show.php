@@ -140,6 +140,20 @@ $isOpen = (int) $restaurant['is_open'] === 1;
                                 <?php else: ?>
                                     <span class="badge text-bg-secondary">Unavailable</span>
                                 <?php endif; ?>
+
+                                <?php
+                                $viewer = auth_user();
+                                $isCustomer = $viewer && in_array('customer', $viewer['roles'], true);
+                                ?>
+                                <?php if ($isCustomer && (int) $item['is_available'] === 1 && $isOpen): ?>
+                                    <form method="post" action="<?= url('/cart/add') ?>" class="d-flex gap-1 mt-2">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="food_item_id" value="<?= (int) $item['id'] ?>">
+                                        <input type="number" name="quantity" value="1" min="1"
+                                               class="form-control form-control-sm" style="width: 72px;" aria-label="Quantity">
+                                        <button type="submit" class="btn btn-sm omnieats-btn">Add</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

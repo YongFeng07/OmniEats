@@ -95,6 +95,28 @@ $router->get('/owner/subscription', 'App\Controllers\Owner\SubscriptionControlle
 $router->post('/owner/subscription/subscribe/{id}', 'App\Controllers\Owner\SubscriptionController@subscribe', ['roles:restaurant_owner']);
 $router->post('/owner/subscription/cancel', 'App\Controllers\Owner\SubscriptionController@cancel', ['roles:restaurant_owner']);
 
+// Shopping cart (Module 5) — customer only
+$router->get('/cart', 'App\Controllers\CartController@show', ['roles:customer']);
+$router->post('/cart/add', 'App\Controllers\CartController@add', ['roles:customer']);
+$router->post('/cart/update', 'App\Controllers\CartController@update', ['roles:customer']);
+$router->post('/cart/remove', 'App\Controllers\CartController@remove', ['roles:customer']);
+$router->post('/cart/clear', 'App\Controllers\CartController@clear', ['roles:customer']);
+
+// Checkout (Module 5)
+$router->get('/checkout', 'App\Controllers\CheckoutController@show', ['roles:customer']);
+$router->post('/checkout', 'App\Controllers\CheckoutController@submit', ['roles:customer']);
+
+// Customer orders (Module 5)
+$router->get('/orders', 'App\Controllers\OrderController@index', ['roles:customer']);
+$router->get('/orders/{id}', 'App\Controllers\OrderController@show', ['roles:customer']);
+$router->get('/orders/{id}/status', 'App\Controllers\OrderController@status', ['roles:customer']);
+$router->post('/orders/{id}/cancel', 'App\Controllers\OrderController@cancel', ['roles:customer']);
+
+// Restaurant order management (Module 5)
+$router->get('/owner/orders', 'App\Controllers\Owner\OrderController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/orders/{id}', 'App\Controllers\Owner\OrderController@show', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/orders/{id}/transition', 'App\Controllers\Owner\OrderController@transition', ['roles:restaurant_owner,restaurant_staff']);
+
 // Role dashboards
 $router->get('/dashboard', 'App\Controllers\DashboardController@index', ['auth']);
 $router->get('/admin', 'App\Controllers\DashboardController@admin', ['roles:super_admin']);

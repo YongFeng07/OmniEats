@@ -51,6 +51,22 @@ $isOpen = (int) $restaurant['is_open'] === 1;
 
                     <a class="btn omnieats-btn"
                        href="<?= url('/restaurants/' . (int) $restaurant['id']) ?>">Back to menu</a>
+
+                    <?php
+                    $viewer = auth_user();
+                    $isCustomer = $viewer && in_array('customer', $viewer['roles'], true);
+                    ?>
+                    <?php if ($isCustomer && $isAvailable && $isOpen): ?>
+                        <form method="post" action="<?= url('/cart/add') ?>" class="d-flex gap-1 mt-3">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="food_item_id" value="<?= (int) $item['id'] ?>">
+                            <input type="number" name="quantity" value="1" min="1"
+                                   class="form-control form-control-sm" style="width: 80px;" aria-label="Quantity">
+                            <button type="submit" class="btn btn-sm omnieats-btn">Add to cart</button>
+                        </form>
+                    <?php elseif (!$isCustomer): ?>
+                        <a class="btn btn-outline-primary mt-3" href="<?= url('/login') ?>">Sign in to order</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

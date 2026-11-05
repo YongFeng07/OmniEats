@@ -86,6 +86,7 @@ docs/           assignment documentation
   - **M2 Restaurant & Branch done**: restaurant registration (tenant + approval), profile/branch CRUD, image uploads, admin approval lifecycle, ★ OPEN/CLOSED availability control
   - **M3 Menu & Catalogue done**: category & food item CRUD, per-tenant unique names, delete protection for non-empty categories, availability toggles, image uploads, public menu with search + category filter
   - **M4 Subscription done**: plan CRUD + archive protection, simulated subscription payments, renew/upgrade/cancel with full history, ★ automatic expiry sweep + branch/food-item quota enforcement
+  - **M5 Ordering done**: single-restaurant cart, backend-computed checkout with availability re-checks, order history, restaurant order management, ★ live status timeline with validated transitions + JS polling
 - [ ] Phase 6 — integration testing
 - [ ] Phase 7 — UI/UX polish
 - [ ] Phase 8 — final testing & documentation
