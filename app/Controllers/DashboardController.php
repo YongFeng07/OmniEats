@@ -5,10 +5,11 @@ namespace App\Controllers;
 use App\Middleware\AuthMiddleware;
 use App\Models\Restaurant;
 use App\Services\AuthService;
+use App\Services\SubscriptionService;
 
 /**
  * Role-specific dashboard landing pages. The real module dashboards
- * (orders, menu, subscription...) replace these placeholders as each
+ * (orders, payments...) replace the remaining placeholders as each
  * module is implemented in Phase 5.
  */
 class DashboardController
@@ -37,14 +38,19 @@ class DashboardController
     private function data(string $heading): array
     {
         $user = AuthService::user();
+        $tenant = !empty($user['restaurant_id'])
+            ? Restaurant::find((int) $user['restaurant_id'])
+            : null;
 
         return [
-            'title'   => $heading,
-            'heading' => $heading,
-            'user'    => $user,
-            'tenant'  => !empty($user['restaurant_id'])
-                ? Restaurant::find((int) $user['restaurant_id'])
-                : null,
+            'title'            => $heading,
+            'heading'          => $heading,
+            'user'             => $user,
+            'tenant'           => $tenant,
+            // Subscription quota for the owner dashboard card (M4).
+            'subscriptionInfo' => $tenant !== null
+                ? SubscriptionService::quota((int) $tenant['id'])
+                : ['subscription' => null, 'plan' => null],
         ];
     }
 }

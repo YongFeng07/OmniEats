@@ -74,6 +74,16 @@ abstract class Validator
         return $this;
     }
 
+    /** Numeric value of zero or more — used for plan prices (free = 0). */
+    public function nonNegativeNumber(string $field): static
+    {
+        $value = (string) ($this->data[$field] ?? '');
+        if ($value !== '' && (!is_numeric($value) || (float) $value < 0)) {
+            $this->errors[$field][] = 'Must be zero or a positive number.';
+        }
+        return $this;
+    }
+
     /** Optional phone number: when present, 8-20 digits/space/+/-/(). */
     public function phone(string $field): static
     {

@@ -85,6 +85,7 @@ docs/           assignment documentation
   - **M1 User & Auth done**: registration (customer + owner), login, profile, password change, admin user CRUD with search/filter, role assignment, soft delete
   - **M2 Restaurant & Branch done**: restaurant registration (tenant + approval), profile/branch CRUD, image uploads, admin approval lifecycle, ★ OPEN/CLOSED availability control
   - **M3 Menu & Catalogue done**: category & food item CRUD, per-tenant unique names, delete protection for non-empty categories, availability toggles, image uploads, public menu with search + category filter
+  - **M4 Subscription done**: plan CRUD + archive protection, simulated subscription payments, renew/upgrade/cancel with full history, ★ automatic expiry sweep + branch/food-item quota enforcement
 - [ ] Phase 6 — integration testing
 - [ ] Phase 7 — UI/UX polish
 - [ ] Phase 8 — final testing & documentation

@@ -36,6 +36,8 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                     <?php if ($isAdmin): ?>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/plans') ?>">Plans</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/subscriptions') ?>">Subscriptions</a></li>
                     <?php endif; ?>
                     <?php if ($isRestaurant): ?>
                         <li class="nav-item">
@@ -43,6 +45,9 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         </li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/branches') ?>">Branches</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/foods') ?>">Menu</a></li>
+                        <?php if (in_array('restaurant_owner', $user['roles'], true)): ?>
+                            <li class="nav-item"><a class="nav-link" href="<?= url('/owner/subscription') ?>">Subscription</a></li>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <li class="nav-item">
                         <span class="navbar-text me-lg-2">Hi, <?= e($user['name']) ?></span>

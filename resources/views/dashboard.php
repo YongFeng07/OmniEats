@@ -84,6 +84,28 @@ $statusBadge = fn (string $status): string => match ($status) {
                     </div>
                 </div>
             </div>
+
+            <?php if ($isOwner): ?>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h2 class="h5">Subscription</h2>
+                            <?php if ($subscriptionInfo['subscription'] === null): ?>
+                                <p class="text-warning-emphasis small mb-2">No active subscription —
+                                    branch and food item creation is blocked.</p>
+                                <a class="btn omnieats-btn btn-sm" href="<?= url('/owner/subscription') ?>">Choose a plan</a>
+                            <?php else: ?>
+                                <p class="mb-2">
+                                    <?= e($subscriptionInfo['plan']['name'] ?? 'Plan') ?>
+                                    <span class="badge text-bg-success">Active</span>
+                                </p>
+                                <p class="text-muted small mb-2">Ends <?= e(date('d M Y', strtotime($subscriptionInfo['subscription']['ends_at']))) ?></p>
+                                <a class="btn btn-outline-secondary btn-sm" href="<?= url('/owner/subscription') ?>">Manage subscription</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
 
         <div class="col-md-4">
@@ -101,12 +123,10 @@ $statusBadge = fn (string $status): string => match ($status) {
         <p class="mb-2 fw-semibold">Upcoming in Phase 5:</p>
         <ul class="mb-0">
             <?php if ($isAdmin): ?>
-                <li>Subscription Plan Management (M4)</li>
-                <li>Subscription Monitoring &amp; Activity Overview (M4)</li>
+                <li>Platform Activity Overview (M4)</li>
             <?php elseif ($isRestaurant): ?>
                 <li>Order Management (M5)</li>
                 <li>Payment &amp; Fulfilment Management (M6)</li>
-                <li>Subscription Management (M4)</li>
             <?php else: ?>
                 <li>Shopping Cart &amp; Checkout (M5)</li>
                 <li>Payment (M6)</li>

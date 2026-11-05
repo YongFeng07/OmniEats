@@ -79,6 +79,22 @@ $router->post('/owner/foods/{id}/edit', 'App\Controllers\Owner\FoodItemControlle
 $router->post('/owner/foods/{id}/delete', 'App\Controllers\Owner\FoodItemController@delete', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/foods/{id}/toggle-available', 'App\Controllers\Owner\FoodItemController@toggleAvailable', ['roles:restaurant_owner,restaurant_staff']);
 
+// Admin subscription plans (Module 4) — static routes BEFORE {id}
+$router->get('/admin/plans', 'App\Controllers\Admin\PlanController@index', ['roles:super_admin']);
+$router->get('/admin/plans/create', 'App\Controllers\Admin\PlanController@create', ['roles:super_admin']);
+$router->post('/admin/plans/create', 'App\Controllers\Admin\PlanController@store', ['roles:super_admin']);
+$router->get('/admin/plans/{id}/edit', 'App\Controllers\Admin\PlanController@edit', ['roles:super_admin']);
+$router->post('/admin/plans/{id}/edit', 'App\Controllers\Admin\PlanController@update', ['roles:super_admin']);
+$router->post('/admin/plans/{id}/toggle-active', 'App\Controllers\Admin\PlanController@toggleActive', ['roles:super_admin']);
+
+// Admin subscription monitoring (Module 4)
+$router->get('/admin/subscriptions', 'App\Controllers\Admin\SubscriptionController@index', ['roles:super_admin']);
+
+// Owner subscription management (Module 4)
+$router->get('/owner/subscription', 'App\Controllers\Owner\SubscriptionController@index', ['roles:restaurant_owner']);
+$router->post('/owner/subscription/subscribe/{id}', 'App\Controllers\Owner\SubscriptionController@subscribe', ['roles:restaurant_owner']);
+$router->post('/owner/subscription/cancel', 'App\Controllers\Owner\SubscriptionController@cancel', ['roles:restaurant_owner']);
+
 // Role dashboards
 $router->get('/dashboard', 'App\Controllers\DashboardController@index', ['auth']);
 $router->get('/admin', 'App\Controllers\DashboardController@admin', ['roles:super_admin']);

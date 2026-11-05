@@ -14,6 +14,12 @@ class FoodItemService
 {
     public static function create(int $restaurantId, array $data, array $files): bool
     {
+        // M4 unique feature: plan quota enforcement before creating
+        // tenant records (subscription must be active; limit respected).
+        if (!SubscriptionService::enforceForFoodItem($restaurantId)) {
+            return false;
+        }
+
         if (!self::validCategory($restaurantId, (int) ($data['category_id'] ?? 0))) {
             return false;
         }

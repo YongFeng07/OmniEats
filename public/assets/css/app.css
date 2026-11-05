@@ -38,3 +38,8 @@
     background-color: #fff;
     border: 1px solid #f1d3c4;
 }
+
+/* Quota usage bars on the subscription page */
+.omnieats-progress {
+    background-color: var(--omnieats-orange);
+}

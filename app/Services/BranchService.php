@@ -13,6 +13,12 @@ class BranchService
 {
     public static function create(int $restaurantId, array $data): bool
     {
+        // M4 unique feature: plan quota enforcement before creating
+        // tenant records (subscription must be active; limit respected).
+        if (!SubscriptionService::enforceForBranch($restaurantId)) {
+            return false;
+        }
+
         $id = Branch::create($data, $restaurantId);
 
         activity('create_branch', 'restaurant_branch', $id);
