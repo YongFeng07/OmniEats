@@ -23,6 +23,7 @@ No frameworks. Plain PHP so every line can be explained in the report.
 |---|---|
 | [docs/PROJECT_BLUEPRINT.md](docs/PROJECT_BLUEPRINT.md) | Understanding, architecture, 6 modules, task allocation, permission matrix, workflows, roadmap, risks |
 | [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md) | ERD, data dictionary, relationships, 3NF, status values |
+| [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | Test plan, 116 executed test cases, integration workflows, cross-tenant matrix, screenshot guide |
 | [database/schema.sql](database/schema.sql) | Canonical SQL schema (17 tables) |
 | [database/seed.sql](database/seed.sql) | Seed data (roles, plans, accounts, demo restaurants) |
 
@@ -88,6 +89,6 @@ docs/           assignment documentation
   - **M4 Subscription done**: plan CRUD + archive protection, simulated subscription payments, renew/upgrade/cancel with full history, ★ automatic expiry sweep + branch/food-item quota enforcement
   - **M5 Ordering done**: single-restaurant cart, backend-computed checkout with availability re-checks, order history, restaurant order management, ★ live status timeline with validated transitions + JS polling
   - **M6 Payment & Fulfilment done**: simulated cash/online payments (success + decline paths), duplicate-payment protection, payment receipts with audit trail (void, never delete), fulfilment records with validated delivery/pickup transitions
-- [ ] Phase 6 — integration testing
+- [x] Phase 6 — integration testing (full E2E chain + cross-tenant matrix, TEST_PLAN.md)
 - [ ] Phase 7 — UI/UX polish
 - [ ] Phase 8 — final testing & documentation
