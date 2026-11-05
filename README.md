@@ -24,6 +24,11 @@ No frameworks. Plain PHP so every line can be explained in the report.
 | [docs/PROJECT_BLUEPRINT.md](docs/PROJECT_BLUEPRINT.md) | Understanding, architecture, 6 modules, task allocation, permission matrix, workflows, roadmap, risks |
 | [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md) | ERD, data dictionary, relationships, 3NF, status values |
 | [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | Test plan, 116 executed test cases, integration workflows, cross-tenant matrix, screenshot guide |
+| [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) | Three-tier architecture, request lifecycle, security controls |
+| [docs/DFD.md](docs/DFD.md) | Context diagram + DFD level 0 |
+| [docs/CLASS_DIAGRAM.md](docs/CLASS_DIAGRAM.md) | System class diagram |
+| [docs/MODULE_SPECIFICATIONS.md](docs/MODULE_SPECIFICATIONS.md) | Per-module CRUD, business rules, unique features |
+| [docs/USER_MANUAL.md](docs/USER_MANUAL.md) | Step-by-step usage per role + troubleshooting |
 | [database/schema.sql](database/schema.sql) | Canonical SQL schema (17 tables) |
 | [database/seed.sql](database/seed.sql) | Seed data (roles, plans, accounts, demo restaurants) |
 
@@ -91,4 +96,4 @@ docs/           assignment documentation
   - **M6 Payment & Fulfilment done**: simulated cash/online payments (success + decline paths), duplicate-payment protection, payment receipts with audit trail (void, never delete), fulfilment records with validated delivery/pickup transitions
 - [x] Phase 6 — integration testing (full E2E chain + cross-tenant matrix, TEST_PLAN.md)
 - [x] Phase 7 — UI/UX polish (shared status badges, dynamic home, admin stats + activity overview)
-- [ ] Phase 8 — final testing & documentation
+- [x] Phase 8 — final testing & documentation (full doc set, checklist sign-off, Apache deployment verified)

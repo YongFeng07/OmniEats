@@ -288,24 +288,26 @@ Only actually-executed tests will be recorded — no fabricated results.
 | D5 | Demo images | Bundled sample images in `public/assets/images` for seed data (no copyright issues: royalty-free images) | ✅ approved (follows from D4) |
 | D6 | Code comments language | English (assignment language) | set unless objected |
 
-## 13. Completion Checklist (final sign-off)
+## 13. Completion Checklist (final sign-off — all verified 2026-11-05/06)
 
-- [ ] All six official modules implemented
-- [ ] Every module has Create / Retrieve / Update / Delete
-- [ ] Each student has exactly one designated unique feature
-- [ ] All input validation works (frontend + backend)
-- [ ] Success messages work / Error messages work
-- [ ] All user roles work / Tenant data isolation works
-- [ ] Customer registration and login work
-- [ ] Restaurant registration and management work
-- [ ] Menu management works / Subscription management works
-- [ ] Shopping cart works / Order creation works
-- [ ] Payment simulation works / Order tracking works
-- [ ] All modules are integrated / Database relationships are correct
-- [ ] Application follows Three-Tier Architecture
-- [ ] UI is consistent and responsive / Main navigation works
-- [ ] No major critical errors
-- [ ] All test cases have been executed
-- [ ] Project setup instructions are complete
-- [ ] Documentation diagrams match the implementation
-- [ ] All source code can be explained by the responsible student
+- [x] All six official modules implemented (M1–M6, one commit each)
+- [x] Every module has Create / Retrieve / Update / Delete
+- [x] Each student has exactly one designated unique feature (M2 OPEN/CLOSED · M4 auto-expiry+quota · M5 live tracking; M6 none as mandated)
+- [x] All input validation works (frontend + backend, 10 validator classes)
+- [x] Success messages work / Error messages work (flash messages everywhere)
+- [x] All user roles work (super_admin, restaurant_owner, restaurant_staff, customer)
+- [x] Tenant data isolation works (CT-1…10 matrix, 10/10 blocked)
+- [x] Customer registration and login work (auto-login tested)
+- [x] Restaurant registration and management work (approval lifecycle tested)
+- [x] Menu management works (per-tenant names, delete protection)
+- [x] Subscription management works (simulated payments, renew/upgrade/cancel)
+- [x] Shopping cart works (single-restaurant rule) / Order creation works (backend totals + snapshots)
+- [x] Payment simulation works (success + decline paths) / Order tracking works (★ live timeline + polling)
+- [x] All modules are integrated (E2E-1…15 full chain) / Database relationships are correct (17 tables verified in MariaDB)
+- [x] Application follows Three-Tier Architecture (SYSTEM_ARCHITECTURE.md)
+- [x] UI is consistent and responsive (Bootstrap 5, shared badges, cards, responsive tables) / Main navigation works (all links lead to working pages)
+- [x] No major critical errors (116/116 tests pass; 2 defects found & fixed during testing)
+- [x] All test cases have been executed (TEST_PLAN.md — no fabricated results)
+- [x] Project setup instructions are complete (README.md + Apache deployment verified at http://localhost/omnieats/public/)
+- [x] Documentation diagrams match the implementation (ERD = schema.sql; DFD + class diagram regenerate from code)
+- [x] All source code can be explained by the responsible student (plain PHP, one pattern everywhere, comments in English)
