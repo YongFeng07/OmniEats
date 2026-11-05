@@ -3,12 +3,15 @@
 namespace App\Controllers;
 
 use App\Models\Branch;
+use App\Models\Fulfilment;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
+use App\Models\Payment;
 use App\Models\Restaurant;
 use App\Services\AuthService;
 use App\Services\OrderService;
+use App\Services\PaymentService;
 
 /**
  * Customer order pages (Module 5): history, detail with the live
@@ -41,8 +44,29 @@ class OrderController
             'history'     => OrderStatusHistory::allForOrder((int) $order['id']),
             'restaurant'  => Restaurant::find((int) $order['restaurant_id']),
             'branch'      => !empty($order['branch_id']) ? Branch::find((int) $order['branch_id']) : null,
+            'payment'     => Payment::findByOrder((int) $order['id']),
+            'fulfilment'  => Fulfilment::findByOrder((int) $order['id']),
             'canCancel'   => in_array($order['status'], ['pending_payment', 'confirmed'], true),
         ]);
+    }
+
+    /**
+     * Simulated payment (Module 6): the customer pays their own
+     * pending_payment order. Success confirms the order and creates
+     * the fulfilment record; failure never marks it paid.
+     */
+    public function pay(string $id): void
+    {
+        $order = $this->ownOrder((int) $id);
+
+        $method = (string) ($_POST['method'] ?? '');
+        $simulateDecline = (string) ($_POST['simulate_decline'] ?? '0') === '1';
+
+        if (PaymentService::pay((int) $order['id'], $this->customerId(), $method, $simulateDecline)) {
+            flash('success', 'Payment successful! Your order is now confirmed.');
+        }
+
+        redirect('/orders/' . (int) $order['id']);
     }
 
     /**

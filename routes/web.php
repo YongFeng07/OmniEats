@@ -117,6 +117,19 @@ $router->get('/owner/orders', 'App\Controllers\Owner\OrderController@index', ['r
 $router->get('/owner/orders/{id}', 'App\Controllers\Owner\OrderController@show', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/orders/{id}/transition', 'App\Controllers\Owner\OrderController@transition', ['roles:restaurant_owner,restaurant_staff']);
 
+// Customer payment (Module 6) — simulated gateway
+$router->post('/orders/{id}/pay', 'App\Controllers\OrderController@pay', ['roles:customer']);
+
+// Restaurant payment management (Module 6)
+$router->get('/owner/payments', 'App\Controllers\Owner\PaymentController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/payments/{id}', 'App\Controllers\Owner\PaymentController@show', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/payments/{id}/void', 'App\Controllers\Owner\PaymentController@void', ['roles:restaurant_owner']);
+$router->post('/owner/payments/{id}/delete', 'App\Controllers\Owner\PaymentController@delete', ['roles:restaurant_owner']);
+
+// Restaurant fulfilment management (Module 6)
+$router->get('/owner/fulfilments', 'App\Controllers\Owner\FulfilmentController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/fulfilments/{id}/transition', 'App\Controllers\Owner\FulfilmentController@transition', ['roles:restaurant_owner,restaurant_staff']);
+
 // Role dashboards
 $router->get('/dashboard', 'App\Controllers\DashboardController@index', ['auth']);
 $router->get('/admin', 'App\Controllers\DashboardController@admin', ['roles:super_admin']);

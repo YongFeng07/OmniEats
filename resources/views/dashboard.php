@@ -31,8 +31,7 @@ $statusBadge = fn (string $status): string => match ($status) {
     <?php endif; ?>
 
     <div class="row g-4 mb-4">
-        <?php if ($isAdmin): ?>
-            <div class="col-md-4">
+        <?php if ($isAdmin): ?>            <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h5">User Management</h2>
@@ -127,21 +126,5 @@ $statusBadge = fn (string $status): string => match ($status) {
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="alert alert-info">
-        <p class="mb-2 fw-semibold">Upcoming in Phase 5:</p>
-        <ul class="mb-0">
-            <?php if ($isAdmin): ?>
-                <li>Platform Activity Overview (M4)</li>
-            <?php elseif ($isRestaurant): ?>
-                <li>Order Management (M5)</li>
-                <li>Payment &amp; Fulfilment Management (M6)</li>
-            <?php else: ?>
-                <li>Shopping Cart &amp; Checkout (M5)</li>
-                <li>Payment (M6)</li>
-                <li>Order Tracking &amp; History (M5)</li>
-            <?php endif; ?>
-        </ul>
     </div>
 </div>

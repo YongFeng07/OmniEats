@@ -7,7 +7,6 @@ use App\Models\FoodItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
-use App\Models\Restaurant;
 
 /**
  * Order business logic (Module 5) including the unique feature:
@@ -201,6 +200,43 @@ class OrderService
 
         Order::setStatus($orderId, $newStatus);
         OrderStatusHistory::add($orderId, $current, $newStatus, (int) $actor['id'], $note !== '' ? $note : null);
+
+        // M6 integration: a cancelled order cancels its fulfilment.
+        if ($newStatus === 'cancelled') {
+            FulfilmentService::cancelForOrder($orderId);
+        }
+
+        activity('order_' . $newStatus, 'order', $orderId);
+
+        return true;
+    }
+
+    /**
+     * System-driven transition (e.g. payment success confirms an
+     * order). The transition map is still validated; the history row
+     * records a NULL actor meaning "system".
+     */
+    public static function transitionBySystem(int $orderId, string $newStatus, string $note = ''): bool
+    {
+        $order = Order::find($orderId);
+        if ($order === null) {
+            flash('error', 'Order not found.');
+            return false;
+        }
+
+        $current = $order['status'];
+
+        if (!in_array($newStatus, self::TRANSITIONS[$current] ?? [], true)) {
+            flash('error', 'This status change is not allowed (from ' . $current . ' to ' . $newStatus . ').');
+            return false;
+        }
+
+        Order::setStatus($orderId, $newStatus);
+        OrderStatusHistory::add($orderId, $current, $newStatus, null, $note !== '' ? $note : null);
+
+        if ($newStatus === 'cancelled') {
+            FulfilmentService::cancelForOrder($orderId);
+        }
 
         activity('order_' . $newStatus, 'order', $orderId);
 

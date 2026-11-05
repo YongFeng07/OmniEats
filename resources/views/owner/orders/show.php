@@ -105,6 +105,47 @@ $actionButtons = [
                         <p class="small mb-1"><strong>Address:</strong> <?= e($order['delivery_address']) ?></p>
                         <p class="small mb-0"><strong>Phone:</strong> <?= e($order['delivery_phone']) ?></p>
                     <?php endif; ?>
+                    <?php if ($fulfilment !== null): ?>
+                        <hr>
+                        <p class="small mb-1"><strong>Fulfilment status:</strong>
+                            <span class="badge text-bg-secondary">
+                                <?= e(ucwords(str_replace('_', ' ', $fulfilment['status']))) ?>
+                            </span>
+                            <?php if (!empty($fulfilment['completed_at'])): ?>
+                                · completed <?= e(date('d M H:i', strtotime($fulfilment['completed_at']))) ?>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h6 text-muted text-uppercase mb-3">Payment</h2>
+                    <?php if ($payment === null): ?>
+                        <p class="text-muted small mb-0">No payment record yet (order not paid).</p>
+                    <?php else: ?>
+                        <p class="small mb-1"><strong>Method:</strong> <?= e(ucfirst($payment['method'])) ?></p>
+                        <p class="small mb-1"><strong>Amount:</strong> RM <?= e(number_format((float) $payment['amount'], 2)) ?></p>
+                        <?php if (!empty($payment['transaction_ref'])): ?>
+                            <p class="small mb-1"><strong>Reference:</strong> <code><?= e($payment['transaction_ref']) ?></code></p>
+                        <?php endif; ?>
+                        <p class="small mb-0">
+                            <strong>Status:</strong>
+                            <?php if ($payment['status'] === 'success'): ?>
+                                <span class="badge text-bg-success">Paid</span>
+                            <?php elseif ($payment['status'] === 'failed'): ?>
+                                <span class="badge text-bg-danger">Failed</span>
+                            <?php elseif ($payment['status'] === 'void'): ?>
+                                <span class="badge text-bg-secondary">Voided</span>
+                            <?php else: ?>
+                                <span class="badge text-bg-warning text-dark">Pending</span>
+                            <?php endif; ?>
+                            <?php if ($payment['paid_at']): ?>
+                                · <?= e(date('d M H:i', strtotime($payment['paid_at']))) ?>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
                 </div>
             </div>
 

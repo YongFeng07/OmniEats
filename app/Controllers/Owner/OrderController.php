@@ -3,9 +3,11 @@
 namespace App\Controllers\Owner;
 
 use App\Models\Branch;
+use App\Models\Fulfilment;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
+use App\Models\Payment;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Services\OrderService;
@@ -52,6 +54,8 @@ class OrderController
             'items'      => OrderItem::allForOrder((int) $order['id']),
             'history'    => OrderStatusHistory::allForOrder((int) $order['id']),
             'branch'     => !empty($order['branch_id']) ? Branch::find((int) $order['branch_id']) : null,
+            'payment'    => Payment::findByOrder((int) $order['id']),
+            'fulfilment' => Fulfilment::findByOrder((int) $order['id']),
             'transitions'=> OrderService::TRANSITIONS[$order['status']] ?? [],
         ]);
     }

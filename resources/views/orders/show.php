@@ -34,15 +34,63 @@ $statusBadge = fn (string $status): string => match ($status) {
     </div>
 
     <?php if ($order['status'] === 'pending_payment'): ?>
-        <div class="alert alert-warning">
-            Awaiting payment — the simulated payment screen arrives with Module 6.
-            <?php if ($canCancel): ?>
-                <form class="d-inline ms-2" method="post" action="<?= url('/orders/' . (int) $order['id'] . '/cancel') ?>"
-                      onsubmit="return confirm('Cancel this order?');">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-muted text-uppercase mb-1">Payment</h2>
+                <p class="text-muted small mb-3">
+                    Amount due: <strong>RM <?= e(number_format((float) $order['total'], 2)) ?></strong>
+                    — payments are simulated for this academic project. No real charges apply.
+                </p>
+
+                <?php if ($payment !== null && $payment['status'] === 'failed'): ?>
+                    <div class="alert alert-danger small">Your last payment attempt failed (simulated). Please try again.</div>
+                <?php endif; ?>
+
+                <form method="post" action="<?= url('/orders/' . (int) $order['id'] . '/pay') ?>">
                     <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancel order</button>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" id="method_online" name="method"
+                               value="online" checked onchange="syncDecline()">
+                        <label class="form-check-label" for="method_online">Online payment (simulated gateway)</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" id="method_cash" name="method"
+                               value="cash" onchange="syncDecline()">
+                        <label class="form-check-label" for="method_cash">Cash (pay on pickup / delivery)</label>
+                    </div>
+                    <div class="form-check mb-3" id="decline-row">
+                        <input class="form-check-input" type="checkbox" id="simulate_decline"
+                               name="simulate_decline" value="1">
+                        <label class="form-check-label" for="simulate_decline">
+                            Simulate card decline <span class="text-muted small">(demo control — makes the gateway return a failure)</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn omnieats-btn">Pay RM <?= e(number_format((float) $order['total'], 2)) ?></button>
+                    <?php if ($canCancel): ?>
+                        <button type="submit" formaction="<?= url('/orders/' . (int) $order['id'] . '/cancel') ?>"
+                                formmethod="post" class="btn btn-outline-danger"
+                                onclick="return confirm('Cancel this order?');">Cancel order</button>
+                    <?php endif; ?>
                 </form>
-            <?php endif; ?>
+            </div>
+        </div>
+    <?php elseif ($payment !== null && $payment['status'] === 'success'): ?>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-muted text-uppercase mb-3">Payment receipt</h2>
+                <table class="table table-sm mb-0">
+                    <tr><th class="ps-0 text-muted" style="width: 40%;">Status</th>
+                        <td><span class="badge text-bg-success">Paid</span></td></tr>
+                    <tr><th class="ps-0 text-muted">Method</th>
+                        <td><?= e(ucfirst($payment['method'])) ?></td></tr>
+                    <tr><th class="ps-0 text-muted">Amount</th>
+                        <td>RM <?= e(number_format((float) $payment['amount'], 2)) ?></td></tr>
+                    <tr><th class="ps-0 text-muted">Reference</th>
+                        <td><code><?= e($payment['transaction_ref']) ?></code></td></tr>
+                    <tr><th class="ps-0 text-muted">Paid at</th>
+                        <td><?= e(date('d M Y, H:i', strtotime($payment['paid_at']))) ?></td></tr>
+                </table>
+            </div>
         </div>
     <?php elseif ($canCancel && $order['status'] === 'confirmed'): ?>
         <div class="mb-4">
@@ -51,6 +99,31 @@ $statusBadge = fn (string $status): string => match ($status) {
                 <?= csrf_field() ?>
                 <button type="submit" class="btn btn-sm btn-outline-danger">Cancel order</button>
             </form>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($fulfilment !== null): ?>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-muted text-uppercase mb-3">
+                    <?= e(ucfirst($fulfilment['type'])) ?> details
+                </h2>
+                <p class="mb-1">
+                    Status:
+                    <span class="badge text-bg-secondary">
+                        <?= e(ucwords(str_replace('_', ' ', $fulfilment['status']))) ?>
+                    </span>
+                </p>
+                <?php if ($fulfilment['type'] === 'delivery'): ?>
+                    <p class="small mb-1"><strong>Address:</strong> <?= e($fulfilment['address']) ?></p>
+                    <p class="small mb-0"><strong>Phone:</strong> <?= e($fulfilment['phone']) ?></p>
+                <?php endif; ?>
+                <?php if (!empty($fulfilment['completed_at'])): ?>
+                    <p class="small text-muted mb-0">
+                        Completed at <?= e(date('d M Y, H:i', strtotime($fulfilment['completed_at']))) ?>
+                    </p>
+                <?php endif; ?>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -131,6 +204,16 @@ $statusBadge = fn (string $status): string => match ($status) {
 </div>
 
 <script>
+    // The "simulate decline" demo control only applies to online payments.
+    function syncDecline() {
+        const online = document.getElementById('method_online');
+        const row = document.getElementById('decline-row');
+        if (online && row) {
+            row.style.display = online.checked ? '' : 'none';
+        }
+    }
+    syncDecline();
+
     // ★ Live tracking: poll the status endpoint; reload when the status
     // changes (simple polling — no WebSockets needed).
     const endpoint = <?= json_encode(url('/orders/' . (int) $order['id'] . '/status')) ?>;

@@ -81,12 +81,13 @@ docs/           assignment documentation
 - [x] Phase 2 — planning (blueprint, database design)
 - [x] Phase 3 — database implementation (schema + seed verified in MariaDB)
 - [x] Phase 4 — core application (routing, auth, sessions, CSRF, RBAC, layouts)
-- [ ] Phase 5 — module development (M1 → M6)
+- [x] Phase 5 — module development (M1 → M6)
   - **M1 User & Auth done**: registration (customer + owner), login, profile, password change, admin user CRUD with search/filter, role assignment, soft delete
   - **M2 Restaurant & Branch done**: restaurant registration (tenant + approval), profile/branch CRUD, image uploads, admin approval lifecycle, ★ OPEN/CLOSED availability control
   - **M3 Menu & Catalogue done**: category & food item CRUD, per-tenant unique names, delete protection for non-empty categories, availability toggles, image uploads, public menu with search + category filter
   - **M4 Subscription done**: plan CRUD + archive protection, simulated subscription payments, renew/upgrade/cancel with full history, ★ automatic expiry sweep + branch/food-item quota enforcement
   - **M5 Ordering done**: single-restaurant cart, backend-computed checkout with availability re-checks, order history, restaurant order management, ★ live status timeline with validated transitions + JS polling
+  - **M6 Payment & Fulfilment done**: simulated cash/online payments (success + decline paths), duplicate-payment protection, payment receipts with audit trail (void, never delete), fulfilment records with validated delivery/pickup transitions
 - [ ] Phase 6 — integration testing
 - [ ] Phase 7 — UI/UX polish
 - [ ] Phase 8 — final testing & documentation
