@@ -61,6 +61,32 @@ No frameworks. Plain PHP so every line can be explained in the report.
 | Restaurant Staff | `staff.nasilemak@omnieats.com` |
 | Customer | `customer@omnieats.com` |
 
+## Running the application (everyday)
+
+> This machine already has a junction `C:\xampp\htdocs\omnieats` → this project folder,
+> so no copying is needed.
+
+1. Open **XAMPP Control Panel**.
+2. Click **Start** next to *Apache* and *MySQL* (both must turn green).
+3. Open a browser and go to: **`http://localhost/omnieats/`**
+   (it redirects to the app automatically).
+4. Sign in with one of the demo accounts above.
+
+Optional development server (useful while editing code, no Apache needed):
+
+```bash
+C:\xampp\php\php.exe -S 127.0.0.1:8080 -t public public/index.php
+# then open http://127.0.0.1:8080/
+```
+
+If the database is ever reset or lost: re-run `database/schema.sql` then
+`database/seed.sql` (phpMyAdmin → SQL tab, or `mysql -u root` from a terminal).
+
+On a fresh machine (teammates): install XAMPP, copy the project into
+`C:\xampp\htdocs\omnieats` (or create the junction with
+`mklink /J C:\xampp\htdocs\omnieats <project path>`), run the two SQL files,
+copy `.env.example` to `.env`, start Apache + MySQL.
+
 ## Structure
 
 ```
