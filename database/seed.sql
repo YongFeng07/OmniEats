@@ -2,10 +2,8 @@
 -- OmniEats — Seed data
 -- TAR UMT AMCS2194 Mini Project
 --
--- IMPORTANT: the bcrypt password hashes below are PLACEHOLDERS.
--- Replace each {{BCRYPT:...}} with the output of:
---     php -r "echo password_hash('Password@123', PASSWORD_DEFAULT), PHP_EOL;"
--- (All demo accounts use the password: Password@123)
+-- All demo accounts use the password: Password@123
+-- (bcrypt hashes generated with PHP password_hash(), PASSWORD_DEFAULT)
 --
 -- Run AFTER schema.sql:
 --     mysql -u root omnieats < seed.sql
@@ -36,12 +34,12 @@ VALUES
 -- Users (passwords: Password@123 — replace hashes first)
 -- ------------------------------------------------------------
 INSERT INTO users (name, email, password_hash, phone, is_active) VALUES
-('Super Admin',      'superadmin@omnieats.com',     '{{BCRYPT:Password@123}}', NULL,          1),
-('Ali Restaurant',   'owner.nasilemak@omnieats.com','{{BCRYPT:Password@123}}', '012-3456789', 1),
-('Bella Pizza',      'owner.pizza@omnieats.com',    '{{BCRYPT:Password@123}}', '013-4567890', 1),
-('Cindy Staff',      'staff.nasilemak@omnieats.com','{{BCRYPT:Password@123}}', '014-5678901', 1),
-('Danny Customer',   'customer@omnieats.com',       '{{BCRYPT:Password@123}}', '016-1234567', 1),
-('Elaine Customer',  'alice@omnieats.com',          '{{BCRYPT:Password@123}}', '017-2345678', 1);
+('Super Admin',      'superadmin@omnieats.com',     '$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', NULL,          1),
+('Ali Restaurant',   'owner.nasilemak@omnieats.com','$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', '012-3456789', 1),
+('Bella Pizza',      'owner.pizza@omnieats.com',    '$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', '013-4567890', 1),
+('Cindy Staff',      'staff.nasilemak@omnieats.com','$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', '014-5678901', 1),
+('Danny Customer',   'customer@omnieats.com',       '$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', '016-1234567', 1),
+('Elaine Customer',  'alice@omnieats.com',          '$2y$10$g0/PwCgF/d.tPZ/7scAma.Q1sBM4m2xWzdLOzWek1wXnIMu.Ho9ku', '017-2345678', 1);
 
 -- Role assignment
 INSERT INTO user_roles (user_id, role_id)
