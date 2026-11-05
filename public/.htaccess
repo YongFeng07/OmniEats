@@ -1,0 +1,6 @@
+# Front controller: requests that do not match a real file or directory
+# are sent to index.php (requires mod_rewrite, enabled in XAMPP).
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

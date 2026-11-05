@@ -1,0 +1,40 @@
+/* OmniEats base styles (Phase 4) — kept intentionally small.
+   UI polish happens in Phase 7. */
+
+:root {
+    --omnieats-orange: #d9480f;
+    --omnieats-orange-dark: #b83a0b;
+}
+
+.omnieats-navbar {
+    background-color: var(--omnieats-orange);
+}
+
+.omnieats-btn {
+    background-color: var(--omnieats-orange);
+    border-color: var(--omnieats-orange);
+    color: #fff;
+}
+
+.omnieats-btn:hover,
+.omnieats-btn:focus {
+    background-color: var(--omnieats-orange-dark);
+    border-color: var(--omnieats-orange-dark);
+    color: #fff;
+}
+
+.omnieats-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.hero {
+    background-color: #fff5f0;
+}
+
+.hero-panel {
+    background-color: #fff;
+    border: 1px solid #f1d3c4;
+}
