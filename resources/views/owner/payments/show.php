@@ -3,12 +3,7 @@
  * Payment receipt detail (Module 6) — restaurant view.
  */
 $isOwner = in_array('restaurant_owner', auth_user()['roles'], true);
-$statusBadge = fn (string $status): string => match ($status) {
-    'success' => 'badge text-bg-success',
-    'failed'  => 'badge text-bg-danger',
-    'void'    => 'badge text-bg-secondary',
-    default   => 'badge text-bg-warning text-dark',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4" style="max-width: 760px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">

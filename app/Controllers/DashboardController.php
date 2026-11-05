@@ -3,14 +3,16 @@
 namespace App\Controllers;
 
 use App\Middleware\AuthMiddleware;
+use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Restaurant;
+use App\Models\Subscription;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Services\SubscriptionService;
 
 /**
- * Role-specific dashboard landing pages. The real module dashboards
- * (orders, payments...) replace the remaining placeholders as each
- * module is implemented in Phase 5.
+ * Role-specific dashboard landing pages.
  */
 class DashboardController
 {
@@ -22,7 +24,17 @@ class DashboardController
 
     public function admin(): void
     {
-        view('dashboard', $this->data('Platform Administration'));
+        view('dashboard', $this->data('Platform Administration') + [
+            // Platform overview stats (admin monitoring).
+            'stats' => [
+                'users'               => User::count(),
+                'restaurants'         => Restaurant::countByStatus('approved'),
+                'restaurants_pending' => Restaurant::countByStatus('pending'),
+                'active_subscriptions'=> Subscription::countActive(),
+                'orders'              => Order::countAll(),
+                'revenue'             => Payment::totalSuccessful(),
+            ],
+        ]);
     }
 
     public function owner(): void

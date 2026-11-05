@@ -18,14 +18,21 @@
             </div>
             <div class="col-lg-6">
                 <div class="hero-panel rounded-4 p-4 p-lg-5">
-                    <p class="fw-semibold mb-3">🍜 Nasi Lemak House</p>
-                    <p class="mb-1">Nasi Lemak Ayam Goreng</p>
-                    <p class="mb-1">Roti Canai · Teh Tarik</p>
-                    <p class="text-secondary small mb-4">OPEN · Premium plan · SS2, Petaling Jaya</p>
-                    <hr>
-                    <p class="fw-semibold mb-3">🍕 Pizza &amp; Pasta Corner</p>
-                    <p class="mb-1">Margherita · Pepperoni</p>
-                    <p class="text-secondary small mb-0">CLOSED · SS15, Subang Jaya</p>
+                    <?php if ($featured !== []): ?>
+                        <p class="fw-semibold mb-3">Featured right now</p>
+                        <?php foreach ($featured as $restaurant): ?>
+                            <a class="text-decoration-none text-dark" href="<?= url('/restaurants/' . (int) $restaurant['id']) ?>">
+                                <p class="mb-1 fw-semibold"><?= e($restaurant['name']) ?></p>
+                            </a>
+                            <p class="text-secondary small mb-3">
+                                <?= e($restaurant['city']) ?> · <?= e($restaurant['opening_hours']) ?> ·
+                                <span class="text-success">OPEN</span>
+                            </p>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="mb-2">Restaurants appear here once they are approved and open.</p>
+                        <p class="text-secondary small mb-0">Explore the platform as a customer or register your own restaurant.</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

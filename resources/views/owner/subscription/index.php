@@ -23,7 +23,7 @@ $fmtDate = fn (?string $d): string => $d ? date('d M Y', strtotime($d)) : '—';
                     <div>
                         <h2 class="h5 mb-1">
                             <?= e($plan['name'] ?? $subscription['plan_name']) ?> plan
-                            <span class="badge text-bg-success">Active</span>
+                            <span class="<?= badge_class('active') ?>">Active</span>
                         </h2>
                         <p class="text-muted small mb-3">
                             RM <?= e(number_format((float) $subscription['price_paid'], 2)) ?>/month ·
@@ -123,13 +123,9 @@ $fmtDate = fn (?string $d): string => $d ? date('d M Y', strtotime($d)) : '—';
                             <td class="small"><?= e($fmtDate($row['starts_at'])) ?></td>
                             <td class="small"><?= e($fmtDate($row['ends_at'])) ?></td>
                             <td>
-                                <?php if ($row['status'] === 'active'): ?>
-                                    <span class="badge text-bg-success">Active</span>
-                                <?php elseif ($row['status'] === 'expired'): ?>
-                                    <span class="badge text-bg-danger">Expired</span>
-                                <?php else: ?>
-                                    <span class="badge text-bg-secondary">Cancelled</span>
-                                <?php endif; ?>
+                                <span class="<?= badge_class($row['status']) ?>">
+                                    <?= e(ucfirst($row['status'])) ?>
+                                </span>
                             </td>
                         </tr>
                     <?php endforeach; ?>

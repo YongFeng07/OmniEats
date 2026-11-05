@@ -3,12 +3,7 @@
  * Admin subscription monitoring (Module 4). Visiting this page also
  * runs the automatic expiry sweep.
  */
-$statusBadge = fn (string $status): string => match ($status) {
-    'active'    => 'badge text-bg-success',
-    'expired'   => 'badge text-bg-danger',
-    'cancelled' => 'badge text-bg-secondary',
-    default     => 'badge text-bg-secondary',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4">
     <h1 class="h4 mb-3">Subscription Monitoring</h1>

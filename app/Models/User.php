@@ -160,4 +160,10 @@ class User extends Model
         $value = $stmt->fetchColumn();
         return $value === false ? null : (int) $value;
     }
+
+    /** Total registered accounts (admin dashboard stat). */
+    public static function count(): int
+    {
+        return (int) self::db()->query('SELECT COUNT(*) FROM users')->fetchColumn();
+    }
 }

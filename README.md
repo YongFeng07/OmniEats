@@ -90,5 +90,5 @@ docs/           assignment documentation
   - **M5 Ordering done**: single-restaurant cart, backend-computed checkout with availability re-checks, order history, restaurant order management, ★ live status timeline with validated transitions + JS polling
   - **M6 Payment & Fulfilment done**: simulated cash/online payments (success + decline paths), duplicate-payment protection, payment receipts with audit trail (void, never delete), fulfilment records with validated delivery/pickup transitions
 - [x] Phase 6 — integration testing (full E2E chain + cross-tenant matrix, TEST_PLAN.md)
-- [ ] Phase 7 — UI/UX polish
+- [x] Phase 7 — UI/UX polish (shared status badges, dynamic home, admin stats + activity overview)
 - [ ] Phase 8 — final testing & documentation

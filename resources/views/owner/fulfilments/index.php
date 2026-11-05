@@ -3,13 +3,7 @@
  * Restaurant fulfilment records (Module 6): delivery / self-pickup
  * execution with validated status transitions.
  */
-$statusBadge = fn (string $status): string => match ($status) {
-    'completed'             => 'badge text-bg-success',
-    'out_for_delivery'      => 'badge text-bg-primary',
-    'ready_for_collection'  => 'badge text-bg-info text-dark',
-    'cancelled'             => 'badge text-bg-secondary',
-    default                 => 'badge text-bg-warning text-dark',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4">
     <h1 class="h4 mb-3">Fulfilments</h1>

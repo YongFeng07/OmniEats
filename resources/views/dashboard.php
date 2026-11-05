@@ -7,12 +7,7 @@ $roles = $user['roles'] ?? [];
 $isAdmin = in_array('super_admin', $roles, true);
 $isRestaurant = in_array('restaurant_owner', $roles, true) || in_array('restaurant_staff', $roles, true);
 $isOwner = in_array('restaurant_owner', $roles, true);
-$statusBadge = fn (string $status): string => match ($status) {
-    'approved'    => 'badge text-bg-success',
-    'pending'     => 'badge text-bg-warning text-dark',
-    'deactivated' => 'badge text-bg-secondary',
-    default       => 'badge text-bg-secondary',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4">
     <h1 class="h4 mb-1"><?= e($heading) ?></h1>
@@ -27,6 +22,51 @@ $statusBadge = fn (string $status): string => match ($status) {
             Your restaurant profile is not set up yet.
             <a class="alert-link" href="<?= url('/owner/restaurant/create') ?>">Register your restaurant</a>
             to start managing your business on OmniEats.
+        </div>
+    <?php endif; ?>
+
+    <?php if ($isAdmin && isset($stats)): ?>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3 text-center">
+                        <div class="h4 mb-0"><?= (int) $stats['users'] ?></div>
+                        <div class="text-muted small">Users</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3 text-center">
+                        <div class="h4 mb-0"><?= (int) $stats['restaurants'] ?></div>
+                        <div class="text-muted small">Restaurants <span class="text-warning">(<?= (int) $stats['restaurants_pending'] ?> pending)</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3 text-center">
+                        <div class="h4 mb-0"><?= (int) $stats['active_subscriptions'] ?></div>
+                        <div class="text-muted small">Active subs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3 text-center">
+                        <div class="h4 mb-0"><?= (int) $stats['orders'] ?></div>
+                        <div class="text-muted small">Orders</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-3 text-center">
+                        <div class="h4 mb-0">RM <?= e(number_format($stats['revenue'], 2)) ?></div>
+                        <div class="text-muted small">Successful payments (all restaurants)</div>
+                    </div>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 

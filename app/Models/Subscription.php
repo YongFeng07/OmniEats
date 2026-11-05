@@ -28,6 +28,14 @@ class Subscription extends Model
         return $stmt->fetch() ?: null;
     }
 
+    /** Active subscriptions across the platform (admin dashboard stat). */
+    public static function countActive(): int
+    {
+        return (int) self::db()->query(
+            "SELECT COUNT(*) FROM subscriptions WHERE status = 'active'"
+        )->fetchColumn();
+    }
+
     /** Full history for one restaurant, newest first. */
     public static function historyForRestaurant(int $restaurantId): array
     {

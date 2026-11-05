@@ -5,15 +5,7 @@
  * cancellation while eligible, and the payment section (Module 6
  * replaces the placeholder alert with the simulated payment form).
  */
-$statusBadge = fn (string $status): string => match ($status) {
-    'pending_payment' => 'badge text-bg-warning text-dark',
-    'confirmed'       => 'badge text-bg-info text-dark',
-    'preparing'       => 'badge text-bg-primary',
-    'ready'           => 'badge text-bg-warning text-dark',
-    'completed'       => 'badge text-bg-success',
-    'cancelled'       => 'badge text-bg-secondary',
-    default           => 'badge text-bg-secondary',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4" style="max-width: 960px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">

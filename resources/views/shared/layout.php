@@ -16,6 +16,7 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title ?? 'OmniEats') ?> · OmniEats</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
     <link href="<?= url('/assets/vendor/bootstrap/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="<?= url('/assets/css/app.css') ?>" rel="stylesheet">
 </head>
@@ -47,6 +48,7 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/plans') ?>">Plans</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/subscriptions') ?>">Subscriptions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/activity') ?>">Activity</a></li>
                     <?php endif; ?>
                     <?php if ($isRestaurant): ?>
                         <li class="nav-item">

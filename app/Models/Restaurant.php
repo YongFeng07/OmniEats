@@ -37,6 +37,14 @@ class Restaurant extends Model
         return self::db()->query('SELECT id, name, status FROM restaurants ORDER BY name')->fetchAll();
     }
 
+    /** Restaurants in one approval status (admin dashboard stat). */
+    public static function countByStatus(string $status): int
+    {
+        $stmt = self::db()->prepare('SELECT COUNT(*) FROM restaurants WHERE status = :status');
+        $stmt->execute(['status' => $status]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /**
      * Public listing: APPROVED restaurants only, with optional free-text
      * search and an open/closed filter (availability control feature).

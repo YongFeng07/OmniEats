@@ -61,6 +61,9 @@ $router->get('/admin/restaurants/{id}', 'App\Controllers\Admin\RestaurantControl
 $router->post('/admin/restaurants/{id}/approve', 'App\Controllers\Admin\RestaurantController@approve', ['roles:super_admin']);
 $router->post('/admin/restaurants/{id}/toggle-status', 'App\Controllers\Admin\RestaurantController@toggleStatus', ['roles:super_admin']);
 
+// Admin platform activity overview (monitoring)
+$router->get('/admin/activity', 'App\Controllers\Admin\ActivityController@index', ['roles:super_admin']);
+
 // Public food item detail (Module 3)
 $router->get('/foods/{id}', 'App\Controllers\FoodController@show');
 

@@ -8,6 +8,12 @@
 
 .omnieats-navbar {
     background-color: var(--omnieats-orange);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Consistent card look across all dashboards and public pages */
+.card {
+    border-radius: 0.8rem;
 }
 
 .omnieats-btn {

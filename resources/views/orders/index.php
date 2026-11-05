@@ -2,15 +2,7 @@
 /**
  * Customer order history (Module 5).
  */
-$statusBadge = fn (string $status): string => match ($status) {
-    'pending_payment' => 'badge text-bg-warning text-dark',
-    'confirmed'       => 'badge text-bg-info text-dark',
-    'preparing'       => 'badge text-bg-primary',
-    'ready'           => 'badge text-bg-warning text-dark',
-    'completed'       => 'badge text-bg-success',
-    'cancelled'       => 'badge text-bg-secondary',
-    default           => 'badge text-bg-secondary',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4" style="max-width: 960px;">
     <h1 class="h4 mb-3">My Orders</h1>

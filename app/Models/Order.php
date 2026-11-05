@@ -100,6 +100,12 @@ class Order extends Model
         $stmt->execute(['status' => $status, 'id' => $id]);
     }
 
+    /** Total orders across the platform (admin dashboard stat). */
+    public static function countAll(): int
+    {
+        return (int) self::db()->query('SELECT COUNT(*) FROM orders')->fetchColumn();
+    }
+
     /** The complete set of order statuses (see docs/DATABASE_DESIGN.md §7). */
     public static function statuses(): array
     {

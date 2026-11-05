@@ -11,6 +11,28 @@ function e(?string $value): string
 }
 
 /**
+ * Shared Bootstrap badge class for a status value — one consistent
+ * colour scheme across all pages (orders, payments, subscriptions,
+ * restaurants, fulfilments).
+ */
+function badge_class(string $status): string
+{
+    return match ($status) {
+        // positive / success
+        'approved', 'completed', 'success', 'open' => 'badge text-bg-success',
+        // in-progress
+        'confirmed', 'ready_for_collection' => 'badge text-bg-info text-dark',
+        'preparing', 'out_for_delivery'       => 'badge text-bg-primary',
+        // attention
+        'pending', 'pending_payment', 'ready' => 'badge text-bg-warning text-dark',
+        // negative
+        'failed', 'expired', 'closed'         => 'badge text-bg-danger',
+        // neutral / archived
+        default => 'badge text-bg-secondary', // deactivated, cancelled, void, archived, unavailable
+    };
+}
+
+/**
  * Build an absolute URL from a path, e.g. url('/login').
  * The base is derived from the current request (or APP_URL when set),
  * so the app works on any host/port and under a subdirectory.

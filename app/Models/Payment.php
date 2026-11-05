@@ -88,9 +88,17 @@ class Payment extends Model
         $stmt->execute(['id' => $id]);
     }
 
-    /** A restaurant's payment records (tenant), optional status filter. */
-    public static function listForRestaurant(int $restaurantId, ?string $status = null): array
+    /** Sum of successful payments across the platform (admin stat). */
+    public static function totalSuccessful(): float
     {
+        $value = self::db()->query(
+            "SELECT COALESCE(SUM(amount), 0) FROM payments WHERE status = 'success'"
+        )->fetchColumn();
+        return (float) $value;
+    }
+
+    /** A restaurant's payment records (tenant), optional status filter. */
+    public static function listForRestaurant(int $restaurantId, ?string $status = null): array    {
         $sql = 'SELECT p.*, o.order_no, u.name AS customer_name
                   FROM payments p
                   JOIN orders o ON o.id = p.order_id

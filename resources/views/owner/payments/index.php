@@ -5,12 +5,7 @@
  * records may be deleted.
  */
 $isOwner = in_array('restaurant_owner', auth_user()['roles'], true);
-$statusBadge = fn (string $status): string => match ($status) {
-    'success' => 'badge text-bg-success',
-    'failed'  => 'badge text-bg-danger',
-    'void'    => 'badge text-bg-secondary',
-    default   => 'badge text-bg-warning text-dark',
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4">
     <h1 class="h4 mb-3">Payments</h1>

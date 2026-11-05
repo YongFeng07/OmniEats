@@ -3,14 +3,7 @@
  * Admin restaurant management (Module 2): search, approval status
  * filter, and the approval lifecycle actions.
  */
-$statusBadge = function (string $status): string {
-    return match ($status) {
-        'approved'    => 'badge text-bg-success',
-        'pending'     => 'badge text-bg-warning text-dark',
-        'deactivated' => 'badge text-bg-secondary',
-        default       => 'badge text-bg-secondary',
-    };
-};
+$statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
 ?>
 <div class="container py-4">
     <h1 class="h4 mb-3">Restaurant Management</h1>
