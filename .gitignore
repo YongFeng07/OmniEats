@@ -1,0 +1,21 @@
+# Environment / secrets — never commit credentials
+.env
+.env.local
+
+# Composer
+/vendor/
+
+# Application logs
+storage/logs/*.log
+!storage/logs/.gitkeep
+
+# User-uploaded files
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/index.html
+
+# IDE / OS noise
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
