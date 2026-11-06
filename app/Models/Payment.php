@@ -97,6 +97,21 @@ class Payment extends Model
         return (float) $value;
     }
 
+    /** Today's successful payments for one restaurant (merchant stat). */
+    public static function todayTotalForRestaurant(int $restaurantId): float
+    {
+        $stmt = self::db()->prepare(
+            "SELECT COALESCE(SUM(p.amount), 0)
+               FROM payments p
+               JOIN orders o ON o.id = p.order_id
+              WHERE o.restaurant_id = :rid
+                AND p.status = 'success'
+                AND DATE(p.paid_at) = CURDATE()"
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return (float) $stmt->fetchColumn();
+    }
+
     /** A restaurant's payment records (tenant), optional status filter. */
     public static function listForRestaurant(int $restaurantId, ?string $status = null): array    {
         $sql = 'SELECT p.*, o.order_no, u.name AS customer_name

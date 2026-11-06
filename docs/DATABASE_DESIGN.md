@@ -232,7 +232,8 @@ Notes:
 | delivery_address / delivery_phone | VARCHAR | NULL | Snapshot for delivery orders |
 | subtotal | DECIMAL(10,2) | NOT NULL | Sum of order items (backend-calculated) |
 | delivery_fee | DECIMAL(10,2) | NOT NULL, DEFAULT 0.00 | Fee (0 for pickup) |
-| total | DECIMAL(10,2) | NOT NULL | subtotal + delivery_fee |
+| discount | DECIMAL(10,2) | NOT NULL, DEFAULT 0.00 | Promo discount deducted from the total |
+| total | DECIMAL(10,2) | NOT NULL | subtotal + delivery_fee − discount |
 | status | VARCHAR(30) | NOT NULL, DEFAULT 'pending_payment' | Order status (§7) |
 | note | VARCHAR(255) | NULL | Customer note |
 | created_at / updated_at | DATETIME | NOT NULL | Timestamps |

@@ -1,72 +1,65 @@
 <?php
 /**
- * Public landing page. The live restaurant listing replaces this
- * teaser section in Module 2 (Phase 5).
+ * Home page (customer view) — Cream Soft UI:
+ * category chips → promo banner → featured restaurant cards.
+ * Categories link into the real restaurant search; the promo banner is
+ * a static marketing element. No hardcoded restaurant data.
  */
+$categories = [
+    ['label' => 'Nasi Lemak', 'icon' => '🍛', 'q' => 'nasi'],
+    ['label' => 'Fast Food',  'icon' => '🍔', 'q' => 'pizza'],
+    ['label' => 'Drinks',     'icon' => '🥤', 'q' => 'drinks'],
+    ['label' => 'Dessert',    'icon' => '🍰', 'q' => 'dessert'],
+    ['label' => 'Pasta',      'icon' => '🍝', 'q' => 'pasta'],
+    ['label' => 'Breakfast',  'icon' => '🥞', 'q' => 'roti'],
+];
 ?>
-<section class="hero py-5">
-    <div class="container py-4">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="badge text-bg-light border mb-3">Multi-Restaurant Food Ordering SaaS</span>
-                <h1 class="display-5 fw-bold mb-3">Order from your favourite restaurants, all in one place.</h1>
-                <p class="lead text-secondary mb-4">
-                    OmniEats lets independent restaurants run their own online ordering —
-                    menus, orders, payments and delivery — on one shared platform.
-                </p>
-                <a class="btn omnieats-btn btn-lg px-4" href="<?= url('/login') ?>">Sign in to get started</a>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-panel rounded-4 p-4 p-lg-5">
-                    <?php if ($featured !== []): ?>
-                        <p class="fw-semibold mb-3">Featured right now</p>
-                        <?php foreach ($featured as $restaurant): ?>
-                            <a class="text-decoration-none text-dark" href="<?= url('/restaurants/' . (int) $restaurant['id']) ?>">
-                                <p class="mb-1 fw-semibold"><?= e($restaurant['name']) ?></p>
-                            </a>
-                            <p class="text-secondary small mb-3">
-                                <?= e($restaurant['city']) ?> · <?= e($restaurant['opening_hours']) ?> ·
-                                <span class="text-success">OPEN</span>
-                            </p>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="mb-2">Restaurants appear here once they are approved and open.</p>
-                        <p class="text-secondary small mb-0">Explore the platform as a customer or register your own restaurant.</p>
-                    <?php endif; ?>
+<div class="container py-4">
+    <!-- Categories row: round icons -->
+    <section class="mb-4">
+        <h2 class="h6 text-muted text-uppercase mb-3">Categories</h2>
+        <div class="row row-cols-3 row-cols-md-6 g-3 text-center">
+            <?php foreach ($categories as $category): ?>
+                <div class="col">
+                    <a class="category-chip" href="<?= url('/restaurants?q=' . urlencode($category['q'])) ?>">
+                        <span class="category-chip-circle"><?= e($category['icon']) ?></span>
+                        <span class="category-chip-label"><?= e($category['label']) ?></span>
+                    </a>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="py-5">
-    <div class="container">
-        <h2 class="h4 fw-bold text-center mb-4">How OmniEats works</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="h5">1. Browse restaurants</h3>
-                        <p class="text-secondary mb-0">Discover registered restaurants, their menus, prices and photos.</p>
-                    </div>
-                </div>
+    <!-- Promo banner -->
+    <section class="mb-5">
+        <div class="promo-banner">
+            <div>
+                <h2 class="h4 mb-1">First order? Use code OMNIEATS5</h2>
+                <p class="mb-0 small" style="opacity: .9;">Get RM 5 off your first checkout — apply it in your cart.</p>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="h5">2. Place your order</h3>
-                        <p class="text-secondary mb-0">Add food to your cart, choose delivery or self-pickup, and pay.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="h5">3. Track live status</h3>
-                        <p class="text-secondary mb-0">Follow your order from confirmation to ready, step by step.</p>
-                    </div>
-                </div>
-            </div>
+            <a class="promo-cta" href="<?= url('/restaurants') ?>">Order now →</a>
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Featured restaurants -->
+    <section>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Popular restaurants</h2>
+            <a class="small text-decoration-none" href="<?= url('/restaurants') ?>">See all →</a>
+        </div>
+        <div class="row g-4">
+            <?php foreach ($featured as $restaurant): ?>
+                <?php view('shared/restaurant_card', ['restaurant' => $restaurant], null); ?>
+            <?php endforeach; ?>
+
+            <?php if ($featured === []): ?>
+                <div class="col-12">
+                    <div class="alert alert-info mb-0">
+                        Restaurants appear here once they are approved and open.
+                        <a class="alert-link" href="<?= url('/restaurants') ?>">Browse the listing</a>.
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+</div>

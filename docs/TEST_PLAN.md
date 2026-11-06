@@ -218,7 +218,24 @@ Tenant ids are always taken from the authenticated session — never from POST/U
 | 9. Invalid status transitions | T75a, T76, T85 |
 | 10. Invalid payment operations | T78, T80, T88 |
 
-## 8. How to Reproduce (for markers / UAT)
+## 8. UI Overhaul & AJAX Round (executed 2026-11-06)
+
+| ID | Scenario | Test data | Expected result | Actual | P/F |
+|---|---|---|---|---|---|
+| T92 | AJAX cart quantity update | fetch POST /cart/update qty=4 | JSON: quantity 4, subtotal 35.60 (4×8.90) | as expected | ✅ |
+| T93 | AJAX cart remove | fetch POST /cart/remove | JSON: removed, count 0 | as expected | ✅ |
+| T94 | Promo code invalid | code=NOPE | JSON: ok=false + hint | as expected | ✅ |
+| T95 | Promo code valid | code=OMNIEATS5 | JSON: ok=true, discount 5.00 | as expected | ✅ |
+| T96 | Checkout WITH promo | pickup, promo applied | Order: subtotal 17.80 − 5.00 = total 12.80 | as expected | ✅ |
+| T97 | Promo consumed | second order | discount 0.00, total = subtotal | as expected | ✅ |
+| T98 | Merchant dashboard | owner session | Stat tiles, Today's sales, Incoming orders | as expected | ✅ |
+| T99 | Invalid Accept (pending_payment) | transition on unpaid order | Rejected — status unchanged | as expected | ✅ |
+| T99b | Accept confirmed order | transition → preparing | Status preparing; incoming list shrinks | as expected | ✅ |
+| T100 | Tracking hero + timeline | order pages | Hero message matches status; promo row shown | as expected | ✅ |
+| T101 | Owner hits customer promo endpoint | owner session | 403 | 403 | ✅ |
+| T102 | Homepage sections | GET / | Categories, promo banner, flags, Free Delivery | as expected | ✅ |
+
+## 9. How to Reproduce (for markers / UAT)
 
 1. Start MySQL (XAMPP), run `database/schema.sql` + `database/seed.sql`.
 2. Serve the app (`php -S localhost:8080 -t public public/index.php` or Apache + htdocs).
@@ -228,7 +245,7 @@ Tenant ids are always taken from the authenticated session — never from POST/U
 4. Follow the five workflows in `docs/PROJECT_BLUEPRINT.md` §9 — every step in this
    plan can be repeated in the browser with the same expected results.
 
-## 9. Screenshot Capture Instructions (Chapter 4)
+## 10. Screenshot Capture Instructions (Chapter 4)
 
 For each module, capture: (a) the CRUD list page, (b) one create/edit form showing
 validation, (c) one success message, (d) one error message. Use

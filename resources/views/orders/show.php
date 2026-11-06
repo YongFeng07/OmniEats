@@ -1,11 +1,24 @@
 <?php
 /**
- * Customer order detail (Module 5): items (historical snapshots),
- * fulfilment info, totals, ★ live status timeline with JS polling,
- * cancellation while eligible, and the payment section (Module 6
- * replaces the placeholder alert with the simulated payment form).
+ * Customer order detail (Module 5): tracking hero with a large status
+ * message, ★ live icon timeline with JS polling, payment section,
+ * fulfilment details and a rider card (delivery orders).
  */
 $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
+
+$statusHero = match ($order['status']) {
+    'pending_payment' => ['icon' => '💳', 'message' => 'Waiting for your payment'],
+    'confirmed'       => ['icon' => '📋', 'message' => 'Merchant received your order'],
+    'preparing'       => ['icon' => '🍳', 'message' => 'Merchant is preparing your food'],
+    'ready'           => $order['fulfilment_type'] === 'delivery'
+                          ? ['icon' => '🛵', 'message' => 'Your rider is on the way!']
+                          : ['icon' => '🎒', 'message' => 'Ready for collection!'],
+    'completed'       => ['icon' => '⭐', 'message' => 'Order completed — enjoy your meal!'],
+    'cancelled'       => ['icon' => '🚫', 'message' => 'Order cancelled'],
+    default           => ['icon' => '🍽️', 'message' => 'Processing your order'],
+};
+$showRider = $order['fulfilment_type'] === 'delivery'
+    && in_array($order['status'], ['ready', 'completed'], true);
 ?>
 <div class="container py-4" style="max-width: 960px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -14,6 +27,30 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
             <?= e(ucwords(str_replace('_', ' ', $order['status']))) ?>
         </span>
     </div>
+
+    <div class="tracking-hero mb-4">
+        <div class="tracking-hero-icon"><?= e($statusHero['icon']) ?></div>
+        <div class="flex-grow-1">
+            <h2 class="h4 mb-1"><?= e($statusHero['message']) ?></h2>
+            <p class="text-muted small mb-0">
+                Order <code><?= e($order['order_no']) ?></code> ·
+                <span class="<?= $statusBadge($order['status']) ?>">
+                    <?= e(ucwords(str_replace('_', ' ', $order['status']))) ?>
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <?php if ($showRider): ?>
+        <div class="rider-card mb-4">
+            <div class="rider-avatar">🧑‍✈️</div>
+            <div class="flex-grow-1">
+                <p class="fw-bold mb-0 text-dark">Ahmad R.</p>
+                <p class="small text-muted mb-0">Vehicle: WXY 1234 · Bike</p>
+            </div>
+            <a class="btn btn-outline-primary btn-sm" href="tel:+60123456789">📞 Call rider</a>
+        </div>
+    <?php endif; ?>
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
@@ -146,6 +183,11 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
                     <div class="d-flex justify-content-between mb-1">
                         <span>Delivery fee</span><span>RM <?= e(number_format((float) $order['delivery_fee'], 2)) ?></span>
                     </div>
+                    <?php if ((float) $order['discount'] > 0): ?>
+                        <div class="d-flex justify-content-between mb-1 text-success">
+                            <span>Promo discount</span><span>− RM <?= e(number_format((float) $order['discount'], 2)) ?></span>
+                        </div>
+                    <?php endif; ?>
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span><span>RM <?= e(number_format((float) $order['total'], 2)) ?></span>
                     </div>

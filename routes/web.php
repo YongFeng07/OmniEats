@@ -103,6 +103,7 @@ $router->get('/cart', 'App\Controllers\CartController@show', ['roles:customer'])
 $router->post('/cart/add', 'App\Controllers\CartController@add', ['roles:customer']);
 $router->post('/cart/update', 'App\Controllers\CartController@update', ['roles:customer']);
 $router->post('/cart/remove', 'App\Controllers\CartController@remove', ['roles:customer']);
+$router->post('/cart/promo', 'App\Controllers\CartController@promo', ['roles:customer']);
 $router->post('/cart/clear', 'App\Controllers\CartController@clear', ['roles:customer']);
 
 // Checkout (Module 5)

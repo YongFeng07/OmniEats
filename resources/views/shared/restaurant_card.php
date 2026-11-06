@@ -29,6 +29,7 @@ $image = !empty($restaurant['cover_image'])
 
 $rating = number_format(4.2 + ((int) $restaurant['id'] % 8) * 0.1, 1);
 $minutes = 15 + ((int) $restaurant['id'] % 3) * 10;
+$freeDelivery = ((int) $restaurant['id'] % 2) === 0; // presentation flag: DB column when needed
 ?>
 <div class="col-md-6 col-lg-4">
     <a class="card restaurant-card card-hover h-100 text-decoration-none"
@@ -38,6 +39,9 @@ $minutes = 15 + ((int) $restaurant['id'] % 3) * 10;
             <span class="restaurant-flag <?= $isOpen ? 'open' : 'closed' ?>">
                 <?= $isOpen ? 'Open' : 'Closed' ?>
             </span>
+            <?php if ($freeDelivery): ?>
+                <span class="restaurant-flag free">🛵 Free Delivery</span>
+            <?php endif; ?>
         </div>
         <div class="card-body p-4">
             <h2 class="h5 mb-1 text-dark"><?= e($restaurant['name']) ?></h2>

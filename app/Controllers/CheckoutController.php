@@ -32,6 +32,8 @@ class CheckoutController
             'title'      => 'Checkout',
             'contents'   => $contents,
             'deliveryFee'=> CartService::DELIVERY_FEE,
+            'discount'   => CartService::promoDiscount(),
+            'promoCode'  => CartService::PROMO_CODE,
             'branches'   => Branch::allForRestaurant((int) $contents['restaurant']['id']),
         ]);
     }

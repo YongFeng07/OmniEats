@@ -35,10 +35,10 @@ class Order extends Model
         $stmt = self::db()->prepare(
             'INSERT INTO orders
                (order_no, customer_id, restaurant_id, branch_id, fulfilment_type,
-                delivery_address, delivery_phone, subtotal, delivery_fee, total, status, note)
+                delivery_address, delivery_phone, subtotal, delivery_fee, discount, total, status, note)
              VALUES
                (:no, :customer, :restaurant, :branch, :type,
-                :address, :phone, :subtotal, :fee, :total, :status, :note)'
+                :address, :phone, :subtotal, :fee, :discount, :total, :status, :note)'
         );
         $stmt->execute([
             'no'         => $data['order_no'],
@@ -50,6 +50,7 @@ class Order extends Model
             'phone'      => $data['delivery_phone'],
             'subtotal'   => sprintf('%.2f', $data['subtotal']),
             'fee'        => sprintf('%.2f', $data['delivery_fee']),
+            'discount'   => sprintf('%.2f', $data['discount'] ?? 0.0),
             'total'      => sprintf('%.2f', $data['total']),
             'status'     => 'pending_payment',
             'note'       => $data['note'] !== '' ? $data['note'] : null,

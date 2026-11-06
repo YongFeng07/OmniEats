@@ -264,6 +264,7 @@ CREATE TABLE orders (
   delivery_phone   VARCHAR(20)   NULL,
   subtotal         DECIMAL(10,2) NOT NULL,
   delivery_fee     DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  discount         DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'promo discount deducted from total',
   total            DECIMAL(10,2) NOT NULL,
   status           VARCHAR(30)   NOT NULL DEFAULT 'pending_payment'
                    COMMENT 'pending_payment|confirmed|preparing|ready|completed|cancelled',

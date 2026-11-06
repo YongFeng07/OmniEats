@@ -39,7 +39,23 @@ class DashboardController
 
     public function owner(): void
     {
-        view('dashboard', $this->data('Restaurant Dashboard'));
+        $data = $this->data('Restaurant Dashboard');
+        $tenantId = $data['tenant'] !== null ? (int) $data['tenant']['id'] : null;
+
+        if ($tenantId === null) {
+            view('dashboard', $data);
+            return;
+        }
+
+        // Merchant dashboard: today's sales and incoming orders.
+        view('owner/dashboard', $data + [
+            'todaySales'     => Payment::todayTotalForRestaurant($tenantId),
+            'todayOrders'    => count(Order::listForRestaurant($tenantId, 'confirmed'))
+                + count(Order::listForRestaurant($tenantId, 'preparing'))
+                + count(Order::listForRestaurant($tenantId, 'ready'))
+                + count(Order::listForRestaurant($tenantId, 'completed')),
+            'incomingOrders' => Order::listForRestaurant($tenantId, 'confirmed'),
+        ]);
     }
 
     public function customer(): void

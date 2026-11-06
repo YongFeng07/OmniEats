@@ -83,6 +83,11 @@ $actionButtons = [
                     <div class="d-flex justify-content-between mb-1">
                         <span>Delivery fee</span><span>RM <?= e(number_format((float) $order['delivery_fee'], 2)) ?></span>
                     </div>
+                    <?php if ((float) $order['discount'] > 0): ?>
+                        <div class="d-flex justify-content-between mb-1 text-success">
+                            <span>Promo discount</span><span>− RM <?= e(number_format((float) $order['discount'], 2)) ?></span>
+                        </div>
+                    <?php endif; ?>
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span><span>RM <?= e(number_format((float) $order['total'], 2)) ?></span>
                     </div>

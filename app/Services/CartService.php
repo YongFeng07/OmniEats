@@ -20,6 +20,32 @@ class CartService
 {
     public const DELIVERY_FEE = 5.00;
 
+    /** Demo promo code (session-based; consumed when an order is placed). */
+    public const PROMO_CODE = 'OMNIEATS5';
+    public const PROMO_VALUE = 5.00;
+
+    /** Apply the promo code. Returns false for an unknown code. */
+    public static function applyPromo(string $code): bool
+    {
+        if (strtoupper(trim($code)) !== self::PROMO_CODE) {
+            return false;
+        }
+        $_SESSION['promo'] = self::PROMO_CODE;
+        return true;
+    }
+
+    /** Current promo discount (0.00 when no code applied). */
+    public static function promoDiscount(): float
+    {
+        return isset($_SESSION['promo']) ? self::PROMO_VALUE : 0.0;
+    }
+
+    /** Consume the promo code after a successful checkout. */
+    public static function clearPromo(): void
+    {
+        unset($_SESSION['promo']);
+    }
+
     public static function addItem(int $customerId, int $foodItemId, int $quantity): bool
     {
         if ($quantity < 1) {

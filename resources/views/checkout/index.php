@@ -85,11 +85,18 @@ $subtotal = $contents['subtotal'];
                     <div class="d-flex justify-content-between mb-1">
                         <span>Subtotal</span><strong class="text-dark">RM <?= e(number_format($subtotal, 2)) ?></strong>
                     </div>
+                    <?php if ($discount > 0): ?>
+                        <div class="d-flex justify-content-between mb-1 text-success">
+                            <span>Promo (<?= e($promoCode) ?>)</span>
+                            <span>− RM <?= e(number_format($discount, 2)) ?></span>
+                        </div>
+                    <?php endif; ?>
                     <div class="d-flex justify-content-between mb-3">
                         <span>Delivery fee</span><span id="fee-label">RM 0.00</span>
                     </div>
                     <div class="d-flex justify-content-between fs-5 fw-bold text-dark">
-                        <span>Total</span><span id="total-label">RM <?= e(number_format($subtotal, 2)) ?></span>
+                        <span>Total</span>
+                        <span id="total-label">RM <?= e(number_format(max(0, $subtotal - $discount), 2)) ?></span>
                     </div>
                 </div>
             </div>
@@ -101,11 +108,13 @@ $subtotal = $contents['subtotal'];
     // Delivery fields and live totals follow the fulfilment type.
     const FEE = <?= (float) $deliveryFee ?>;
     const SUBTOTAL = <?= (float) $subtotal ?>;
+    const DISCOUNT = <?= (float) $discount ?>;
     function syncFulfilment() {
         const isDelivery = document.querySelector('input[name="fulfilment_type"][value="delivery"]').checked;
         document.getElementById('delivery-fields').style.display = isDelivery ? '' : 'none';
         document.getElementById('fee-label').textContent = 'RM ' + (isDelivery ? FEE : 0).toFixed(2);
-        document.getElementById('total-label').textContent = 'RM ' + (SUBTOTAL + (isDelivery ? FEE : 0)).toFixed(2);
+        const total = Math.max(0, SUBTOTAL - DISCOUNT + (isDelivery ? FEE : 0));
+        document.getElementById('total-label').textContent = 'RM ' + total.toFixed(2);
     }
     syncFulfilment();
 </script>

@@ -99,9 +99,12 @@ class OrderService
         }
 
         // Totals are computed HERE, never trusted from the browser.
+        // The demo promo code (applied in the cart) is deducted and
+        // stored on the order; it is consumed by this checkout.
         $subtotal = $contents['subtotal'];
         $deliveryFee = $type === 'delivery' ? CartService::DELIVERY_FEE : 0.00;
-        $total = $subtotal + $deliveryFee;
+        $discount = min(CartService::promoDiscount(), $subtotal + $deliveryFee);
+        $total = $subtotal + $deliveryFee - $discount;
 
         $pdo = db();
         $pdo->beginTransaction();
@@ -116,6 +119,7 @@ class OrderService
                 'delivery_phone'   => $phone,
                 'subtotal'         => $subtotal,
                 'delivery_fee'     => $deliveryFee,
+                'discount'         => $discount,
                 'total'            => $total,
                 'note'             => trim((string) ($data['note'] ?? '')),
             ]);
@@ -133,8 +137,9 @@ class OrderService
 
             OrderStatusHistory::add($orderId, null, 'pending_payment', $customerId, 'Order placed');
 
-            // The cart is consumed by the order.
+            // The cart is consumed by the order; so is the promo code.
             Cart::delete((int) $contents['cart']['id']);
+            CartService::clearPromo();
 
             $pdo->commit();
         } catch (\Throwable $e) {
