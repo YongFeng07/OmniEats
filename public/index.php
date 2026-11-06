@@ -32,6 +32,19 @@ set_exception_handler(function (Throwable $e): void {
 session_name('omnieats_session');
 session_start();
 
+// PHP built-in server (development): hand real files (CSS/JS/images)
+// back to the server instead of routing them through the front
+// controller. realpath() guards against path traversal.
+if (PHP_SAPI === 'cli-server') {
+    $staticPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+    $staticFile = realpath(__DIR__ . $staticPath);
+    $webRoot = realpath(__DIR__);
+    if ($staticFile !== false && $webRoot !== false
+        && str_starts_with($staticFile, $webRoot) && is_file($staticFile)) {
+        return false;
+    }
+}
+
 require __DIR__ . '/../app/Helpers/functions.php';
 require __DIR__ . '/../config/database.php';
 

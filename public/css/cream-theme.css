@@ -1,0 +1,507 @@
+/* ============================================================
+   OmniEats — Cream Soft UI Theme
+   PHP 8 + Bootstrap 5 override, vanilla CSS only.
+
+   Design system:
+   - Background : #FDFBF7 (warm cream)
+   - Primary    : #E29578 (soft terracotta)
+   - Headings   : #2B2B2B (dark charcoal)
+   - Body text  : #6B7280 (muted gray)
+   - Cards      : #FFFFFF, 24px radius, diffused soft shadow
+   ============================================================ */
+
+:root {
+    /* Brand */
+    --cream-bg:        #FDFBF7;
+    --cream-primary:   #E29578;
+    --cream-primary-soft: rgba(226, 149, 120, 0.12);
+    --cream-ink:       #2B2B2B;
+    --cream-muted:     #6B7280;
+    --cream-line:      #F0EBE3;
+    --cream-card:      #FFFFFF;
+
+    /* Soft status colours */
+    --cream-success-bg:   #E9F6EE;
+    --cream-success-ink:  #1E7E46;
+    --cream-danger-bg:    #FDECEA;
+    --cream-danger-ink:   #C0392B;
+    --cream-warning-bg:   #FDF3E2;
+    --cream-warning-ink:  #A97C2F;
+
+    /* Shadows */
+    --cream-shadow:      0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    --cream-shadow-hover:0 18px 40px -8px rgba(0, 0, 0, 0.09);
+
+    /* Bootstrap 5 variable override */
+    --bs-body-bg:      var(--cream-bg);
+    --bs-body-color:   var(--cream-muted);
+    --bs-heading-color:var(--cream-ink);
+    --bs-primary:      var(--cream-primary);
+    --bs-primary-rgb:  226, 149, 120;
+    --bs-link-color:   var(--cream-primary);
+    --bs-link-hover-color: #C97B5E;
+    --bs-border-color: var(--cream-line);
+    --bs-emphasis-color: var(--cream-ink);
+}
+
+/* ---------- Typography ---------- */
+body {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.text-muted { color: var(--cream-muted) !important; }
+code { color: var(--cream-primary); }
+
+/* ---------- Buttons: pill, soft, gentle hover scale ---------- */
+.btn {
+    border-radius: 50px;
+    border: none;
+    font-weight: 600;
+    padding: 0.55rem 1.35rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.btn:hover {
+    transform: scale(1.03);
+}
+
+.btn-primary,
+.omnieats-btn {
+    background-color: var(--cream-primary);
+    color: #fff;
+    box-shadow: 0 8px 18px -8px rgba(226, 149, 120, 0.65);
+}
+
+.btn-primary:hover, .btn-primary:focus,
+.omnieats-btn:hover, .omnieats-btn:focus {
+    background-color: #D4825F;
+    color: #fff;
+    box-shadow: 0 12px 22px -8px rgba(226, 149, 120, 0.75);
+}
+
+.btn-outline-primary {
+    color: var(--cream-primary);
+    border: 1.5px solid var(--cream-primary);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--cream-primary);
+    border-color: var(--cream-primary);
+}
+
+.btn-outline-secondary {
+    color: var(--cream-muted);
+    border: 1.5px solid var(--cream-line);
+    background: #fff;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #F6F1E9;
+    color: var(--cream-ink);
+    border-color: var(--cream-line);
+}
+
+.btn-outline-danger {
+    border: 1.5px solid #E5B4AC;
+    color: var(--cream-danger-ink);
+}
+
+.btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
+
+/* ---------- Cards ---------- */
+.card {
+    background: var(--cream-card);
+    border: none;
+    border-radius: 24px;
+    box-shadow: var(--cream-shadow);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.card.shadow-sm { box-shadow: var(--cream-shadow); }
+
+a.card, .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--cream-shadow-hover);
+}
+
+/* ---------- Navbar: white, sticky, soft shadow ---------- */
+.omnieats-navbar {
+    background-color: #FFFFFF;
+    box-shadow: 0 1px 0 var(--cream-line), 0 8px 24px -18px rgba(0, 0, 0, 0.12);
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.omnieats-navbar .nav-link {
+    color: var(--cream-ink) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 50px;
+    padding: 0.45rem 1rem;
+}
+
+.omnieats-navbar .nav-link:hover { background-color: #F6F1E9; }
+
+.omnieats-navbar .navbar-text { color: var(--cream-muted) !important; }
+
+.omnieats-navbar .btn-outline-light {
+    color: var(--cream-ink);
+    border: 1.5px solid var(--cream-line);
+    background: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+.omnieats-navbar .btn-outline-light:hover {
+    background: #F6F1E9;
+    color: var(--cream-ink);
+    transform: scale(1.03);
+}
+
+.omnieats-navbar .btn-light {
+    background: var(--cream-primary);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+/* Logo mark: soft orange circle behind the icon */
+.omnieats-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--cream-primary-soft);
+    font-size: 1.25rem;
+    margin-right: 0.6rem;
+}
+
+.omnieats-logo-text {
+    color: var(--cream-primary);
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
+}
+
+/* Navbar pill search */
+.omnieats-search {
+    background: #F3F4F6;
+    border: none;
+    border-radius: 50px;
+    padding: 0.55rem 1.25rem;
+    min-width: 260px;
+    font-size: 0.92rem;
+    color: var(--cream-ink);
+}
+
+.omnieats-search:focus {
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--cream-primary-soft);
+    outline: none;
+}
+
+.omnieats-search-wrap { position: relative; }
+
+.omnieats-search-icon {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--cream-muted);
+    pointer-events: none;
+}
+
+.omnieats-search-wrap .omnieats-search { padding-left: 2.6rem; }
+
+/* ---------- Restaurant card ---------- */
+.restaurant-card {
+    overflow: hidden;
+    border-radius: 24px;
+}
+
+.restaurant-card-img {
+    position: relative;
+    height: 190px;
+    overflow: hidden;
+    border-radius: 24px 24px 0 0;
+}
+
+.restaurant-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+}
+
+.restaurant-card:hover .restaurant-card-img img { transform: scale(1.06); }
+
+/* Floating status badge on the image */
+.restaurant-flag {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+}
+
+.restaurant-flag.open {
+    background: var(--cream-success-bg);
+    color: var(--cream-success-ink);
+}
+
+.restaurant-flag.closed {
+    background: var(--cream-danger-bg);
+    color: var(--cream-danger-ink);
+}
+
+/* ---------- Soft status badges (tables & lists) ---------- */
+.badge {
+    border-radius: 50px;
+    padding: 0.45em 0.85em;
+    font-weight: 600;
+}
+
+.badge.text-bg-success { background-color: var(--cream-success-bg) !important; color: var(--cream-success-ink) !important; }
+.badge.text-bg-danger  { background-color: var(--cream-danger-bg)  !important; color: var(--cream-danger-ink)  !important; }
+.badge.text-bg-warning { background-color: var(--cream-warning-bg) !important; color: var(--cream-warning-ink) !important; }
+.badge.text-bg-info    { background-color: #E8F1F9 !important; color: #2C6E9B !important; }
+.badge.text-bg-primary { background-color: #EFE7F7 !important; color: #6D4FA1 !important; }
+.badge.text-bg-secondary { background-color: #F0EDE8 !important; color: var(--cream-muted) !important; }
+
+/* ---------- Forms ---------- */
+.form-control, .form-select {
+    border-radius: 14px;
+    border: 1.5px solid var(--cream-line);
+    padding: 0.6rem 1rem;
+    color: var(--cream-ink);
+    background-color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--cream-primary);
+    box-shadow: 0 0 0 4px var(--cream-primary-soft);
+}
+
+.form-label { font-weight: 600; color: var(--cream-ink); font-size: 0.9rem; }
+.form-text { color: var(--cream-muted); }
+.form-check-input:checked { background-color: var(--cream-primary); border-color: var(--cream-primary); }
+
+.input-group-text {
+    background: #F3F4F6;
+    border: 1.5px solid var(--cream-line);
+    border-radius: 14px;
+    color: var(--cream-muted);
+}
+
+/* ---------- Tables (admin/owner lists) ---------- */
+.table thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cream-muted);
+    background: #FAF7F2 !important;
+    border-bottom: 1px solid var(--cream-line);
+    padding: 0.8rem 1rem;
+}
+
+.table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--cream-line); vertical-align: middle; }
+.table-hover tbody tr:hover { background-color: #FDF8F3; }
+
+/* ---------- Cart: flexbox rows ---------- */
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1.5px solid var(--cream-line);
+    border-radius: 20px;
+    background: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+.cart-item:hover { box-shadow: var(--cream-shadow); }
+
+.cart-item-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.cart-item-img-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--cream-primary-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+/* Pill quantity selector [-] 1 [+] */
+.qty-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #F3F4F6;
+    border-radius: 50px;
+    padding: 0.3rem;
+}
+
+.qty-pill .qty-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    color: var(--cream-ink);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.qty-pill .qty-btn:hover {
+    background: var(--cream-primary-soft);
+    color: var(--cream-primary);
+    transform: scale(1.08);
+}
+
+.qty-pill .qty-value { min-width: 30px; text-align: center; font-weight: 700; color: var(--cream-ink); }
+
+/* Sticky order summary */
+.order-summary {
+    position: sticky;
+    top: 96px;
+    border-radius: 24px;
+}
+
+/* ---------- ★ Order tracking: modern icon progress ---------- */
+.cream-timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.cream-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    color: var(--cream-muted);
+}
+
+.cream-step::before {
+    content: "";
+    position: absolute;
+    top: 21px;
+    left: -50%;
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    background: #EFE9E0;
+    z-index: 0;
+}
+
+.cream-step:first-child::before { display: none; }
+
+.cream-step-icon {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 0.4rem;
+    border-radius: 50%;
+    background: #F6F1E9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    transition: all 0.25s ease;
+}
+
+.cream-step.done { color: var(--cream-success-ink); }
+.cream-step.done::before { background: #BFE3CC; }
+.cream-step.done .cream-step-icon {
+    background: var(--cream-success-bg);
+    box-shadow: 0 6px 14px -6px rgba(30, 126, 70, 0.4);
+}
+
+.cream-step.current { color: var(--cream-ink); font-weight: 700; }
+.cream-step.current::before { background: #BFE3CC; }
+.cream-step.current .cream-step-icon {
+    background: var(--cream-primary);
+    color: #fff;
+    box-shadow: 0 8px 18px -6px rgba(226, 149, 120, 0.65);
+    transform: scale(1.08);
+}
+
+.cream-step-label { font-size: 0.78rem; font-weight: 600; }
+.cream-step-time { font-size: 0.68rem; color: var(--cream-muted); }
+
+/* ---------- Alerts ---------- */
+.alert {
+    border: none;
+    border-radius: 18px;
+    font-weight: 500;
+}
+
+.alert-danger { background: var(--cream-danger-bg); color: var(--cream-danger-ink); }
+.alert-success { background: var(--cream-success-bg); color: var(--cream-success-ink); }
+.alert-warning { background: var(--cream-warning-bg); color: var(--cream-warning-ink); }
+.alert-info { background: #EAF3F9; color: #2C6E9B; }
+.alert-secondary { background: #F6F1E9; color: var(--cream-muted); }
+
+/* ---------- Hero (landing) ---------- */
+.hero {
+    background: linear-gradient(180deg, #FDF6F0 0%, var(--cream-bg) 100%);
+}
+
+.hero-panel {
+    background: #fff;
+    border: none;
+    box-shadow: var(--cream-shadow);
+}
+
+/* ---------- Footer ---------- */
+.omnieats-footer {
+    background: #FFFFFF;
+    border-top: 1px solid var(--cream-line);
+    color: var(--cream-muted);
+    font-size: 0.88rem;
+}
+
+/* ---------- Misc ---------- */
+.omnieats-progress { background-color: var(--cream-primary); border-radius: 50px; }
+.progress { background-color: #F0EBE3; border-radius: 50px; height: 10px; }
+
+.breadcrumb-item a { color: var(--cream-primary); text-decoration: none; }
+
+hr { border-color: var(--cream-line); opacity: 1; }
+
+.text-decoration-none { text-decoration: none; }
+
+/* Price accent */
+.omnieats-price, .fw-bold span, .h4.text-nowrap {
+    color: var(--cream-ink);
+}
