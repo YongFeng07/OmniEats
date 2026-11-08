@@ -152,6 +152,27 @@ class CartService
         return $added;
     }
 
+    /**
+     * Per-item note (e.g. "no chilli") — 120 characters max.
+     * Returns false when the line does not belong to the customer's cart.
+     */
+    public static function setNote(int $customerId, int $foodItemId, string $note): bool
+    {
+        if (mb_strlen($note) > 120) {
+            flash('error', 'The note must not exceed 120 characters.');
+            return false;
+        }
+
+        $cart = Cart::findForCustomer($customerId);
+        if ($cart === null) {
+            flash('error', 'Your cart is empty.');
+            return false;
+        }
+
+        CartItem::setNote((int) $cart['id'], $foodItemId, $note);
+        return true;
+    }
+
     public static function updateQuantity(int $customerId, int $foodItemId, int $quantity): bool
     {        if ($quantity < 1) {
             return self::removeItem($customerId, $foodItemId);

@@ -643,3 +643,37 @@ hr { border-color: var(--cream-line); opacity: 1; }
 .omnieats-price, .fw-bold span, .h4.text-nowrap {
     color: var(--cream-ink);
 }
+
+/* 7-day sales chart (merchant dashboard, pure CSS bars) */
+.sales-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: 140px;
+}
+.sales-chart-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+.sales-chart-value { min-height: 1.2em; white-space: nowrap; }
+.sales-chart-bar-wrap {
+    flex: 1;
+    width: 100%;
+    max-width: 42px;
+    display: flex;
+    align-items: flex-end;
+}
+.sales-chart-bar {
+    width: 100%;
+    background: linear-gradient(180deg, var(--cream-primary), #d9a58c);
+    border-radius: 8px 8px 3px 3px;
+    min-height: 4px;
+}
+.sales-chart-label { margin-top: 6px; }
+
+/* Star picker buttons */
+.star-btn { border: none; background: none; }
+.star-btn:hover { transform: scale(1.15); }

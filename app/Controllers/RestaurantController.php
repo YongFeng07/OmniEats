@@ -6,6 +6,9 @@ use App\Models\Branch;
 use App\Models\Category;
 use App\Models\FoodItem;
 use App\Models\Restaurant;
+use App\Models\Review;
+use App\Models\UserFavourite;
+use App\Services\AuthService;
 
 /**
  * Public restaurant browsing (Module 2 & 3). Only APPROVED restaurants
@@ -13,6 +16,26 @@ use App\Models\Restaurant;
  */
 class RestaurantController
 {
+    /** Customer-only: toggle this restaurant in the favourites list. */
+    public function toggleFavourite(string $id): void
+    {
+        $user = AuthService::user();
+        if ($user === null || !in_array('customer', $user['roles'], true)) {
+            redirect('/login');
+        }
+
+        $restaurant = Restaurant::find((int) $id);
+        if ($restaurant === null || $restaurant['status'] !== 'approved') {
+            abort(404);
+        }
+
+        $saved = UserFavourite::toggle((int) $user['id'], (int) $restaurant['id']);
+        flash('success', $saved
+            ? $restaurant['name'] . ' added to your favourites.'
+            : $restaurant['name'] . ' removed from your favourites.');
+
+        redirect('/restaurants/' . (int) $restaurant['id']);
+    }
     public function index(): void
     {
         $q    = trim((string) ($_GET['q'] ?? ''));
@@ -45,6 +68,10 @@ class RestaurantController
             $categoryId = 0;
         }
 
+        $viewer = AuthService::user();
+        $isFavourite = $viewer !== null && in_array('customer', $viewer['roles'], true)
+            && UserFavourite::exists((int) $viewer['id'], (int) $restaurant['id']);
+
         view('restaurants/show', [
             'title'       => $restaurant['name'],
             'restaurant'  => $restaurant,
@@ -57,6 +84,9 @@ class RestaurantController
             ),
             'q'           => $q,
             'fCategory'   => $categoryId,
+            'reviews'     => Review::listForRestaurant((int) $restaurant['id']),
+            'reviewCount' => Review::countForRestaurant((int) $restaurant['id']),
+            'isFavourite' => $isFavourite,
         ]);
     }
 }

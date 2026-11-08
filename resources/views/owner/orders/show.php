@@ -68,7 +68,12 @@ $actionButtons = [
                         <tbody>
                             <?php foreach ($items as $line): ?>
                                 <tr>
-                                    <td><?= e($line['food_name']) ?></td>
+                                    <td>
+                                        <?= e($line['food_name']) ?>
+                                        <?php if (!empty($line['note'])): ?>
+                                            <br><small class="text-muted">📝 <?= e($line['note']) ?></small>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>RM <?= e(number_format((float) $line['unit_price'], 2)) ?></td>
                                     <td><?= (int) $line['quantity'] ?></td>
                                     <td class="text-end">RM <?= e(number_format((float) $line['subtotal'], 2)) ?></td>
@@ -120,6 +125,43 @@ $actionButtons = [
                                 · completed <?= e(date('d M H:i', strtotime($fulfilment['completed_at']))) ?>
                             <?php endif; ?>
                         </p>
+
+                        <?php if ($fulfilment['type'] === 'delivery'): ?>
+                            <hr>
+                            <p class="small mb-1"><strong>Assigned rider:</strong>
+                                <?php if (!empty($fulfilment['driver_name'])): ?>
+                                    🧑‍✈️ <?= e($fulfilment['driver_name']) ?>
+                                    <?= $fulfilment['driver_vehicle'] !== '' && $fulfilment['driver_vehicle'] !== null
+                                        ? ' · ' . e($fulfilment['driver_vehicle']) : '' ?>
+                                    · 📞 <?= e($fulfilment['driver_phone']) ?>
+                                <?php else: ?>
+                                    <span class="text-muted">not assigned yet</span>
+                                <?php endif; ?>
+                            </p>
+                            <?php if (!in_array($fulfilment['status'], ['completed', 'cancelled'], true)): ?>
+                                <form method="post" action="<?= url('/owner/fulfilments/' . (int) $fulfilment['id'] . '/driver') ?>" class="row g-2 mt-1">
+                                    <?= csrf_field() ?>
+                                    <div class="col-12"><label class="form-label small mb-0">Assign your rider</label></div>
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control form-control-sm" name="driver_name"
+                                               placeholder="Rider name" value="<?= e($fulfilment['driver_name'] ?? '') ?>" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control form-control-sm" name="driver_vehicle"
+                                               placeholder="Plate e.g. WXY 1234" value="<?= e($fulfilment['driver_vehicle'] ?? '') ?>">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="tel" class="form-control form-control-sm" name="driver_phone"
+                                               placeholder="Phone" value="<?= e($fulfilment['driver_phone'] ?? '') ?>" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <?= empty($fulfilment['driver_name']) ? 'Assign rider' : 'Update rider' ?>
+                                        </button>
+                                    </div>
+                                </form>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>

@@ -50,6 +50,13 @@ $total = max(0, $contents['subtotal'] - $discount);
                                 <?php if ((int) $line['is_available'] !== 1): ?>
                                     <span class="badge text-bg-secondary mt-1">Unavailable</span>
                                 <?php endif; ?>
+                                <div class="input-group input-group-sm mt-2" style="max-width: 240px;">
+                                    <span class="input-group-text" title="Item note">📝</span>
+                                    <input type="text" class="form-control item-note" maxlength="120"
+                                           placeholder="Note e.g. no chilli"
+                                           value="<?= e($line['note'] ?? '') ?>"
+                                           aria-label="Item note">
+                                </div>
                             </div>
 
                             <div class="text-end">
@@ -125,6 +132,7 @@ $total = max(0, $contents['subtotal'] - $discount);
         const updateUrl = <?= json_encode(url('/cart/update')) ?>;
         const removeUrl = <?= json_encode(url('/cart/remove')) ?>;
         const promoUrl  = <?= json_encode(url('/cart/promo')) ?>;
+        const noteUrl   = <?= json_encode(url('/cart/note')) ?>;
 
         const money = v => 'RM ' + Number(v).toFixed(2);
 
@@ -165,6 +173,19 @@ $total = max(0, $contents['subtotal'] - $discount);
             });
             return res.json();
         }
+
+        // Per-item notes: saved automatically when the field loses focus.
+        document.querySelectorAll('.item-note').forEach(input => {
+            const row = input.closest('.cart-item');
+            if (!row) return;
+            input.addEventListener('change', async () => {
+                try {
+                    await post(noteUrl, { food_item_id: row.dataset.item, note: input.value });
+                } catch (e) {
+                    // Retry by editing the note again.
+                }
+            });
+        });
 
         // [+]/[−] quantity buttons
         document.querySelectorAll('.cart-item').forEach(row => {

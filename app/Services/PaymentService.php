@@ -101,6 +101,18 @@ class PaymentService
         );
         activity('fulfilment_create', 'fulfilment', $fulfilmentId);
 
+        // Auto-accept (merchant setting): restaurants with auto_accept
+        // skip the manual Accept step — the order moves straight to
+        // preparing via the same validated transition map.
+        $restaurant = \App\Models\Restaurant::find((int) $order['restaurant_id']);
+        if ($restaurant !== null && (int) $restaurant['auto_accept'] === 1) {
+            OrderService::transitionBySystem(
+                $orderId,
+                'preparing',
+                'Auto-accepted by restaurant setting'
+            );
+        }
+
         return true;
     }
 

@@ -122,6 +122,24 @@ class RestaurantController
         redirect('/owner');
     }
 
+    /** Auto-accept toggle: paid orders skip the manual Accept step. */
+    public function toggleAutoAccept(): void
+    {
+        $restaurant = $this->tenant();
+        if ($restaurant === null) {
+            redirect('/owner/restaurant/create');
+        }
+
+        $auto = (int) $restaurant['auto_accept'] !== 1;
+        Restaurant::setAutoAccept((int) $restaurant['id'], $auto);
+        activity($auto ? 'auto_accept_on' : 'auto_accept_off', 'restaurant', (int) $restaurant['id']);
+
+        flash('success', $auto
+            ? 'Auto-accept is ON — paid orders now go straight to preparation.'
+            : 'Auto-accept is OFF — you will accept each paid order manually.');
+        redirect('/owner');
+    }
+
     private function formData(): array
     {
         return [

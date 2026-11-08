@@ -63,6 +63,29 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
         </div>
     </div>
 
+    <!-- 7-day sales chart (plan "sales reporting") -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h2 class="h6 text-muted text-uppercase mb-3">Sales — last 7 days</h2>
+            <?php $maxTotal = 1.0; foreach ($salesChart as $row) { $maxTotal = max($maxTotal, (float) $row['total']); } ?>
+            <div class="sales-chart">
+                <?php foreach ($salesChart as $row): ?>
+                    <div class="sales-chart-col">
+                        <div class="sales-chart-value small text-muted">
+                            <?= (float) $row['total'] > 0 ? 'RM ' . number_format((float) $row['total'], 0) : '' ?>
+                        </div>
+                        <div class="sales-chart-bar-wrap">
+                            <div class="sales-chart-bar"
+                                 style="height: <?= max(4, round(((float) $row['total'] / $maxTotal) * 100)) ?>%;"></div>
+                        </div>
+                        <div class="sales-chart-label small text-muted"><?= e($row['day']) ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <p class="text-muted small mb-0 mt-2">Successful payments per day, from the payments table (tenant-scoped).</p>
+        </div>
+    </div>
+
     <!-- Incoming orders -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0">Incoming orders</h2>
@@ -115,6 +138,13 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
                             <?= csrf_field() ?>
                             <button type="submit" class="btn btn-sm btn-primary">
                                 <?= (int) $tenant['is_open'] === 1 ? 'Close restaurant' : 'Open restaurant' ?>
+                            </button>
+                        </form>
+                        <form method="post" action="<?= url('/owner/restaurant/toggle-auto-accept') ?>">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-sm <?= (int) $tenant['auto_accept'] === 1 ? 'btn-success' : 'btn-outline-secondary' ?>"
+                                    title="Auto-accept: paid orders skip the manual Accept step and go straight to preparation">
+                                ⚡ Auto-accept: <?= (int) $tenant['auto_accept'] === 1 ? 'ON' : 'OFF' ?>
                             </button>
                         </form>
                     <?php endif; ?>

@@ -127,6 +127,47 @@ class Payment extends Model
         return (float) $stmt->fetchColumn();
     }
 
+    /**
+     * Successful-payment totals per day for the last N days
+     * (merchant 7-day sales chart). Returns rows [day, date, total].
+     */
+    public static function dailyTotalsForRestaurant(int $restaurantId, int $days = 7): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT DATE(p.paid_at) AS day, COALESCE(SUM(p.amount), 0) AS total
+               FROM payments p
+               JOIN orders o ON o.id = p.order_id
+              WHERE o.restaurant_id = :rid
+                AND p.status = :status
+                AND p.paid_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+              GROUP BY DATE(p.paid_at)
+              ORDER BY day ASC'
+        );
+        // PDO cannot bind the LIMIT-style expression inside DATE_SUB;
+        // $days is a validated small integer here.
+        $stmt->bindValue(':rid', $restaurantId);
+        $stmt->bindValue(':status', 'success');
+        $stmt->bindValue(':days', max(1, min(90, $days)));
+        $stmt->execute();
+
+        $rows = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $rows[$row['day']] = (float) $row['total'];
+        }
+
+        // Fill missing days with 0 so the chart is continuous.
+        $chart = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $chart[] = [
+                'day'   => date('D', strtotime($date)),
+                'date'  => $date,
+                'total' => $rows[$date] ?? 0.0,
+            ];
+        }
+        return $chart;
+    }
+
     /** A restaurant's payment records (tenant), optional status filter. */
     public static function listForRestaurant(int $restaurantId, ?string $status = null): array
     {

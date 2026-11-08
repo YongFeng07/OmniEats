@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Branch;
+use App\Models\UserAddress;
 use App\Services\AuthService;
 use App\Services\CartService;
 use App\Services\OrderService;
@@ -38,6 +39,7 @@ class CheckoutController
             'discount'    => CartService::promoDiscount(),
             'promoCode'   => CartService::PROMO_CODE,
             'branches'    => Branch::allForRestaurant((int) $contents['restaurant']['id']),
+            'addresses'   => UserAddress::allForUser($this->customerId()),
         ]);
     }
 

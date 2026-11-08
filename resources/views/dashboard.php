@@ -1,7 +1,8 @@
 <?php
 /**
- * Role dashboard. Implemented modules (M1 + M2) get real quick links
- * and actions; the remaining modules are listed as upcoming.
+ * Role dashboard (M1) — quick links and status for the signed-in user.
+ * Admin gets platform stats; owners get restaurant + subscription cards;
+ * customers get a browsing hub. All six modules are implemented.
  */
 $roles = $user['roles'] ?? [];
 $isAdmin = in_array('super_admin', $roles, true);

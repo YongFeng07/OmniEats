@@ -9,10 +9,12 @@ use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\Restaurant;
+use App\Models\Review;
 use App\Services\AuthService;
 use App\Services\CartService;
 use App\Services\OrderService;
 use App\Services\PaymentService;
+use App\Services\ReviewService;
 
 /**
  * Customer order pages (Module 5): history, detail with the live
@@ -60,6 +62,25 @@ class OrderController
     }
 
     /**
+     * Grab/Foodpanda-style rating: the customer reviews their own
+     * COMPLETED order (1–5 stars + optional comment). One per order;
+     * recomputes the restaurant's displayed rating.
+     */
+    public function review(string $id): void
+    {
+        $order = $this->ownOrder((int) $id);
+
+        $rating = (int) ($_POST['rating'] ?? 0);
+        $comment = trim((string) ($_POST['comment'] ?? ''));
+
+        if (ReviewService::submit((int) $order['id'], $this->customerId(), $rating, $comment)) {
+            flash('success', 'Thanks for your review! It updates the restaurant rating.');
+        }
+
+        redirect('/orders/' . (int) $order['id']);
+    }
+
+    /**
      * "Order again" (Grab/Foodpanda-style): re-adds the items of this
      * past order to the cart through CartService (all rules re-checked).
      */
@@ -92,6 +113,7 @@ class OrderController
             'branch'      => !empty($order['branch_id']) ? Branch::find((int) $order['branch_id']) : null,
             'payment'     => Payment::findByOrder((int) $order['id']),
             'fulfilment'  => Fulfilment::findByOrder((int) $order['id']),
+            'review'      => Review::findByOrder((int) $order['id']),
             'canCancel'   => in_array($order['status'], ['pending_payment', 'confirmed'], true),
         ]);
     }

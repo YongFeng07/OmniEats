@@ -100,6 +100,24 @@ class CartController
         redirect('/cart');
     }
 
+    /** Save a per-item note (e.g. "no chilli") — AJAX endpoint. */
+    public function note(): void
+    {
+        $foodId = (int) ($_POST['food_item_id'] ?? 0);
+        $note = trim((string) ($_POST['note'] ?? ''));
+
+        $ok = CartService::setNote($this->customerId(), $foodId, $note);
+
+        if ($this->wantsJson()) {
+            $this->json(['ok' => $ok, 'note' => $note]);
+        }
+
+        $ok
+            ? flash('success', 'Note saved for this item.')
+            : flash('error', 'Could not save the note.');
+        redirect('/cart');
+    }
+
     /** Apply (or reject) the demo promo code — AJAX endpoint. */
     public function promo(): void
     {

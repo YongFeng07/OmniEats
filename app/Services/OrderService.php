@@ -127,13 +127,14 @@ class OrderService
                 'note'             => trim((string) ($data['note'] ?? '')),
             ]);
 
-            // Historical snapshots: name and price at purchase time.
+            // Historical snapshots: name, price and item note at purchase time.
             foreach ($contents['items'] as $line) {
                 OrderItem::create($orderId, [
                     'food_item_id' => (int) $line['food_item_id'],
                     'food_name'    => $line['food_name'],
                     'unit_price'   => $line['unit_price'],
                     'quantity'     => (int) $line['quantity'],
+                    'note'         => $line['note'] ?? null,
                     'subtotal'     => (float) $line['unit_price'] * (int) $line['quantity'],
                 ]);
             }

@@ -78,14 +78,27 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
     <?php endif; ?>
 
     <?php if ($showRider): ?>
-        <div class="rider-card mb-4">
-            <div class="rider-avatar">🧑‍✈️</div>
-            <div class="flex-grow-1">
-                <p class="fw-bold mb-0 text-dark">Ahmad R.</p>
-                <p class="small text-muted mb-0">Vehicle: WXY 1234 · Bike</p>
+        <?php if ($fulfilment !== null && !empty($fulfilment['driver_name'])): ?>
+            <div class="rider-card mb-4">
+                <div class="rider-avatar">🧑‍✈️</div>
+                <div class="flex-grow-1">
+                    <p class="fw-bold mb-0 text-dark"><?= e($fulfilment['driver_name']) ?></p>
+                    <p class="small text-muted mb-0">
+                        <?= $fulfilment['driver_vehicle'] !== '' && $fulfilment['driver_vehicle'] !== null
+                            ? 'Vehicle: ' . e($fulfilment['driver_vehicle']) . ' · ' : '' ?>Bike
+                    </p>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="tel:<?= e($fulfilment['driver_phone'] ?? '') ?>">📞 Call rider</a>
             </div>
-            <a class="btn btn-outline-primary btn-sm" href="tel:+60123456789">📞 Call rider</a>
-        </div>
+        <?php else: ?>
+            <div class="rider-card mb-4" style="opacity: .75;">
+                <div class="rider-avatar">🛵</div>
+                <div class="flex-grow-1">
+                    <p class="fw-bold mb-0 text-dark">Rider is being assigned</p>
+                    <p class="small text-muted mb-0">The restaurant will assign a rider shortly.</p>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 
     <div class="card border-0 shadow-sm mb-4">
@@ -204,7 +217,12 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
                         <tbody>
                             <?php foreach ($items as $line): ?>
                                 <tr>
-                                    <td><?= e($line['food_name']) ?></td>
+                                    <td>
+                                        <?= e($line['food_name']) ?>
+                                        <?php if (!empty($line['note'])): ?>
+                                            <br><small class="text-muted">📝 <?= e($line['note']) ?></small>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>RM <?= e(number_format((float) $line['unit_price'], 2)) ?></td>
                                     <td><?= (int) $line['quantity'] ?></td>
                                     <td class="text-end">RM <?= e(number_format((float) $line['subtotal'], 2)) ?></td>
@@ -271,6 +289,56 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
             </div>
         </div>
     </div>
+
+    <!-- ★ Grab/Foodpanda-style rating: completed orders can be reviewed once. -->
+    <?php if ($order['status'] === 'completed'): ?>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <?php if ($review !== null): ?>
+                    <h2 class="h6 text-muted text-uppercase mb-2">Your review</h2>
+                    <p class="mb-1">
+                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <span class="fs-5"><?= $s <= (int) $review['rating'] ? '⭐' : '☆' ?></span>
+                        <?php endfor; ?>
+                    </p>
+                    <?php if (!empty($review['comment'])): ?>
+                        <p class="text-muted small mb-0">"<?= e($review['comment']) ?>"</p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <h2 class="h6 text-muted text-uppercase mb-3">Rate your meal</h2>
+                    <form method="post" action="<?= url('/orders/' . (int) $order['id'] . '/review') ?>">
+                        <?= csrf_field() ?>
+                        <div class="mb-3" id="star-row">
+                            <label class="form-label mb-1">Your rating</label><br>
+                            <?php for ($s = 1; $s <= 5; $s++): ?>
+                                <button type="button" class="btn btn-link p-0 fs-4 text-decoration-none star-btn"
+                                        data-star="<?= $s ?>" aria-label="<?= $s ?> star(s)">☆</button>
+                            <?php endfor; ?>
+                            <input type="hidden" name="rating" id="rating" value="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="comment">Comment <span class="text-muted">(optional, 500 chars)</span></label>
+                            <textarea class="form-control" id="comment" name="comment" rows="2" maxlength="500"></textarea>
+                        </div>
+                        <button type="submit" class="btn omnieats-btn btn-sm">Submit review</button>
+                    </form>
+                    <script>
+                        // Star picker: highlight the chosen rating.
+                        (() => {
+                            const buttons = document.querySelectorAll('#star-row .star-btn');
+                            const input = document.getElementById('rating');
+                            const paint = n => buttons.forEach((b, i) => { b.textContent = i < n ? '⭐' : '☆'; });
+                            buttons.forEach(b => b.addEventListener('click', () => {
+                                input.value = b.dataset.star;
+                                paint(Number(b.dataset.star));
+                            }));
+                            paint(5);
+                        })();
+                    </script>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

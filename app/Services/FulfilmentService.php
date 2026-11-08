@@ -68,6 +68,49 @@ class FulfilmentService
     }
 
     /**
+     * Assign the restaurant's own delivery rider to a fulfilment
+     * (tenant-scoped, owner/staff). The customer's tracking page shows
+     * this real rider card instead of placeholder data.
+     */
+    public static function assignDriver(int $fulfilmentId, int $tenantId, array $data): bool
+    {
+        $fulfilment = Fulfilment::find($fulfilmentId);
+        if ($fulfilment === null) {
+            flash('error', 'Fulfilment record not found.');
+            return false;
+        }
+
+        $order = Order::find((int) $fulfilment['order_id']);
+        if ($order === null || (int) $order['restaurant_id'] !== $tenantId) {
+            flash('error', 'Fulfilment record not found.');
+            return false;
+        }
+
+        if ($fulfilment['status'] === 'completed' || $fulfilment['status'] === 'cancelled') {
+            flash('error', 'This fulfilment is already finished — the rider cannot be changed.');
+            return false;
+        }
+
+        $name = trim((string) ($data['driver_name'] ?? ''));
+        if ($name === '') {
+            flash('error', 'Please enter the rider name.');
+            return false;
+        }
+
+        $vehicle = trim((string) ($data['driver_vehicle'] ?? ''));
+        $phone = trim((string) ($data['driver_phone'] ?? ''));
+        if (!preg_match('/^[0-9+\-() ]{8,20}$/', $phone)) {
+            flash('error', 'Please enter a valid rider phone number (8-20 characters).');
+            return false;
+        }
+
+        Fulfilment::assignDriver($fulfilmentId, $name, $vehicle, $phone);
+        activity('fulfilment_driver', 'fulfilment', $fulfilmentId, $name);
+
+        return true;
+    }
+
+    /**
      * M6 DELETE — eligible fulfilment records only: pending (test data)
      * or cancelled. Completed / out_for_delivery / ready_for_collection
      * records are execution history and are never physically deleted.

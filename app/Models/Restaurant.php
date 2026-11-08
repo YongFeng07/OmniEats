@@ -187,4 +187,18 @@ class Restaurant extends Model
         $stmt = self::db()->prepare('UPDATE restaurants SET is_open = :open WHERE id = :id');
         $stmt->execute(['open' => $open ? 1 : 0, 'id' => $id]);
     }
+
+    /** Auto-accept setting: paid orders skip the manual confirm step. */
+    public static function setAutoAccept(int $id, bool $auto): void
+    {
+        $stmt = self::db()->prepare('UPDATE restaurants SET auto_accept = :a WHERE id = :id');
+        $stmt->execute(['a' => $auto ? 1 : 0, 'id' => $id]);
+    }
+
+    /** Aggregate rating recomputed from the reviews table. */
+    public static function setRating(int $id, ?float $rating): void
+    {
+        $stmt = self::db()->prepare('UPDATE restaurants SET rating = :rating WHERE id = :id');
+        $stmt->execute(['rating' => $rating, 'id' => $id]);
+    }
 }

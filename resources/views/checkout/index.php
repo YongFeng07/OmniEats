@@ -44,7 +44,24 @@ $subtotal = $contents['subtotal'];
                     </div>
 
                     <div id="delivery-fields" style="display: none;">
-                        <div class="mb-3 mt-2">
+                        <?php if ($addresses !== []): ?>
+                            <div class="mb-3 mt-2">
+                                <label class="form-label" for="saved_address">Saved address
+                                    <span class="text-muted fw-normal">(fills the fields below)</span></label>
+                                <select class="form-select" id="saved_address" onchange="fillAddress(this.value)">
+                                    <option value="">Choose a saved address…</option>
+                                    <?php foreach ($addresses as $address): ?>
+                                        <option value="<?= (int) $address['id'] ?>"
+                                                data-address="<?= e($address['address']) ?>"
+                                                data-phone="<?= e($address['phone']) ?>">
+                                            <?= e($address['label']) ?> — <?= e($address['address']) ?>
+                                            <?= (int) $address['is_default'] === 1 ? '(default)' : '' ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        <div class="mb-3">
                             <label class="form-label" for="delivery_address">Delivery address</label>
                             <textarea class="form-control" id="delivery_address" name="delivery_address" rows="2"></textarea>
                         </div>
@@ -83,7 +100,12 @@ $subtotal = $contents['subtotal'];
                     <h2 class="h6 text-muted text-uppercase mb-3">Your order</h2>
                     <?php foreach ($items as $line): ?>
                         <div class="d-flex justify-content-between mb-2">
-                            <span><?= (int) $line['quantity'] ?> × <?= e($line['food_name']) ?></span>
+                            <span>
+                                <?= (int) $line['quantity'] ?> × <?= e($line['food_name']) ?>
+                                <?php if (!empty($line['note'])): ?>
+                                    <br><small class="text-muted">📝 <?= e($line['note']) ?></small>
+                                <?php endif; ?>
+                            </span>
                             <strong class="text-dark">RM <?= e(number_format((float) $line['unit_price'] * (int) $line['quantity'], 2)) ?></strong>
                         </div>
                     <?php endforeach; ?>
@@ -121,6 +143,14 @@ $subtotal = $contents['subtotal'];
         document.getElementById('fee-label').textContent = 'RM ' + (isDelivery ? FEE : 0).toFixed(2);
         const total = Math.max(0, SUBTOTAL - DISCOUNT + (isDelivery ? FEE : 0));
         document.getElementById('total-label').textContent = 'RM ' + total.toFixed(2);
+    }
+    // Saved-address picker fills the delivery fields.
+    function fillAddress(id) {
+        const select = document.getElementById('saved_address');
+        if (!select || id === '') return;
+        const option = select.options[select.selectedIndex];
+        document.getElementById('delivery_address').value = option.dataset.address || '';
+        document.getElementById('delivery_phone').value = option.dataset.phone || '';
     }
     syncFulfilment();
 </script>

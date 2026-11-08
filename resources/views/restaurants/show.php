@@ -29,6 +29,19 @@ $isOpen = (int) $restaurant['is_open'] === 1;
         <?php if ((int) $restaurant['free_delivery'] === 1): ?>
             <span class="badge text-bg-info fs-6">🛵 Free Delivery</span>
         <?php endif; ?>
+        <?php
+        $viewer = auth_user();
+        $isCustomer = $viewer && in_array('customer', $viewer['roles'], true);
+        ?>
+        <?php if ($isCustomer): ?>
+            <form method="post" action="<?= url('/restaurants/' . (int) $restaurant['id'] . '/favourite') ?>" class="ms-auto">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-sm <?= $isFavourite ? 'btn-danger' : 'btn-outline-danger' ?>"
+                        title="<?= $isFavourite ? 'Remove from favourites' : 'Add to favourites' ?>">
+                    <?= $isFavourite ? '♥ Favourited' : '♡ Favourite' ?>
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 
     <?php if (!$isOpen): ?>
@@ -78,6 +91,42 @@ $isOpen = (int) $restaurant['is_open'] === 1;
                     <?php endforeach; ?>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ★ Customer reviews (Grab/Foodpanda-style) -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h6 text-muted text-uppercase mb-0">
+                    Reviews
+                    <?php if ($reviewCount > 0): ?>
+                        (<?= (int) $reviewCount ?>)
+                    <?php endif; ?>
+                </h2>
+                <?php if ($restaurant['rating'] !== null): ?>
+                    <span class="badge text-bg-warning fs-6">⭐ <?= e(number_format((float) $restaurant['rating'], 1)) ?></span>
+                <?php endif; ?>
+            </div>
+
+            <?php foreach ($reviews as $review): ?>
+                <div class="py-2 <?= $review !== end($reviews) ? 'border-bottom' : '' ?>">
+                    <p class="mb-1">
+                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <?= $s <= (int) $review['rating'] ? '⭐' : '☆' ?>
+                        <?php endfor; ?>
+                        <span class="small text-muted ms-2"><?= e($review['customer_name']) ?> ·
+                            <?= e(date('d M Y', strtotime($review['created_at']))) ?></span>
+                    </p>
+                    <?php if (!empty($review['comment'])): ?>
+                        <p class="small mb-0">"<?= e($review['comment']) ?>"</p>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+
+            <?php if ($reviews === []): ?>
+                <p class="text-muted small mb-0">No reviews yet — order from this restaurant and rate your meal!</p>
+            <?php endif; ?>
         </div>
     </div>
 

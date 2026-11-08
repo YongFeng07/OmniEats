@@ -26,6 +26,9 @@ $router->get('/profile', 'App\Controllers\ProfileController@show', ['auth']);
 $router->post('/profile', 'App\Controllers\ProfileController@update', ['auth']);
 $router->get('/profile/password', 'App\Controllers\ProfileController@showPassword', ['auth']);
 $router->post('/profile/password', 'App\Controllers\ProfileController@changePassword', ['auth']);
+$router->post('/profile/addresses', 'App\Controllers\ProfileController@addAddress', ['auth']);
+$router->post('/profile/addresses/{id}/delete', 'App\Controllers\ProfileController@deleteAddress', ['auth']);
+$router->post('/profile/addresses/{id}/default', 'App\Controllers\ProfileController@defaultAddress', ['auth']);
 
 // Admin user management (Module 1) — static routes BEFORE {id} routes
 $router->get('/admin/users', 'App\Controllers\Admin\UserController@index', ['roles:super_admin']);
@@ -39,6 +42,7 @@ $router->post('/admin/users/{id}/toggle-status', 'App\Controllers\Admin\UserCont
 // Public restaurant browsing (Module 2) — approved tenants only
 $router->get('/restaurants', 'App\Controllers\RestaurantController@index');
 $router->get('/restaurants/{id}', 'App\Controllers\RestaurantController@show');
+$router->post('/restaurants/{id}/favourite', 'App\Controllers\RestaurantController@toggleFavourite');
 
 // Owner restaurant management (Module 2) — tenant from session
 $router->get('/owner/restaurant/create', 'App\Controllers\Owner\RestaurantController@create', ['roles:restaurant_owner']);
@@ -46,6 +50,7 @@ $router->post('/owner/restaurant/create', 'App\Controllers\Owner\RestaurantContr
 $router->get('/owner/restaurant/edit', 'App\Controllers\Owner\RestaurantController@edit', ['roles:restaurant_owner']);
 $router->post('/owner/restaurant/edit', 'App\Controllers\Owner\RestaurantController@update', ['roles:restaurant_owner']);
 $router->post('/owner/restaurant/toggle-open', 'App\Controllers\Owner\RestaurantController@toggleOpen', ['roles:restaurant_owner']);
+$router->post('/owner/restaurant/toggle-auto-accept', 'App\Controllers\Owner\RestaurantController@toggleAutoAccept', ['roles:restaurant_owner']);
 
 // Owner branch management (Module 2)
 $router->get('/owner/branches', 'App\Controllers\Owner\BranchController@index', ['roles:restaurant_owner,restaurant_staff']);
@@ -103,6 +108,7 @@ $router->get('/cart', 'App\Controllers\CartController@show', ['roles:customer'])
 $router->post('/cart/add', 'App\Controllers\CartController@add', ['roles:customer']);
 $router->post('/cart/update', 'App\Controllers\CartController@update', ['roles:customer']);
 $router->post('/cart/remove', 'App\Controllers\CartController@remove', ['roles:customer']);
+$router->post('/cart/note', 'App\Controllers\CartController@note', ['roles:customer']);
 $router->post('/cart/promo', 'App\Controllers\CartController@promo', ['roles:customer']);
 $router->post('/cart/clear', 'App\Controllers\CartController@clear', ['roles:customer']);
 
@@ -117,6 +123,7 @@ $router->get('/orders/{id}/status', 'App\Controllers\OrderController@status', ['
 $router->post('/orders/{id}/cancel', 'App\Controllers\OrderController@cancel', ['roles:customer']);
 $router->post('/orders/{id}/archive', 'App\Controllers\OrderController@archive', ['roles:customer']);
 $router->post('/orders/{id}/reorder', 'App\Controllers\OrderController@reorder', ['roles:customer']);
+$router->post('/orders/{id}/review', 'App\Controllers\OrderController@review', ['roles:customer']);
 
 // Restaurant order management (Module 5) — poll BEFORE {id}
 $router->get('/owner/orders', 'App\Controllers\Owner\OrderController@index', ['roles:restaurant_owner,restaurant_staff']);
@@ -136,6 +143,7 @@ $router->post('/owner/payments/{id}/delete', 'App\Controllers\Owner\PaymentContr
 // Restaurant fulfilment management (Module 6)
 $router->get('/owner/fulfilments', 'App\Controllers\Owner\FulfilmentController@index', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/fulfilments/{id}/transition', 'App\Controllers\Owner\FulfilmentController@transition', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/fulfilments/{id}/driver', 'App\Controllers\Owner\FulfilmentController@driver', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/fulfilments/{id}/delete', 'App\Controllers\Owner\FulfilmentController@delete', ['roles:restaurant_owner']);
 
 // Role dashboards

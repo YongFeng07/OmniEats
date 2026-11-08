@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Restaurant;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\UserFavourite;
 use App\Services\AuthService;
 use App\Services\SubscriptionService;
 
@@ -47,19 +48,37 @@ class DashboardController
             return;
         }
 
-        // Merchant dashboard: sales stats (plan "sales reporting") and
-        // incoming orders.
+        // Merchant dashboard: sales stats (plan "sales reporting"),
+        // 7-day chart and incoming orders.
         view('owner/dashboard', $data + [
             'todaySales'     => Payment::todayTotalForRestaurant($tenantId),
             'monthSales'     => Payment::monthTotalForRestaurant($tenantId),
             'todayOrders'    => Order::countTodayForRestaurant($tenantId),
             'incomingOrders' => Order::listForRestaurant($tenantId, 'confirmed'),
+            'salesChart'     => Payment::dailyTotalsForRestaurant($tenantId, 7),
         ]);
     }
 
     public function customer(): void
     {
-        view('dashboard', $this->data('My OmniEats'));
+        $userId = (int) AuthService::user()['id'];
+
+        // Grab/Foodpanda-style customer hub: recent orders with quick
+        // reorder, saved restaurants, and a few personal stats.
+        $orders = Order::listForCustomer($userId);
+        $completed = 0;
+        foreach ($orders as $order) {
+            if ($order['status'] === 'completed') {
+                $completed++;
+            }
+        }
+
+        view('customer/dashboard', $this->data('My OmniEats') + [
+            'recentOrders' => array_slice($orders, 0, 3),
+            'orderCount'   => count($orders),
+            'completedCount' => $completed,
+            'favourites'   => UserFavourite::restaurantsForUser($userId),
+        ]);
     }
 
     private function data(string $heading): array

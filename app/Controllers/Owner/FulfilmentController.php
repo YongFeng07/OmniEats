@@ -3,7 +3,6 @@
 namespace App\Controllers\Owner;
 
 use App\Models\Fulfilment;
-use App\Models\Order;
 use App\Services\AuthService;
 use App\Services\FulfilmentService;
 
@@ -57,6 +56,28 @@ class FulfilmentController
         redirect('/owner/fulfilments');
     }
 
+    /** Assign the restaurant's own rider to a delivery fulfilment. */
+    public function driver(string $id): void
+    {
+        $restaurantId = $this->tenantId();
+        if ($restaurantId === null) {
+            redirect('/owner');
+        }
+
+        $data = [
+            'driver_name'    => (string) ($_POST['driver_name'] ?? ''),
+            'driver_vehicle' => (string) ($_POST['driver_vehicle'] ?? ''),
+            'driver_phone'   => (string) ($_POST['driver_phone'] ?? ''),
+        ];
+
+        if (!FulfilmentService::assignDriver((int) $id, $restaurantId, $data)) {
+            redirect('/owner/orders/' . (int) $this->orderIdFor((int) $id));
+        }
+
+        flash('success', 'Rider assigned — the customer now sees the rider card.');
+        redirect('/owner/orders/' . (int) $this->orderIdFor((int) $id));
+    }
+
     /** M6 DELETE — eligible pending/cancelled records only (owner). */
     public function delete(string $id): void
     {
@@ -71,5 +92,12 @@ class FulfilmentController
 
         flash('success', 'Fulfilment record deleted.');
         redirect('/owner/fulfilments');
+    }
+
+    /** The order a fulfilment belongs to (for redirects). */
+    private function orderIdFor(int $fulfilmentId): int
+    {
+        $fulfilment = Fulfilment::find($fulfilmentId);
+        return $fulfilment !== null ? (int) $fulfilment['order_id'] : 0;
     }
 }

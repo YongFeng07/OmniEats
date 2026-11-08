@@ -103,6 +103,7 @@ CREATE TABLE restaurants (
   rating         DECIMAL(2,1) NULL COMMENT 'aggregate rating 0.0-5.0; NULL = no ratings yet',
   delivery_minutes INT UNSIGNED NULL COMMENT 'estimated delivery time in minutes (owner-set)',
   free_delivery  TINYINT(1)   NOT NULL DEFAULT 0 COMMENT 'free delivery offer flag',
+  auto_accept    TINYINT(1)   NOT NULL DEFAULT 0 COMMENT 'auto-accept paid orders (skip manual confirm)',
   is_open        TINYINT(1)   NOT NULL DEFAULT 1 COMMENT 'availability control: 1 open, 0 closed',
   status         VARCHAR(20)  NOT NULL DEFAULT 'pending' COMMENT 'pending|approved|deactivated',
   created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -243,6 +244,7 @@ CREATE TABLE cart_items (
   cart_id      INT UNSIGNED NOT NULL,
   food_item_id INT UNSIGNED NOT NULL,
   quantity     INT          NOT NULL DEFAULT 1,
+  note         VARCHAR(120) NULL COMMENT 'per-item note (e.g. no chilli)',
   created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -294,6 +296,7 @@ CREATE TABLE order_items (
   food_name    VARCHAR(100) NOT NULL COMMENT 'snapshot at purchase time',
   unit_price   DECIMAL(8,2) NOT NULL COMMENT 'snapshot at purchase time',
   quantity     INT          NOT NULL,
+  note         VARCHAR(120) NULL COMMENT 'item note snapshot at purchase time',
   subtotal     DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (id),
   KEY idx_orderitems_order (order_id),
@@ -341,20 +344,72 @@ CREATE TABLE payments (
 -- fulfilments
 -- ------------------------------------------------------------
 CREATE TABLE fulfilments (
-  id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  order_id     INT UNSIGNED NOT NULL,
-  type         VARCHAR(20)  NOT NULL COMMENT 'delivery|pickup',
-  address      VARCHAR(255) NULL COMMENT 'snapshot for delivery',
-  phone        VARCHAR(20)  NULL,
-  status       VARCHAR(30)  NOT NULL DEFAULT 'pending'
-               COMMENT 'pending|out_for_delivery|ready_for_collection|completed|cancelled',
-  completed_at DATETIME     NULL,
-  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_id       INT UNSIGNED NOT NULL,
+  type           VARCHAR(20)  NOT NULL COMMENT 'delivery|pickup',
+  address        VARCHAR(255) NULL COMMENT 'snapshot for delivery',
+  phone          VARCHAR(20)  NULL,
+  driver_name    VARCHAR(100) NULL COMMENT 'assigned rider name (owner-entered)',
+  driver_vehicle VARCHAR(20)  NULL COMMENT 'assigned rider vehicle plate',
+  driver_phone   VARCHAR(20)  NULL COMMENT 'assigned rider contact',
+  status         VARCHAR(30)  NOT NULL DEFAULT 'pending'
+                 COMMENT 'pending|out_for_delivery|ready_for_collection|completed|cancelled',
+  completed_at   DATETIME     NULL,
+  created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_fulfilments_order (order_id),
   KEY idx_fulfilments_status (status),
   CONSTRAINT fk_fulfilments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- reviews (customer ratings; restaurants.rating is recomputed from
+-- these after every submission — supporting table, technically
+-- necessary because the rating column needs a real data source)
+-- ------------------------------------------------------------
+CREATE TABLE reviews (
+  id            INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  order_id      INT UNSIGNED  NOT NULL,
+  customer_id   INT UNSIGNED  NOT NULL,
+  restaurant_id INT UNSIGNED  NOT NULL,
+  rating        TINYINT UNSIGNED NOT NULL COMMENT '1-5 stars',
+  comment       VARCHAR(500)  NULL,
+  created_at    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_reviews_order (order_id),
+  KEY idx_reviews_restaurant (restaurant_id, created_at),
+  CONSTRAINT fk_reviews_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_reviews_customer FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_reviews_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- user_addresses (customer address book — checkout picker)
+-- ------------------------------------------------------------
+CREATE TABLE user_addresses (
+  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id    INT UNSIGNED NOT NULL,
+  label      VARCHAR(50)  NOT NULL,
+  address    VARCHAR(255) NOT NULL,
+  phone      VARCHAR(20)  NOT NULL,
+  is_default TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_addresses_user (user_id),
+  CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- user_favourites (customer-saved restaurants, composite PK)
+-- ------------------------------------------------------------
+CREATE TABLE user_favourites (
+  user_id       INT UNSIGNED NOT NULL,
+  restaurant_id INT UNSIGNED NOT NULL,
+  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, restaurant_id),
+  CONSTRAINT fk_fav_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_fav_rest FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------

@@ -11,7 +11,7 @@ class CartItem extends Model
     public static function allForCart(int $cartId): array
     {
         $stmt = self::db()->prepare(
-            'SELECT ci.id, ci.food_item_id, ci.quantity,
+            'SELECT ci.id, ci.food_item_id, ci.quantity, ci.note,
                     f.name AS food_name, f.price AS unit_price, f.image, f.is_available,
                     f.restaurant_id
                FROM cart_items ci
@@ -32,6 +32,15 @@ class CartItem extends Model
              ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)'
         );
         $stmt->execute(['cid' => $cartId, 'fid' => $foodItemId, 'qty' => $quantity]);
+    }
+
+    /** Per-item note (e.g. "no chilli"), 120 characters max. */
+    public static function setNote(int $cartId, int $foodItemId, string $note): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE cart_items SET note = :note WHERE cart_id = :cid AND food_item_id = :fid'
+        );
+        $stmt->execute(['note' => $note, 'cid' => $cartId, 'fid' => $foodItemId]);
     }
 
     public static function updateQuantity(int $cartId, int $foodItemId, int $quantity): void
