@@ -49,6 +49,10 @@ class RestaurantService
         // Tenant link: the owner now belongs to this restaurant.
         User::setTenant($ownerId, $id);
 
+        // Workflow 1: initial Free-plan subscription (Module 4) so the
+        // new tenant can build its menu before approval.
+        SubscriptionService::bootstrapFree($id);
+
         activity('register_restaurant', 'restaurant', $id);
 
         return true;

@@ -18,6 +18,8 @@ class RestaurantValidator extends Validator
              ->maxLength('description', 1000)
              ->maxLength('opening_hours', 255)
              ->phone('phone')
-             ->email('email');
+             ->email('email')
+             ->integerRange('delivery_minutes', 5, 180)
+             ->inList('free_delivery', ['0', '1']);
     }
 }

@@ -137,6 +137,9 @@ Notes:
 | phone / email | VARCHAR(20)/(191) | NULL | Public contact details |
 | address / city / state / postcode | VARCHAR | NULL | Physical address |
 | opening_hours | VARCHAR(255) | NULL | e.g. `Mon-Sun 10:00 - 22:00` |
+| rating | DECIMAL(2,1) | NULL | Aggregate rating 0.0–5.0; NULL = no ratings yet (seed provides demo values) |
+| delivery_minutes | INT UNSIGNED | NULL | Estimated delivery time in minutes, set by the owner in the profile form |
+| free_delivery | TINYINT(1) | NOT NULL, DEFAULT 0 | Free-delivery offer flag shown on listing cards |
 | is_open | TINYINT(1) | NOT NULL, DEFAULT 1 | ★ Availability control: 1 open, 0 closed |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'pending' | `pending` \| `approved` \| `deactivated` |
 | created_at / updated_at | DATETIME | NOT NULL | Timestamps |

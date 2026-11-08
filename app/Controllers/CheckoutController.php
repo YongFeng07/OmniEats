@@ -28,13 +28,16 @@ class CheckoutController
             redirect('/restaurants');
         }
 
+        $freeDelivery = (int) $contents['restaurant']['free_delivery'] === 1;
+
         view('checkout/index', [
-            'title'      => 'Checkout',
-            'contents'   => $contents,
-            'deliveryFee'=> CartService::DELIVERY_FEE,
-            'discount'   => CartService::promoDiscount(),
-            'promoCode'  => CartService::PROMO_CODE,
-            'branches'   => Branch::allForRestaurant((int) $contents['restaurant']['id']),
+            'title'       => 'Checkout',
+            'contents'    => $contents,
+            'deliveryFee' => $freeDelivery ? 0.00 : CartService::DELIVERY_FEE,
+            'freeDelivery'=> $freeDelivery,
+            'discount'    => CartService::promoDiscount(),
+            'promoCode'   => CartService::PROMO_CODE,
+            'branches'    => Branch::allForRestaurant((int) $contents['restaurant']['id']),
         ]);
     }
 

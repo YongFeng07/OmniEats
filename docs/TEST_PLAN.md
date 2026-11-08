@@ -3,6 +3,7 @@
 TAR UMT AMCS2194 Mini Project · Chapter 4 — Project Testing & Pitching
 Version 1.0 · Executed 2026-11-05 · All results below were ACTUALLY EXECUTED against the
 running application (PHP 8.2 built-in server + MariaDB 10.4) — no fabricated results.
+Audit round added 2026-11-08 (see §11) — defects found and fixed, re-tested.
 
 ---
 
@@ -259,3 +260,51 @@ Suggested sequence per module:
 - **M5:** cart → checkout → order page with ★ live timeline → /owner/orders with transition buttons.
 - **M6:** payment form with "simulate decline" → decline error → receipt → /owner/fulfilments.
 - **Database:** phpMyAdmin → omnieats → Designer tab (ERD screenshot for Chapter 2).
+
+## 11. Professional Audit Round (executed 2026-11-08)
+
+Full re-audit of the running system against the original assignment brief, in
+response to observed defects. Method: (a) every GET route exercised for every role
+with HTTP-status + PHP-error checks, (b) every read-only model method executed
+against the live DB, (c) state-changing POSTs with direct DB verification,
+(d) fresh-registration E2E.
+
+### 11.1 Defects found and fixed (all re-tested)
+
+| ID | Scenario | Test data | Expected result | Actual | P/F |
+|---|---|---|---|---|---|
+| T103 | Restaurant search (public) | GET `/restaurants?q=nasi` | 200 list | **500** — PDOException HY093 (repeated named placeholder `:q` rejected by native prepared statements) | ✅ fixed |
+| T103b | Same defect in admin restaurant search + admin user search | `adminListing(q)`, `User::search(q)` | 200 list | **500** — same root cause (4 queries total) | ✅ fixed |
+| T104 | Card rating / delivery minutes / free-delivery flag | home + listing cards | Real DB values | Values were computed from the restaurant id (hardcoded demo data — prohibited) | ✅ fixed |
+| T105 | Free-delivery badge vs checkout fee | delivery order at a free_delivery restaurant | delivery_fee = 0.00 | Badge had no backend effect; fee always RM 5.00 | ✅ fixed |
+| T106 | Blueprint Workflow 1: initial Free subscription at registration | new owner registers restaurant | active Free subscription auto-created | None created — new tenants were blocked by quota | ✅ fixed |
+| T107 | Merchant dashboard "Today's orders" stat | owner dashboard | count of orders created today | counted ALL in-progress orders (no date filter) | ✅ fixed |
+| T108 | Stray file `hi` (repo analysis leftover) | git repo | removed | still tracked | ✅ fixed |
+
+### 11.2 Fix details
+
+- **T103:** `Restaurant::publicListing`, `Restaurant::adminListing`, `User::search`
+  reused one `:q` placeholder multiple times; PDO with
+  `PDO::ATTR_EMULATE_PREPARES = false` rejects that with HY093. Replaced with
+  unique placeholders (`:q1/:q2/:q3`). Cause of the site-wide search 500.
+- **T104:** added `rating DECIMAL(2,1) NULL`, `delivery_minutes INT UNSIGNED NULL`,
+  `free_delivery TINYINT(1) NOT NULL DEFAULT 0` to `restaurants` (schema.sql +
+  live DB + seed.sql). Owner sets delivery time and the free-delivery offer in the
+  profile form (validator: 5–180 minutes, checkbox). Rating is NULL for new
+  restaurants (card shows "New") and seeded only for demo data — no computed values.
+- **T105:** `OrderService::checkout` now waives the RM 5.00 delivery fee for
+  delivery orders from `free_delivery = 1` restaurants; checkout page shows
+  "FREE delivery on this restaurant".
+- **T106:** `SubscriptionService::bootstrapFree()` creates an active Free-plan
+  subscription inside `RestaurantService::registerForOwner` (Workflow 1).
+- **T107:** `Order::countTodayForRestaurant()` uses `DATE(created_at) = CURDATE()`.
+
+### 11.3 Regression suites executed after the fixes
+
+| Suite | Scope | Result |
+|---|---|---|
+| GET sweep | 83 checks: every page × role (public/customer/owner/staff/admin), cross-tenant 404s, role-guard 403s/302s, PHP-error scan | **83/83 ✅** |
+| Model exercise | all read-only model methods against live DB (73 calls incl. every search combination) | **0 failures ✅** |
+| POST sweep | 34 checks: profile update with new fields, checkout with fee (5.00) and without (0.00), payment loop → confirmed + fulfilment, invalid transition rejected, CSRF 403, bad login, OPEN/CLOSED round-trip, home page shows DB values | **34/34 ✅** |
+| Registration E2E | 14 checks: new owner account → restaurant (pending, delivery 30/free 1/rating NULL) → Free subscription active → 1st branch OK → 2nd branch quota-blocked → admin archive | **14/14 ✅** |
+| Create path | `Restaurant::create` with new columns inside a rolled-back transaction | ✅ |

@@ -50,10 +50,7 @@ class DashboardController
         // Merchant dashboard: today's sales and incoming orders.
         view('owner/dashboard', $data + [
             'todaySales'     => Payment::todayTotalForRestaurant($tenantId),
-            'todayOrders'    => count(Order::listForRestaurant($tenantId, 'confirmed'))
-                + count(Order::listForRestaurant($tenantId, 'preparing'))
-                + count(Order::listForRestaurant($tenantId, 'ready'))
-                + count(Order::listForRestaurant($tenantId, 'completed')),
+            'todayOrders'    => Order::countTodayForRestaurant($tenantId),
             'incomingOrders' => Order::listForRestaurant($tenantId, 'confirmed'),
         ]);
     }

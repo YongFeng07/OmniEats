@@ -55,21 +55,21 @@ WHERE (u.email = 'superadmin@omnieats.com'       AND r.name = 'super_admin')
 -- ------------------------------------------------------------
 INSERT INTO restaurants
   (owner_id, name, slug, description, phone, email, address, city, state, postcode,
-   opening_hours, is_open, status)
+   opening_hours, rating, delivery_minutes, free_delivery, is_open, status)
 VALUES
 ((SELECT id FROM users WHERE email = 'owner.nasilemak@omnieats.com'),
  'Nasi Lemak House', 'nasi-lemak-house',
  'Authentic Malaysian nasi lemak and mamak favourites, cooked fresh daily.',
  '03-7876 1234', 'hello@nasilemakhouse.my',
  '12, Jalan SS2/61', 'Petaling Jaya', 'Selangor', '47300',
- 'Mon-Sun 10:00 - 22:00', 1, 'approved'),
+ 'Mon-Sun 10:00 - 22:00', 4.6, 25, 1, 1, 'approved'),
 
 ((SELECT id FROM users WHERE email = 'owner.pizza@omnieats.com'),
  'Pizza & Pasta Corner', 'pizza-pasta-corner',
  'Hand-tossed pizzas and classic Italian pasta in a cosy corner restaurant.',
  '03-7956 4321', 'hello@pizzapastacorner.my',
  '88, Jalan SS15/4B', 'Subang Jaya', 'Selangor', '47500',
- 'Tue-Sun 11:30 - 22:00', 0, 'approved');
+ 'Tue-Sun 11:30 - 22:00', 4.3, 35, 0, 0, 'approved');
 
 -- Tenant membership for owner/staff accounts
 UPDATE users SET restaurant_id = (SELECT id FROM restaurants WHERE slug = 'nasi-lemak-house')

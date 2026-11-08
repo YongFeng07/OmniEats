@@ -32,7 +32,13 @@ $subtotal = $contents['subtotal'];
                                    value="delivery" onchange="syncFulfilment()">
                             <span>
                                 <span class="fw-bold text-dark d-block">🛵 Delivery</span>
-                                <span class="small text-muted">RM <?= e(number_format($deliveryFee, 2)) ?> delivery fee</span>
+                                <span class="small text-muted">
+                                    <?php if ($freeDelivery): ?>
+                                        🎉 FREE delivery on this restaurant
+                                    <?php else: ?>
+                                        RM <?= e(number_format($deliveryFee, 2)) ?> delivery fee
+                                    <?php endif; ?>
+                                </span>
                             </span>
                         </label>
                     </div>

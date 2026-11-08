@@ -82,6 +82,26 @@ $value = function (string $field, string $default = '') use ($restaurant) {
                 </div>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
+                        <label class="form-label" for="delivery_minutes">Estimated delivery time
+                            <span class="text-muted">(minutes, optional)</span></label>
+                        <input type="number" class="form-control" id="delivery_minutes" name="delivery_minutes"
+                               min="5" max="180" placeholder="e.g. 30"
+                               value="<?= e($value('delivery_minutes')) ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label d-block mb-0">Delivery offer</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" id="free_delivery"
+                                   name="free_delivery" value="1"
+                                   <?= in_array((string) $value('free_delivery'), ['1'], true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="free_delivery">
+                                🛵 Free delivery on orders
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
                         <label class="form-label" for="logo">Logo <span class="text-muted">(JPG/PNG/WebP, max 2 MB)</span></label>
                         <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
                         <?php if (!empty($restaurant['logo'])): ?>

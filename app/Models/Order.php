@@ -107,6 +107,16 @@ class Order extends Model
         return (int) self::db()->query('SELECT COUNT(*) FROM orders')->fetchColumn();
     }
 
+    /** Orders created today for one restaurant — merchant dashboard stat. */
+    public static function countTodayForRestaurant(int $restaurantId): int
+    {
+        $stmt = self::db()->prepare(
+            'SELECT COUNT(*) FROM orders WHERE restaurant_id = :rid AND DATE(created_at) = CURDATE()'
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** The complete set of order statuses (see docs/DATABASE_DESIGN.md §7). */
     public static function statuses(): array
     {

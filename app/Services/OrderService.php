@@ -99,10 +99,13 @@ class OrderService
         }
 
         // Totals are computed HERE, never trusted from the browser.
+        // Real business rule: a restaurant with free_delivery = 1 pays
+        // no delivery fee on delivery orders (matches the card badge).
         // The demo promo code (applied in the cart) is deducted and
         // stored on the order; it is consumed by this checkout.
         $subtotal = $contents['subtotal'];
-        $deliveryFee = $type === 'delivery' ? CartService::DELIVERY_FEE : 0.00;
+        $freeDelivery = $type === 'delivery' && (int) $restaurant['free_delivery'] === 1;
+        $deliveryFee = $freeDelivery ? 0.00 : ($type === 'delivery' ? CartService::DELIVERY_FEE : 0.00);
         $discount = min(CartService::promoDiscount(), $subtotal + $deliveryFee);
         $total = $subtotal + $deliveryFee - $discount;
 

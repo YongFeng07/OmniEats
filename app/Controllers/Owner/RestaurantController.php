@@ -125,15 +125,17 @@ class RestaurantController
     private function formData(): array
     {
         return [
-            'name'          => trim((string) ($_POST['name'] ?? '')),
-            'description'   => trim((string) ($_POST['description'] ?? '')),
-            'phone'         => trim((string) ($_POST['phone'] ?? '')),
-            'email'         => trim((string) ($_POST['email'] ?? '')),
-            'address'       => trim((string) ($_POST['address'] ?? '')),
-            'city'          => trim((string) ($_POST['city'] ?? '')),
-            'state'         => trim((string) ($_POST['state'] ?? '')),
-            'postcode'      => trim((string) ($_POST['postcode'] ?? '')),
-            'opening_hours' => trim((string) ($_POST['opening_hours'] ?? '')),
+            'name'             => trim((string) ($_POST['name'] ?? '')),
+            'description'      => trim((string) ($_POST['description'] ?? '')),
+            'phone'            => trim((string) ($_POST['phone'] ?? '')),
+            'email'            => trim((string) ($_POST['email'] ?? '')),
+            'address'          => trim((string) ($_POST['address'] ?? '')),
+            'city'             => trim((string) ($_POST['city'] ?? '')),
+            'state'            => trim((string) ($_POST['state'] ?? '')),
+            'postcode'         => trim((string) ($_POST['postcode'] ?? '')),
+            'opening_hours'    => trim((string) ($_POST['opening_hours'] ?? '')),
+            'delivery_minutes' => trim((string) ($_POST['delivery_minutes'] ?? '')),
+            'free_delivery'    => isset($_POST['free_delivery']) && $_POST['free_delivery'] === '1' ? '1' : '0',
         ];
     }
 }

@@ -20,6 +20,15 @@ $isOpen = (int) $restaurant['is_open'] === 1;
         <?php else: ?>
             <span class="badge text-bg-danger fs-6">● CLOSED</span>
         <?php endif; ?>
+        <?php if ($restaurant['rating'] !== null): ?>
+            <span class="badge text-bg-warning fs-6">⭐ <?= e(number_format((float) $restaurant['rating'], 1)) ?></span>
+        <?php endif; ?>
+        <?php if ($restaurant['delivery_minutes'] !== null): ?>
+            <span class="badge text-bg-light border fs-6">🛵 <?= (int) $restaurant['delivery_minutes'] ?> min</span>
+        <?php endif; ?>
+        <?php if ((int) $restaurant['free_delivery'] === 1): ?>
+            <span class="badge text-bg-info fs-6">🛵 Free Delivery</span>
+        <?php endif; ?>
     </div>
 
     <?php if (!$isOpen): ?>

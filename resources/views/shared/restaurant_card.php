@@ -7,9 +7,10 @@
  * otherwise it falls back to a food photo from Unsplash (deterministic
  * per restaurant id, so the same card always shows the same image).
  *
- * NOTE (UI layer only): rating & delivery minutes are presentation
- * placeholders derived from the restaurant id — replace with real
- * `rating` / `delivery_minutes` columns when they are added to the DB.
+ * Rating, delivery time and the free-delivery badge come from REAL
+ * restaurant columns (rating / delivery_minutes / free_delivery) — no
+ * computed placeholder data. rating is NULL until the platform has real
+ * ratings; the card then shows "New" instead of a star value.
  */
 $isOpen = (int) $restaurant['is_open'] === 1;
 
@@ -27,9 +28,9 @@ $image = !empty($restaurant['cover_image'])
         ? asset($restaurant['logo'])
         : $unsplash[(int) $restaurant['id'] % count($unsplash)]);
 
-$rating = number_format(4.2 + ((int) $restaurant['id'] % 8) * 0.1, 1);
-$minutes = 15 + ((int) $restaurant['id'] % 3) * 10;
-$freeDelivery = ((int) $restaurant['id'] % 2) === 0; // presentation flag: DB column when needed
+$rating = $restaurant['rating'] !== null ? number_format((float) $restaurant['rating'], 1) : null;
+$minutes = $restaurant['delivery_minutes'] !== null ? (int) $restaurant['delivery_minutes'] : null;
+$freeDelivery = (int) $restaurant['free_delivery'] === 1;
 ?>
 <div class="col-md-6 col-lg-4">
     <a class="card restaurant-card card-hover h-100 text-decoration-none"
@@ -46,7 +47,14 @@ $freeDelivery = ((int) $restaurant['id'] % 2) === 0; // presentation flag: DB co
         <div class="card-body p-4">
             <h2 class="h5 mb-1 text-dark"><?= e($restaurant['name']) ?></h2>
             <p class="small mb-2" style="color: var(--cream-muted);">
-                ⭐ <?= e($rating) ?> &nbsp;·&nbsp; 🛵 <?= (int) $minutes ?> min
+                <?php if ($rating !== null): ?>
+                    ⭐ <?= e($rating) ?>
+                <?php else: ?>
+                    <span class="badge text-bg-warning">New</span>
+                <?php endif; ?>
+                <?php if ($minutes !== null): ?>
+                    &nbsp;·&nbsp; 🛵 <?= $minutes ?> min
+                <?php endif; ?>
             </p>
             <p class="small mb-0 text-muted">
                 <?= e($restaurant['city']) ?> · <?= e($restaurant['opening_hours']) ?>

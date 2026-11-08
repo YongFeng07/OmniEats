@@ -59,8 +59,10 @@ class Restaurant extends Model
         $params = ['status' => 'approved'];
 
         if ($q !== null && $q !== '') {
-            $sql .= ' AND (r.name LIKE :q OR r.description LIKE :q OR r.city LIKE :q)';
-            $params['q'] = '%' . $q . '%';
+            // Unique placeholder per use: PDO native prepares (emulation
+            // off) reject a named placeholder that appears more than once.
+            $sql .= ' AND (r.name LIKE :q1 OR r.description LIKE :q2 OR r.city LIKE :q3)';
+            $params['q1'] = $params['q2'] = $params['q3'] = '%' . $q . '%';
         }
 
         if ($openFilter === 'open' || $openFilter === 'closed') {
@@ -92,8 +94,9 @@ class Restaurant extends Model
         $params = [];
 
         if ($q !== null && $q !== '') {
-            $sql .= ' AND (r.name LIKE :q OR u.name LIKE :q OR u.email LIKE :q)';
-            $params['q'] = '%' . $q . '%';
+            // Unique placeholders — see publicListing().
+            $sql .= ' AND (r.name LIKE :q1 OR u.name LIKE :q2 OR u.email LIKE :q3)';
+            $params['q1'] = $params['q2'] = $params['q3'] = '%' . $q . '%';
         }
 
         if (in_array($status, ['pending', 'approved', 'deactivated'], true)) {
@@ -113,10 +116,12 @@ class Restaurant extends Model
         $stmt = self::db()->prepare(
             'INSERT INTO restaurants
                (owner_id, name, slug, description, logo, cover_image, phone, email,
-                address, city, state, postcode, opening_hours)
+                address, city, state, postcode, opening_hours,
+                delivery_minutes, free_delivery)
              VALUES
                (:owner, :name, :slug, :description, :logo, :cover, :phone, :email,
-                :address, :city, :state, :postcode, :hours)'
+                :address, :city, :state, :postcode, :hours,
+                :delivery_minutes, :free_delivery)'
         );
         $stmt->execute([
             'owner'       => $ownerId,
@@ -132,6 +137,10 @@ class Restaurant extends Model
             'state'       => $data['state'],
             'postcode'    => $data['postcode'],
             'hours'       => $data['opening_hours'],
+            // rating stays NULL until the platform has real ratings;
+            // delivery_minutes / free_delivery are set by the owner.
+            'delivery_minutes' => $data['delivery_minutes'] !== '' ? (int) $data['delivery_minutes'] : null,
+            'free_delivery'    => (int) ($data['free_delivery'] ?? 0),
         ]);
         return (int) self::db()->lastInsertId();
     }
@@ -143,7 +152,8 @@ class Restaurant extends Model
             'UPDATE restaurants
                 SET name = :name, description = :description, phone = :phone, email = :email,
                     address = :address, city = :city, state = :state, postcode = :postcode,
-                    opening_hours = :hours, logo = :logo, cover_image = :cover
+                    opening_hours = :hours, logo = :logo, cover_image = :cover,
+                    delivery_minutes = :delivery_minutes, free_delivery = :free_delivery
               WHERE id = :id'
         );
         $stmt->execute([
@@ -158,6 +168,8 @@ class Restaurant extends Model
             'hours'       => $data['opening_hours'],
             'logo'        => $logo,
             'cover'       => $coverImage,
+            'delivery_minutes' => $data['delivery_minutes'] !== '' ? (int) $data['delivery_minutes'] : null,
+            'free_delivery'    => (int) ($data['free_delivery'] ?? 0),
             'id'          => $id,
         ]);
     }

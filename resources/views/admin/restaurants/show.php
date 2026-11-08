@@ -46,6 +46,12 @@
                                 <?= e($restaurant['city']) ?>, <?= e($restaurant['state']) ?></td></tr>
                         <tr><th class="ps-0 text-muted">Opening hours</th>
                             <td><?= e($restaurant['opening_hours']) ?></td></tr>
+                        <tr><th class="ps-0 text-muted">Rating</th>
+                            <td><?= $restaurant['rating'] !== null ? '⭐ ' . e(number_format((float) $restaurant['rating'], 1)) : '— (no ratings yet)' ?></td></tr>
+                        <tr><th class="ps-0 text-muted">Delivery time</th>
+                            <td><?= $restaurant['delivery_minutes'] !== null ? (int) $restaurant['delivery_minutes'] . ' minutes' : '—' ?></td></tr>
+                        <tr><th class="ps-0 text-muted">Free delivery</th>
+                            <td><?= (int) $restaurant['free_delivery'] === 1 ? 'Yes' : 'No' ?></td></tr>
                         <tr><th class="ps-0 text-muted">Registered</th>
                             <td><?= e(date('d M Y, H:i', strtotime($restaurant['created_at']))) ?></td></tr>
                     </table>

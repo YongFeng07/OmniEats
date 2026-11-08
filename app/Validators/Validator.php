@@ -115,6 +115,16 @@ abstract class Validator
         return $this;
     }
 
+    /** Optional whole number within a range — used for delivery time etc. */
+    public function integerRange(string $field, int $min, int $max): static
+    {
+        $value = (string) ($this->data[$field] ?? '');
+        if ($value !== '' && (!preg_match('/^\d+$/', $value) || (int) $value < $min || (int) $value > $max)) {
+            $this->errors[$field][] = "Must be a whole number between {$min} and {$max}.";
+        }
+        return $this;
+    }
+
     /** At least 8 characters containing both a letter and a number. */
     public function passwordStrength(string $field): static
     {

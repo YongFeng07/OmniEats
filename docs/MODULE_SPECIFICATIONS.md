@@ -20,10 +20,10 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
 |---|---|
 | Create | Owner registers tenant (`/owner/restaurant/create`, status=pending, slug generated, logo/cover upload, owner linked as tenant); branches (`/owner/branches/create`, M4 quota enforced) |
 | Retrieve | Public listing with search + open/closed filter (approved only), public detail with branches; admin listing with approval filter |
-| Update | Profile edit (address, hours, images); branch edit; admin approval lifecycle |
+| Update | Profile edit (address, hours, images, estimated delivery time, free-delivery offer); branch edit; admin approval lifecycle |
 | Delete | Restaurant deactivate (archive — records preserved) / reactivate; branch delete (only-branch protected) |
 | ★ UNIQUE FEATURE | **Availability Control**: `toggleOpen` flips OPEN/CLOSED; CLOSED → profile still visible, new orders blocked (re-checked in cart add AND checkout), status shown everywhere |
-| Business rules | Pending restaurants hidden from public (404); cross-tenant ids rejected as "not found" |
+| Business rules | Pending restaurants hidden from public (404); cross-tenant ids rejected as "not found"; rating/delivery-time/free-delivery come from real columns (rating NULL → "New"; seeded demo values only) |
 | Tests | T32–T40, CT-1, CT-7, CT-9 |
 
 ## M3 — Menu & Food Catalogue Management (Member B)
@@ -41,7 +41,7 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
 
 | Item | Implementation |
 |---|---|
-| Create | Admin creates plans (price, branch/item limits — max_food_items NULL = unlimited); restaurant chooses a plan (simulated payment) |
+| Create | Admin creates plans (price, branch/item limits — max_food_items NULL = unlimited); restaurant chooses a plan (simulated payment); **registration bootstraps an initial Free subscription** (Workflow 1) |
 | Retrieve | Owner: current plan + quota usage bars + full history; Admin: plan list with subscriber counts + subscription monitoring with status filter |
 | Update | Plan edit; renew (extends same row), upgrade/downgrade (old row cancelled, new row with snapshots) |
 | Delete | Cancel subscription (soft); archive plan (blocked while it has active subscribers) |
@@ -58,7 +58,7 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
 | Update | Cart quantities; order status via validated transitions |
 | Delete | Remove/clear cart items; cancel eligible orders |
 | ★ UNIQUE FEATURE | **Live Order Status Tracking**: DB-backed `order_status_history` timeline (pending_payment → confirmed → preparing → ready → completed / cancelled); transitions validated against `OrderService::TRANSITIONS`; JS polls `/orders/{id}/status` every 5 s and reloads on change |
-| Business rules | One restaurant per cart; totals backend-computed (subtotal + RM 5.00 delivery fee); unavailable items and CLOSED restaurants re-checked at checkout; customers cannot modify completed orders; snapshots preserve history |
+| Business rules | One restaurant per cart; totals backend-computed (subtotal + RM 5.00 delivery fee, waived for restaurants with free_delivery = 1); unavailable items and CLOSED restaurants re-checked at checkout; customers cannot modify completed orders; snapshots preserve history |
 | Tests | T64–T77, CT-4, CT-6, CT-8 |
 
 ## M6 — Payment & Fulfilment Management (Member C) — no unique feature (mandated)

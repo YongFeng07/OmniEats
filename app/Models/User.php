@@ -44,8 +44,10 @@ class User extends Model
         $params = [];
 
         if ($q !== null && $q !== '') {
-            $sql .= ' AND (u.name LIKE :q OR u.email LIKE :q)';
-            $params['q'] = '%' . $q . '%';
+            // Unique placeholders — PDO native prepares reject a named
+            // placeholder that appears more than once.
+            $sql .= ' AND (u.name LIKE :q1 OR u.email LIKE :q2)';
+            $params['q1'] = $params['q2'] = '%' . $q . '%';
         }
 
         if ($role !== null && $role !== '') {

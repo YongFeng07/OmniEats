@@ -31,7 +31,7 @@ class RegisterController
             'title'   => 'Register your restaurant account',
             'action'  => url('/register/restaurant'),
             'heading' => 'Start selling on OmniEats',
-            'subtext' => 'Create your restaurant owner account. Your restaurant profile and subscription are set up in the next steps.',
+            'subtext' => 'Create your restaurant owner account, then register your restaurant — a Free plan subscription is set up automatically so you can start building your menu right away.',
             'isOwner' => true,
         ]);
     }

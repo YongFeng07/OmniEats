@@ -23,6 +23,24 @@ use App\Models\Subscription;
  */
 class SubscriptionService
 {
+    /**
+     * Workflow 1 (blueprint): a newly registered restaurant receives an
+     * initial Free-plan subscription automatically, so the owner can set
+     * up branches/menu immediately while the restaurant is pending
+     * approval. Returns false only when no active Free plan exists.
+     */
+    public static function bootstrapFree(int $restaurantId): bool
+    {
+        $plan = Plan::findByName('Free');
+        if ($plan === null || (int) $plan['is_active'] !== 1) {
+            return false;
+        }
+
+        Subscription::create($restaurantId, $plan);
+        activity('subscription_bootstrap', 'subscription', $restaurantId);
+        return true;
+    }
+
     /** Auto-expire overdue subscriptions; returns how many changed. */
     public static function syncExpiry(): int
     {
