@@ -53,11 +53,11 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
 
 | Item | Implementation |
 |---|---|
-| Create | Cart + cart items (`UNIQUE(customer_id)` = one active cart); orders via checkout transaction (order + snapshot items + first history row, cart consumed) |
-| Retrieve | Cart page, customer order history, restaurant order list (status filter), order detail for both sides |
+| Create | Cart + cart items (`UNIQUE(customer_id)` = one active cart); orders via checkout transaction (order + snapshot items + first history row, cart consumed); **"Order again" re-adds a past order's items** (all rules re-checked) |
+| Retrieve | Cart page, customer order history (active / archived views), restaurant order list (status filter), order detail for both sides |
 | Update | Cart quantities; order status via validated transitions |
-| Delete | Remove/clear cart items; cancel eligible orders |
-| ★ UNIQUE FEATURE | **Live Order Status Tracking**: DB-backed `order_status_history` timeline (pending_payment → confirmed → preparing → ready → completed / cancelled); transitions validated against `OrderService::TRANSITIONS`; JS polls `/orders/{id}/status` every 5 s and reloads on change |
+| Delete | Remove/clear cart items; cancel eligible orders; **archive terminal orders (soft, reversible)** |
+| ★ UNIQUE FEATURE | **Live Order Status Tracking**: DB-backed `order_status_history` timeline (pending_payment → confirmed → preparing → ready → completed / cancelled); transitions validated against `OrderService::TRANSITIONS`; JS polls `/orders/{id}/status` every 5 s (customer) and `/owner/orders/poll` every 10 s (merchant dashboard) — both sides update live |
 | Business rules | One restaurant per cart; totals backend-computed (subtotal + RM 5.00 delivery fee, waived for restaurants with free_delivery = 1); unavailable items and CLOSED restaurants re-checked at checkout; customers cannot modify completed orders; snapshots preserve history |
 | Tests | T64–T77, CT-4, CT-6, CT-8 |
 
@@ -68,7 +68,7 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
 | Create | Payment record (pending) when the customer pays; fulfilment record created automatically on payment success (delivery address snapshot) |
 | Retrieve | Payment receipt on the order page; restaurant payment list + detail; fulfilment list |
 | Update | Payment status via the simulated gateway (success/failed/void); fulfilment status transitions (pending → out_for_delivery/ready_for_collection → completed, type-validated) |
-| Delete | Pending/failed test payment records deletable; **success/void records never deleted** (audit trail — void only) |
+| Delete | Pending/failed test payment records deletable; **success/void records never deleted** (audit trail — void only); **eligible (pending/cancelled) fulfilment records deletable, completed ones kept** |
 | Payment simulation | Method selection (cash/online) → record created → simulated result (deterministic "simulate decline" demo control) → success advances the order via `transitionBySystem` + creates fulfilment; failure never marks the order paid |
 | Business rules | One payment per order (UNIQUE); duplicate payment blocked; no card data stored |
 | Tests | T78–T91, CT-5 |

@@ -239,6 +239,7 @@ Notes:
 | total | DECIMAL(10,2) | NOT NULL | subtotal + delivery_fee − discount |
 | status | VARCHAR(30) | NOT NULL, DEFAULT 'pending_payment' | Order status (§7) |
 | note | VARCHAR(255) | NULL | Customer note |
+| is_archived | TINYINT(1) | NOT NULL, DEFAULT 0 | Customer hid a terminal order from their list (soft, reversible — never physically deleted) |
 | created_at / updated_at | DATETIME | NOT NULL | Timestamps |
 
 ### order_items (historical snapshots)

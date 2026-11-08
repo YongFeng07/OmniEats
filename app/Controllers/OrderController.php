@@ -10,6 +10,7 @@ use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\Restaurant;
 use App\Services\AuthService;
+use App\Services\CartService;
 use App\Services\OrderService;
 use App\Services\PaymentService;
 
@@ -27,10 +28,55 @@ class OrderController
 
     public function index(): void
     {
+        $showArchived = ($_GET['show'] ?? '') === 'archived';
+
         view('orders/index', [
-            'title'  => 'My Orders',
-            'orders' => Order::listForCustomer($this->customerId()),
+            'title'        => 'My Orders',
+            'orders'       => Order::listForCustomer($this->customerId(), $showArchived),
+            'showArchived' => $showArchived,
         ]);
+    }
+
+    /**
+     * M5 DELETE (soft): the customer hides/unhides a terminal order
+     * (completed / cancelled) in their order list. The record itself is
+     * never deleted — it stays in the audit trail.
+     */
+    public function archive(string $id): void
+    {
+        $order = $this->ownOrder((int) $id);
+
+        if (!in_array($order['status'], ['completed', 'cancelled'], true)) {
+            flash('error', 'Only completed or cancelled orders can be archived.');
+            redirect('/orders/' . (int) $order['id']);
+        }
+
+        $archived = (int) $order['is_archived'] === 0;
+        Order::setArchived((int) $order['id'], $archived);
+        activity($archived ? 'archive_order' : 'unarchive_order', 'order', (int) $order['id']);
+
+        flash('success', $archived ? 'Order archived — use "Show archived" to see it again.' : 'Order restored to your list.');
+        redirect('/orders');
+    }
+
+    /**
+     * "Order again" (Grab/Foodpanda-style): re-adds the items of this
+     * past order to the cart through CartService (all rules re-checked).
+     */
+    public function reorder(string $id): void
+    {
+        $order = $this->ownOrder((int) $id);
+
+        if (!in_array($order['status'], ['completed', 'cancelled'], true)) {
+            flash('error', 'You can only re-order a completed or cancelled order.');
+            redirect('/orders/' . (int) $order['id']);
+        }
+
+        if (CartService::addFromOrder($this->customerId(), (int) $order['id']) === 0) {
+            redirect('/orders/' . (int) $order['id']);
+        }
+
+        redirect('/cart');
     }
 
     public function show(string $id): void

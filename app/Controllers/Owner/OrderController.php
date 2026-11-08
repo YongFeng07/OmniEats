@@ -41,6 +41,23 @@ class OrderController
         ]);
     }
 
+    /**
+     * ★ JSON endpoint polled by the merchant dashboard every few
+     * seconds so new paid orders appear without a manual refresh
+     * (GrabMerchant-style live incoming orders).
+     */
+    public function poll(): void
+    {
+        $restaurantId = $this->tenantId();
+        $count = $restaurantId !== null
+            ? count(Order::listForRestaurant($restaurantId, 'confirmed'))
+            : 0;
+
+        header('Content-Type: application/json');
+        echo json_encode(['confirmed' => $count]);
+        exit;
+    }
+
     public function show(string $id): void
     {
         $order = $this->ownOrder((int) $id);

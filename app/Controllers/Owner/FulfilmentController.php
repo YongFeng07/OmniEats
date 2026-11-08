@@ -57,19 +57,19 @@ class FulfilmentController
         redirect('/owner/fulfilments');
     }
 
-    /** Fulfilment detail is shown on the order page (tenant check). */
-    private function ownFulfilment(int $id): array
+    /** M6 DELETE — eligible pending/cancelled records only (owner). */
+    public function delete(string $id): void
     {
-        $fulfilment = Fulfilment::find($id);
-        if ($fulfilment === null) {
-            abort(404);
+        $restaurantId = $this->tenantId();
+        if ($restaurantId === null) {
+            redirect('/owner');
         }
 
-        $order = Order::find((int) $fulfilment['order_id']);
-        if ($order === null || (int) $order['restaurant_id'] !== $this->tenantId()) {
-            abort(404);
+        if (!FulfilmentService::delete((int) $id, $restaurantId)) {
+            redirect('/owner/fulfilments');
         }
 
-        return $fulfilment;
+        flash('success', 'Fulfilment record deleted.');
+        redirect('/owner/fulfilments');
     }
 }

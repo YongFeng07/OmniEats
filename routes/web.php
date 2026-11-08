@@ -115,9 +115,12 @@ $router->get('/orders', 'App\Controllers\OrderController@index', ['roles:custome
 $router->get('/orders/{id}', 'App\Controllers\OrderController@show', ['roles:customer']);
 $router->get('/orders/{id}/status', 'App\Controllers\OrderController@status', ['roles:customer']);
 $router->post('/orders/{id}/cancel', 'App\Controllers\OrderController@cancel', ['roles:customer']);
+$router->post('/orders/{id}/archive', 'App\Controllers\OrderController@archive', ['roles:customer']);
+$router->post('/orders/{id}/reorder', 'App\Controllers\OrderController@reorder', ['roles:customer']);
 
-// Restaurant order management (Module 5)
+// Restaurant order management (Module 5) — poll BEFORE {id}
 $router->get('/owner/orders', 'App\Controllers\Owner\OrderController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/orders/poll', 'App\Controllers\Owner\OrderController@poll', ['roles:restaurant_owner,restaurant_staff']);
 $router->get('/owner/orders/{id}', 'App\Controllers\Owner\OrderController@show', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/orders/{id}/transition', 'App\Controllers\Owner\OrderController@transition', ['roles:restaurant_owner,restaurant_staff']);
 
@@ -133,6 +136,7 @@ $router->post('/owner/payments/{id}/delete', 'App\Controllers\Owner\PaymentContr
 // Restaurant fulfilment management (Module 6)
 $router->get('/owner/fulfilments', 'App\Controllers\Owner\FulfilmentController@index', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/fulfilments/{id}/transition', 'App\Controllers\Owner\FulfilmentController@transition', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/fulfilments/{id}/delete', 'App\Controllers\Owner\FulfilmentController@delete', ['roles:restaurant_owner']);
 
 // Role dashboards
 $router->get('/dashboard', 'App\Controllers\DashboardController@index', ['auth']);

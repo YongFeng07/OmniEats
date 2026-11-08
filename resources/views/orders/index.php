@@ -1,11 +1,20 @@
 <?php
 /**
  * Customer order history (Module 5).
+ * Default: active orders. "Show archived" reveals completed/cancelled
+ * orders the customer hid from the list (soft delete — records kept).
  */
 $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
+$terminal = ['completed', 'cancelled'];
 ?>
 <div class="container py-4" style="max-width: 960px;">
-    <h1 class="h4 mb-3">My Orders</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h4 mb-0"><?= $showArchived ? 'Archived orders' : 'My Orders' ?></h1>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="<?= url($showArchived ? '/orders' : '/orders?show=archived') ?>">
+            <?= $showArchived ? '← Back to active orders' : 'Show archived' ?>
+        </a>
+    </div>
 
     <div class="card shadow-sm">
         <div class="table-responsive">
@@ -34,12 +43,23 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
                             <td class="text-end">
                                 <a class="btn btn-sm btn-outline-primary"
                                    href="<?= url('/orders/' . (int) $order['id']) ?>">View</a>
+                                <?php if (in_array($order['status'], $terminal, true)): ?>
+                                    <form class="d-inline" method="post"
+                                          action="<?= url('/orders/' . (int) $order['id'] . '/reorder') ?>">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-primary">↻ Order again</button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                     <?php if ($orders === []): ?>
                         <tr><td colspan="7" class="text-center text-muted py-4">
-                            No orders yet. <a href="<?= url('/restaurants') ?>">Order your first meal</a>.
+                            <?php if ($showArchived): ?>
+                                No archived orders.
+                            <?php else: ?>
+                                No orders yet. <a href="<?= url('/restaurants') ?>">Order your first meal</a>.
+                            <?php endif; ?>
                         </td></tr>
                     <?php endif; ?>
                 </tbody>

@@ -66,4 +66,35 @@ class FulfilmentService
             Fulfilment::setStatus((int) $fulfilment['id'], 'cancelled');
         }
     }
+
+    /**
+     * M6 DELETE — eligible fulfilment records only: pending (test data)
+     * or cancelled. Completed / out_for_delivery / ready_for_collection
+     * records are execution history and are never physically deleted.
+     * Tenant-scoped through the order.
+     */
+    public static function delete(int $fulfilmentId, int $tenantId): bool
+    {
+        $fulfilment = Fulfilment::find($fulfilmentId);
+        if ($fulfilment === null) {
+            flash('error', 'Fulfilment record not found.');
+            return false;
+        }
+
+        $order = Order::find((int) $fulfilment['order_id']);
+        if ($order === null || (int) $order['restaurant_id'] !== $tenantId) {
+            flash('error', 'Fulfilment record not found.');
+            return false;
+        }
+
+        if (!in_array($fulfilment['status'], ['pending', 'cancelled'], true)) {
+            flash('error', 'Only pending or cancelled fulfilment records can be deleted — completed records are kept for audit.');
+            return false;
+        }
+
+        Fulfilment::delete($fulfilmentId);
+        activity('fulfilment_delete', 'fulfilment', $fulfilmentId);
+
+        return true;
+    }
 }

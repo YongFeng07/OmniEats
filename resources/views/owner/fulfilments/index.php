@@ -72,6 +72,18 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
                                 <?php else: ?>
                                     <span class="text-muted small">—</span>
                                 <?php endif; ?>
+                                <?php
+                                $viewer = auth_user();
+                                $isOwner = $viewer && in_array('restaurant_owner', $viewer['roles'], true);
+                                ?>
+                                <?php if ($isOwner && in_array($fulfilment['status'], ['pending', 'cancelled'], true)): ?>
+                                    <form class="d-inline" method="post"
+                                          action="<?= url('/owner/fulfilments/' . (int) $fulfilment['id'] . '/delete') ?>"
+                                          onsubmit="return confirm('Delete this fulfilment record? Completed records can never be deleted.');">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

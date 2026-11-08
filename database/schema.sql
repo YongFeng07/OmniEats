@@ -272,6 +272,7 @@ CREATE TABLE orders (
   status           VARCHAR(30)   NOT NULL DEFAULT 'pending_payment'
                    COMMENT 'pending_payment|confirmed|preparing|ready|completed|cancelled',
   note             VARCHAR(255)  NULL,
+  is_archived      TINYINT(1)    NOT NULL DEFAULT 0 COMMENT 'customer hid the order from their list (soft, reversible)',
   created_at       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),

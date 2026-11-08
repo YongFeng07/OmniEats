@@ -112,8 +112,24 @@ class Payment extends Model
         return (float) $stmt->fetchColumn();
     }
 
+    /** This month's successful payments for one restaurant (merchant stat). */
+    public static function monthTotalForRestaurant(int $restaurantId): float
+    {
+        $stmt = self::db()->prepare(
+            "SELECT COALESCE(SUM(p.amount), 0)
+               FROM payments p
+               JOIN orders o ON o.id = p.order_id
+              WHERE o.restaurant_id = :rid
+                AND p.status = 'success'
+                AND DATE_FORMAT(p.paid_at, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')"
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return (float) $stmt->fetchColumn();
+    }
+
     /** A restaurant's payment records (tenant), optional status filter. */
-    public static function listForRestaurant(int $restaurantId, ?string $status = null): array    {
+    public static function listForRestaurant(int $restaurantId, ?string $status = null): array
+    {
         $sql = 'SELECT p.*, o.order_no, u.name AS customer_name
                   FROM payments p
                   JOIN orders o ON o.id = p.order_id

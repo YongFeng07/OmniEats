@@ -30,28 +30,34 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
         </div>
     <?php endif; ?>
 
-    <!-- Today's sales -->
+    <!-- Sales & orders stats -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-tile h-100">
                 <p class="text-muted small mb-1">Today's sales</p>
-                <p class="h3 stat-value mb-0">RM <?= e(number_format($todaySales, 2)) ?></p>
+                <p class="h4 stat-value mb-0">RM <?= e(number_format($todaySales, 2)) ?></p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="stat-tile h-100">
+                <p class="text-muted small mb-1">This month</p>
+                <p class="h4 stat-value mb-0">RM <?= e(number_format($monthSales, 2)) ?></p>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="stat-tile h-100">
                 <p class="text-muted small mb-1">Today's orders</p>
-                <p class="h3 stat-value mb-0"><?= (int) $todayOrders ?></p>
+                <p class="h4 stat-value mb-0"><?= (int) $todayOrders ?></p>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-tile h-100">
                 <p class="text-muted small mb-1">Subscription</p>
                 <?php if ($subscriptionInfo['subscription'] !== null): ?>
-                    <p class="h5 stat-value mb-0"><?= e($subscriptionInfo['plan']['name'] ?? 'Plan') ?></p>
+                    <p class="h6 stat-value mb-0"><?= e($subscriptionInfo['plan']['name'] ?? 'Plan') ?></p>
                     <p class="small text-muted mb-0">Ends <?= e(date('d M Y', strtotime($subscriptionInfo['subscription']['ends_at']))) ?></p>
                 <?php else: ?>
-                    <p class="h5 mb-0"><a class="text-decoration-none" href="<?= url('/owner/subscription') ?>">Choose a plan →</a></p>
+                    <p class="h6 mb-0"><a class="text-decoration-none" href="<?= url('/owner/subscription') ?>">Choose a plan →</a></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -136,3 +142,25 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
         </div>
     </div>
 </div>
+
+<script>
+    // ★ GrabMerchant-style live incoming orders: poll the confirmed
+    // count; when it changes, refresh the dashboard so new paid orders
+    // appear without any manual action.
+    (() => {
+        const endpoint = <?= json_encode(url('/owner/orders/poll')) ?>;
+        const current = <?= (int) count($incomingOrders) ?>;
+        setInterval(async () => {
+            try {
+                const res = await fetch(endpoint, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.confirmed !== current) {
+                    location.reload();
+                }
+            } catch (e) {
+                // Network hiccup — the next tick will retry.
+            }
+        }, 10000);
+    })();
+</script>

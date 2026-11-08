@@ -47,9 +47,11 @@ class DashboardController
             return;
         }
 
-        // Merchant dashboard: today's sales and incoming orders.
+        // Merchant dashboard: sales stats (plan "sales reporting") and
+        // incoming orders.
         view('owner/dashboard', $data + [
             'todaySales'     => Payment::todayTotalForRestaurant($tenantId),
+            'monthSales'     => Payment::monthTotalForRestaurant($tenantId),
             'todayOrders'    => Order::countTodayForRestaurant($tenantId),
             'incomingOrders' => Order::listForRestaurant($tenantId, 'confirmed'),
         ]);

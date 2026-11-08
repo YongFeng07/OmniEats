@@ -49,6 +49,17 @@ class Fulfilment extends Model
         $stmt->execute(['status' => $status, 'id' => $id]);
     }
 
+    /**
+     * Physical delete — allowed ONLY for eligible pending/cancelled
+     * records (never completed financial-execution records; those stay
+     * as the audit trail). Eligibility is enforced in FulfilmentService.
+     */
+    public static function delete(int $id): void
+    {
+        $stmt = self::db()->prepare('DELETE FROM fulfilments WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     /** A restaurant's fulfilment records (tenant), optional filter. */
     public static function listForRestaurant(int $restaurantId, ?string $status = null): array
     {

@@ -58,19 +58,33 @@ class Order extends Model
         return (int) self::db()->lastInsertId();
     }
 
-    /** A customer's orders, newest first (with restaurant names). */
-    public static function listForCustomer(int $customerId): array
+    /**
+     * A customer's orders, newest first (with restaurant names).
+     * Archived orders (completed/cancelled ones the customer hid from
+     * the list) are excluded unless $includeArchived is true.
+     */
+    public static function listForCustomer(int $customerId, bool $includeArchived = false): array
     {
-        $stmt = self::db()->prepare(
-            'SELECT o.*, r.name AS restaurant_name,
-                    (SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
-               FROM orders o
-               JOIN restaurants r ON r.id = o.restaurant_id
-              WHERE o.customer_id = :cid
-              ORDER BY o.id DESC'
-        );
+        $sql = 'SELECT o.*, r.name AS restaurant_name,
+                       (SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
+                  FROM orders o
+                  JOIN restaurants r ON r.id = o.restaurant_id
+                 WHERE o.customer_id = :cid';
+        if (!$includeArchived) {
+            $sql .= ' AND o.is_archived = 0';
+        }
+        $sql .= ' ORDER BY o.id DESC';
+
+        $stmt = self::db()->prepare($sql);
         $stmt->execute(['cid' => $customerId]);
         return $stmt->fetchAll();
+    }
+
+    /** Hide/unhide a terminal order in the customer's order list (M5 Delete — soft). */
+    public static function setArchived(int $id, bool $archived): void
+    {
+        $stmt = self::db()->prepare('UPDATE orders SET is_archived = :a WHERE id = :id');
+        $stmt->execute(['a' => $archived ? 1 : 0, 'id' => $id]);
     }
 
     /** A restaurant's orders (tenant), newest first, optional status filter. */

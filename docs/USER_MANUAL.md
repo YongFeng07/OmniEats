@@ -24,13 +24,18 @@ Demo accounts (password for all: **`Password@123`**):
 4. **Pay** (simulated): order page → choose *Online* or *Cash* → Pay now.
    Tick **"Simulate card decline"** to demonstrate the failure path (no real money).
 5. **Track**: the order page shows the ★ live timeline — leave it open and watch it
-   update while the restaurant prepares the order.
+   update while the restaurant prepares the order. Paid orders also show an
+   **estimated ready/arrival time** (based on the restaurant's delivery-minutes profile).
 6. **History**: My Orders lists every order; completed orders show their receipt.
+   **↻ Order again** re-adds a past order's items to the cart; **Archive** hides a
+   finished order from the list (use *Show archived* to bring it back).
 
 ## 2. Restaurant Owner / Staff
 
 1. **Dashboard**: shows restaurant status (pending/approved), OPEN/CLOSED toggle,
-   subscription card and quick links.
+   today's & this-month sales, today's orders, subscription card and quick links.
+   **Incoming orders refresh automatically** (live polling) — new paid orders appear
+   without touching the browser.
 2. **Register restaurant** (first time): Dashboard → Register your restaurant → fill
    profile (including estimated delivery time and the free-delivery offer switch) →
    it becomes *pending platform approval* (admin approves). A **Free plan
@@ -45,6 +50,7 @@ Demo accounts (password for all: **`Password@123`**):
 7. **Payments**: Payments → receipts, void (refund) successful payments.
    Completed records cannot be deleted (audit trail).
 8. **Fulfilments**: Fulfilments → *Out for delivery* / *Ready for collection* → *Complete*.
+   Pending/cancelled records can be **deleted** (owner only); completed records are kept.
 9. **★ Close the restaurant**: Dashboard → Close restaurant — the public page keeps
    the profile visible but blocks all new orders.
 

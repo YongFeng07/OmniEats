@@ -19,6 +19,18 @@ $statusHero = match ($order['status']) {
 };
 $showRider = $order['fulfilment_type'] === 'delivery'
     && in_array($order['status'], ['ready', 'completed'], true);
+
+// Estimated ready/arrival time (real data: the restaurant's
+// delivery_minutes profile value + payment time). Clearly an estimate.
+$eta = null;
+if ($restaurant !== null && $restaurant['delivery_minutes'] !== null
+    && in_array($order['status'], ['confirmed', 'preparing', 'ready'], true)) {
+    $base = ($payment !== null && !empty($payment['paid_at']))
+        ? strtotime($payment['paid_at'])
+        : strtotime($order['created_at']);
+    $eta = date('H:i', $base + (int) $restaurant['delivery_minutes'] * 60);
+}
+$isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
 ?>
 <div class="container py-4" style="max-width: 960px;">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -38,8 +50,32 @@ $showRider = $order['fulfilment_type'] === 'delivery'
                     <?= e(ucwords(str_replace('_', ' ', $order['status']))) ?>
                 </span>
             </p>
+            <?php if ($eta !== null): ?>
+                <p class="small mb-0 mt-2">
+                    <strong>
+                        <?= $order['fulfilment_type'] === 'delivery' ? '🛵 Estimated arrival' : '🎒 Estimated ready' ?>
+                        ~<?= e($eta) ?>
+                    </strong>
+                    <span class="text-muted">(estimate based on the restaurant's preparation time)</span>
+                </p>
+            <?php endif; ?>
         </div>
     </div>
+
+    <?php if ($isTerminal): ?>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <form method="post" action="<?= url('/orders/' . (int) $order['id'] . '/reorder') ?>">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-primary">↻ Order again</button>
+            </form>
+            <form method="post" action="<?= url('/orders/' . (int) $order['id'] . '/archive') ?>">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-outline-secondary">
+                    <?= (int) $order['is_archived'] === 1 ? 'Restore to My Orders' : 'Archive order' ?>
+                </button>
+            </form>
+        </div>
+    <?php endif; ?>
 
     <?php if ($showRider): ?>
         <div class="rider-card mb-4">

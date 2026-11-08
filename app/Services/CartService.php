@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\FoodItem;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Restaurant;
 
 /**
@@ -46,33 +48,43 @@ class CartService
         unset($_SESSION['promo']);
     }
 
-    public static function addItem(int $customerId, int $foodItemId, int $quantity): bool
+    public static function addItem(int $customerId, int $foodItemId, int $quantity, bool $silent = false): bool
     {
         if ($quantity < 1) {
-            flash('error', 'Quantity must be at least 1.');
+            if (!$silent) {
+                flash('error', 'Quantity must be at least 1.');
+            }
             return false;
         }
 
         $food = FoodItem::find($foodItemId);
         if ($food === null) {
-            flash('error', 'Food item not found.');
+            if (!$silent) {
+                flash('error', 'Food item not found.');
+            }
             return false;
         }
 
         $restaurant = Restaurant::find((int) $food['restaurant_id']);
         if ($restaurant === null || $restaurant['status'] !== 'approved') {
-            flash('error', 'This restaurant is not available.');
+            if (!$silent) {
+                flash('error', 'This restaurant is not available.');
+            }
             return false;
         }
 
         // Availability control (M2): closed restaurants take no orders.
         if ((int) $restaurant['is_open'] !== 1) {
-            flash('error', 'This restaurant is currently CLOSED and not accepting orders.');
+            if (!$silent) {
+                flash('error', 'This restaurant is currently CLOSED and not accepting orders.');
+            }
             return false;
         }
 
         if ((int) $food['is_available'] !== 1) {
-            flash('error', 'This item is currently unavailable.');
+            if (!$silent) {
+                flash('error', 'This item is currently unavailable.');
+            }
             return false;
         }
 
@@ -85,8 +97,10 @@ class CartService
             && CartItem::countForCart((int) $cart['id']) > 0
         ) {
             $other = Restaurant::find((int) $cart['restaurant_id']);
-            flash('error', 'Your cart already contains items from ' . ($other['name'] ?? 'another restaurant')
-                . '. Clear your cart before ordering from a different restaurant.');
+            if (!$silent) {
+                flash('error', 'Your cart already contains items from ' . ($other['name'] ?? 'another restaurant')
+                    . '. Clear your cart before ordering from a different restaurant.');
+            }
             return false;
         }
 
@@ -105,9 +119,41 @@ class CartService
         return true;
     }
 
-    public static function updateQuantity(int $customerId, int $foodItemId, int $quantity): bool
+    /**
+     * "Order again" (Grab-style): re-add the items of a past order to
+     * the cart. Every addItem rule still applies (single restaurant,
+     * OPEN, available items). Returns the number of lines re-added and
+     * flashes one aggregated result message.
+     */
+    public static function addFromOrder(int $customerId, int $orderId): int
     {
-        if ($quantity < 1) {
+        $order = Order::find($orderId);
+        if ($order === null || (int) $order['customer_id'] !== $customerId) {
+            flash('error', 'Order not found.');
+            return 0;
+        }
+
+        $lines = OrderItem::allForOrder($orderId);
+        $added = 0;
+        foreach ($lines as $line) {
+            if (self::addItem($customerId, (int) $line['food_item_id'], (int) $line['quantity'], true)) {
+                $added++;
+            }
+        }
+
+        if ($added === 0) {
+            flash('error', 'Could not re-order: this restaurant is CLOSED or its items are no longer available.');
+        } elseif ($added < count($lines)) {
+            flash('success', "Re-ordered {$added} item(s) — " . (count($lines) - $added) . ' item(s) are no longer available and were skipped.');
+        } else {
+            flash('success', "Re-ordered all {$added} item(s) — review your cart to check out.");
+        }
+
+        return $added;
+    }
+
+    public static function updateQuantity(int $customerId, int $foodItemId, int $quantity): bool
+    {        if ($quantity < 1) {
             return self::removeItem($customerId, $foodItemId);
         }
 

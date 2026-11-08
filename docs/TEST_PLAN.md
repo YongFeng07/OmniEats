@@ -308,3 +308,32 @@ against the live DB, (c) state-changing POSTs with direct DB verification,
 | POST sweep | 34 checks: profile update with new fields, checkout with fee (5.00) and without (0.00), payment loop → confirmed + fulfilment, invalid transition rejected, CSRF 403, bad login, OPEN/CLOSED round-trip, home page shows DB values | **34/34 ✅** |
 | Registration E2E | 14 checks: new owner account → restaurant (pending, delivery 30/free 1/rating NULL) → Free subscription active → 1st branch OK → 2nd branch quota-blocked → admin archive | **14/14 ✅** |
 | Create path | `Restaurant::create` with new columns inside a rolled-back transaction | ✅ |
+
+## 12. Grab/Foodpanda Benchmark Round (executed 2026-11-08)
+
+The platform was compared against GrabFood / Foodpanda feature sets and the
+master-prompt CRUD matrix. Two spec gaps and three benchmark features were
+implemented, all tested live.
+
+### 12.1 Master-prompt CRUD gaps closed
+
+| ID | Gap | Implementation |
+|---|---|---|
+| T109 | M5 DELETE — "archive eligible order records safely" | `orders.is_archived` (soft, reversible); customer archives terminal orders; active/archived list views; non-terminal archive rejected |
+| T111 | M6 DELETE — "delete eligible fulfilment records" | pending/cancelled fulfilment records deletable (owner only); completed/out-for-delivery protected; staff blocked (403) |
+
+### 12.2 Benchmark features (Grab / Foodpanda equivalents)
+
+| ID | Feature | Grab/Foodpanda equivalent | Implementation |
+|---|---|---|---|
+| T110 | Order again | Grab "Order again" / Foodpanda reorder | `POST /orders/{id}/reorder` → `CartService::addFromOrder` re-runs every rule (single restaurant, OPEN, available); blocked while CLOSED (tested) |
+| T113a | Estimated time | Grab "estimated delivery time" | tracking hero shows "Estimated arrival/ready ~HH:MM" from the restaurant's real `delivery_minutes` + payment time, labelled an estimate |
+| T112 | Live incoming orders (merchant) | GrabMerchant new-order popup | `GET /owner/orders/poll` JSON + 10 s polling on the merchant dashboard (auto-reload on change) |
+| T113b | Sales reporting | GrabMerchant sales dashboard (Basic/Premium plan feature) | "This month" sales tile added next to "Today's sales" (DB-backed, tenant-scoped) |
+
+### 12.3 Round results (all executed live)
+
+| Suite | Scope | Result |
+|---|---|---|
+| New-features round | T109–T113: archive round-trip, reorder (+ CLOSED block), fulfilment delete (eligible + protected + staff 403), poll JSON = DB, ETA + month tile render | **25/25 ✅** |
+| Full regression | GET sweep 83/83 · POST sweep 34/34 · model exercise 0 failures · registration E2E 14/14 | **all ✅** |
