@@ -34,7 +34,32 @@ $isRider = $user && in_array('rider', $user['roles'], true);
             <span class="omnieats-logo-text">OmniEats</span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+        <?php if ($user): ?>
+            <!-- Account area OUTSIDE the collapsible menu: the avatar and
+                 the Sign out button are ALWAYS visible at any screen
+                 width (no JS, no hamburger needed). -->
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a class="d-flex align-items-center gap-2 text-decoration-none"
+                   href="<?= url('/profile') ?>" title="My Profile">
+                    <?php if (!empty($user['avatar'])): ?>
+                        <img class="nav-avatar" src="<?= asset($user['avatar']) ?>" alt="avatar">
+                    <?php else: ?>
+                        <span class="nav-avatar-fallback"><?= e(mb_substr($user['name'], 0, 1)) ?></span>
+                    <?php endif; ?>
+                    <span class="d-none d-md-inline small fw-semibold text-dark"><?= e($user['name']) ?></span>
+                </a>
+                <form method="post" action="<?= url('/logout') ?>" class="d-inline">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Sign out</button>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a class="btn btn-sm btn-light px-4" href="<?= url('/login') ?>">Sign in</a>
+            </div>
+        <?php endif; ?>
+
+        <button class="navbar-toggler ms-3" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -62,7 +87,6 @@ $isRider = $user && in_array('rider', $user['roles'], true);
                         </li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/orders') ?>">My Orders</a></li>
                     <?php endif; ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= url('/profile') ?>">Profile</a></li>
                     <?php if ($isAdmin): ?>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
@@ -95,34 +119,11 @@ $isRider = $user && in_array('rider', $user['roles'], true);
                         <li class="nav-item"><a class="nav-link" href="<?= url('/rider/history') ?>">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/rider/profile') ?>">Rider Profile</a></li>
                     <?php endif; ?>
-                    <li class="nav-item dropdown ms-lg-2">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
-                           href="#" id="userMenu" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            <?php if (!empty($user['avatar'])): ?>
-                                <img class="nav-avatar" src="<?= asset($user['avatar']) ?>" alt="avatar">
-                            <?php else: ?>
-                                <span class="nav-avatar-fallback"><?= e(mb_substr($user['name'], 0, 1)) ?></span>
-                            <?php endif; ?>
-                            <span class="d-none d-lg-inline"><?= e($user['name']) ?></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="<?= url($roleHome) ?>">🏠 Dashboard</a></li>
-                            <li><a class="dropdown-item" href="<?= url('/profile') ?>">👤 My Profile</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item ms-lg-1">
-                        <form method="post" action="<?= url('/logout') ?>" class="d-inline">
-                            <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-sm btn-outline-light">Sign out</button>
-                        </form>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="<?= url($roleHome) ?>">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= url('/profile') ?>">Profile</a></li>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/register') ?>">Register</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/register/restaurant') ?>">🍽️ Partner with us</a></li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-sm btn-light px-4" href="<?= url('/login') ?>">Sign in</a>
-                    </li>
                 <?php endif; ?>
             </ul>
         </div>
