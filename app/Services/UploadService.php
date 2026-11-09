@@ -56,7 +56,8 @@ class UploadService
             return ['ok' => false, 'path' => null];
         }
 
-        $dir = dirname(__DIR__, 3) . '/public/uploads/' . $subdir;
+        // app/Services → project root is TWO levels up.
+        $dir = dirname(__DIR__, 2) . '/public/uploads/' . $subdir;
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
