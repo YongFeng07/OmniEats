@@ -50,20 +50,6 @@ class Fulfilment extends Model
     }
 
     /**
-     * Assign the restaurant's own delivery rider to this fulfilment
-     * (owner-entered data — the customer's rider card shows it).
-     */
-    public static function assignDriver(int $id, string $name, string $vehicle, string $phone): void
-    {
-        $stmt = self::db()->prepare(
-            'UPDATE fulfilments
-                SET driver_name = :name, driver_vehicle = :vehicle, driver_phone = :phone
-              WHERE id = :id'
-        );
-        $stmt->execute(['name' => $name, 'vehicle' => $vehicle, 'phone' => $phone, 'id' => $id]);
-    }
-
-    /**
      * Physical delete — allowed ONLY for eligible pending/cancelled
      * records (never completed financial-execution records; those stay
      * as the audit trail). Eligibility is enforced in FulfilmentService.

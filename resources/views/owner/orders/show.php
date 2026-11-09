@@ -129,38 +129,14 @@ $actionButtons = [
                         <?php if ($fulfilment['type'] === 'delivery'): ?>
                             <hr>
                             <p class="small mb-1"><strong>Assigned rider:</strong>
-                                <?php if (!empty($fulfilment['driver_name'])): ?>
-                                    🧑‍✈️ <?= e($fulfilment['driver_name']) ?>
-                                    <?= $fulfilment['driver_vehicle'] !== '' && $fulfilment['driver_vehicle'] !== null
-                                        ? ' · ' . e($fulfilment['driver_vehicle']) : '' ?>
-                                    · 📞 <?= e($fulfilment['driver_phone']) ?>
+                                <?php if (!empty($fulfilment['rider_id'])): ?>
+                                    <?php $riderUser = \App\Models\User::find((int) $fulfilment['rider_id']); ?>
+                                    🧑‍✈️ <?= e($riderUser['name'] ?? 'Rider') ?>
+                                    · 📞 <?= e($riderUser['phone'] ?? '') ?>
                                 <?php else: ?>
-                                    <span class="text-muted">not assigned yet</span>
+                                    <span class="text-muted">pending admin assignment</span>
                                 <?php endif; ?>
                             </p>
-                            <?php if (!in_array($fulfilment['status'], ['completed', 'cancelled'], true)): ?>
-                                <form method="post" action="<?= url('/owner/fulfilments/' . (int) $fulfilment['id'] . '/driver') ?>" class="row g-2 mt-1">
-                                    <?= csrf_field() ?>
-                                    <div class="col-12"><label class="form-label small mb-0">Assign your rider</label></div>
-                                    <div class="col-md-5">
-                                        <input type="text" class="form-control form-control-sm" name="driver_name"
-                                               placeholder="Rider name" value="<?= e($fulfilment['driver_name'] ?? '') ?>" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control form-control-sm" name="driver_vehicle"
-                                               placeholder="Plate e.g. WXY 1234" value="<?= e($fulfilment['driver_vehicle'] ?? '') ?>">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="tel" class="form-control form-control-sm" name="driver_phone"
-                                               placeholder="Phone" value="<?= e($fulfilment['driver_phone'] ?? '') ?>" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <?= empty($fulfilment['driver_name']) ? 'Assign rider' : 'Update rider' ?>
-                                        </button>
-                                    </div>
-                                </form>
-                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

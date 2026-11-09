@@ -78,24 +78,28 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
     <?php endif; ?>
 
     <?php if ($showRider): ?>
-        <?php if ($fulfilment !== null && !empty($fulfilment['driver_name'])): ?>
+        <?php if ($fulfilment !== null && !empty($fulfilment['rider_id'])): ?>
+            <?php $riderUser = \App\Models\User::find((int) $fulfilment['rider_id']); ?>
+            <?php $riderProfile = $riderUser !== null ? \App\Models\RiderProfile::findForUser((int) $riderUser['id']) : null; ?>
             <div class="rider-card mb-4">
                 <div class="rider-avatar">🧑‍✈️</div>
                 <div class="flex-grow-1">
-                    <p class="fw-bold mb-0 text-dark"><?= e($fulfilment['driver_name']) ?></p>
+                    <p class="fw-bold mb-0 text-dark"><?= e($riderUser['name'] ?? 'Your rider') ?></p>
                     <p class="small text-muted mb-0">
-                        <?= $fulfilment['driver_vehicle'] !== '' && $fulfilment['driver_vehicle'] !== null
-                            ? 'Vehicle: ' . e($fulfilment['driver_vehicle']) . ' · ' : '' ?>Bike
+                        <?= $riderProfile !== null && !empty($riderProfile['vehicle_plate'])
+                            ? 'Vehicle: ' . e($riderProfile['vehicle_plate']) . ' · ' : '' ?>
+                        <?= e($riderProfile['vehicle_type'] ?? 'Bike') ?>
                     </p>
                 </div>
-                <a class="btn btn-outline-primary btn-sm" href="tel:<?= e($fulfilment['driver_phone'] ?? '') ?>">📞 Call rider</a>
+                <a class="btn btn-outline-primary btn-sm"
+                   href="tel:<?= e($riderUser['phone'] ?? '') ?>">📞 Call rider</a>
             </div>
         <?php else: ?>
             <div class="rider-card mb-4" style="opacity: .75;">
                 <div class="rider-avatar">🛵</div>
                 <div class="flex-grow-1">
                     <p class="fw-bold mb-0 text-dark">Rider is being assigned</p>
-                    <p class="small text-muted mb-0">The restaurant will assign a rider shortly.</p>
+                    <p class="small text-muted mb-0">The platform administrator will assign a rider shortly.</p>
                 </div>
             </div>
         <?php endif; ?>

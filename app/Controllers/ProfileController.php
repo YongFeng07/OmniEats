@@ -75,28 +75,46 @@ class ProfileController
         redirect('/profile/password');
     }
 
-    /** Address book (customer convenience, Grab-style saved addresses). */
+    /** Address book (Customer Profile module — Student 2). */
     public function addAddress(): void
     {
         $label = trim((string) ($_POST['label'] ?? ''));
+        $recipient = trim((string) ($_POST['recipient_name'] ?? ''));
         $address = trim((string) ($_POST['address'] ?? ''));
+        $city = trim((string) ($_POST['city'] ?? ''));
+        $state = trim((string) ($_POST['state'] ?? ''));
+        $postcode = trim((string) ($_POST['postcode'] ?? ''));
         $phone = trim((string) ($_POST['phone'] ?? ''));
         $isDefault = isset($_POST['is_default']) && $_POST['is_default'] === '1';
 
-        if ($label === '' || $address === '' || $phone === '') {
-            flash('error', 'Label, address and phone are required for a saved address.');
+        if ($label === '' || $recipient === '' || $address === '' || $phone === '') {
+            flash('error', 'Label, recipient, address and phone are required for a saved address.');
             redirect('/profile');
         }
-        if (mb_strlen($label) > 50 || mb_strlen($address) > 255) {
-            flash('error', 'The label or address is too long.');
+        if (mb_strlen($label) > 50 || mb_strlen($recipient) > 100 || mb_strlen($address) > 255) {
+            flash('error', 'The label, recipient or address is too long.');
             redirect('/profile');
         }
         if (!preg_match('/^[0-9+\-() ]{8,20}$/', $phone)) {
             flash('error', 'Please enter a valid phone number (8-20 characters).');
             redirect('/profile');
         }
+        if ($postcode !== '' && !preg_match('/^[0-9]{5}$/', $postcode)) {
+            flash('error', 'Postcode must be exactly 5 digits.');
+            redirect('/profile');
+        }
 
-        UserAddress::create((int) AuthService::user()['id'], $label, $address, $phone, $isDefault);
+        UserAddress::create(
+            (int) AuthService::user()['id'],
+            $label,
+            $recipient,
+            $address,
+            $city,
+            $state,
+            $postcode,
+            $phone,
+            $isDefault
+        );
         flash('success', 'Address saved — it will appear in the checkout picker.');
         redirect('/profile');
     }

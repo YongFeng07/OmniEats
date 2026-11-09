@@ -3,8 +3,9 @@
 namespace App\Models;
 
 /**
- * Data access for user_addresses — the customer address book used by
- * the checkout picker (Module 5 convenience, customer-owned rows).
+ * Data access for user_addresses — the customer address book (Customer
+ * Profile module — Student 2). Customers manage only their own rows;
+ * the checkout picker reads this table.
  */
 class UserAddress extends Model
 {
@@ -24,24 +25,70 @@ class UserAddress extends Model
         return $stmt->fetch() ?: null;
     }
 
-    public static function create(int $userId, string $label, string $address, string $phone, bool $isDefault): int
-    {
+    public static function create(
+        int $userId,
+        string $label,
+        string $recipientName,
+        string $address,
+        ?string $city,
+        ?string $state,
+        ?string $postcode,
+        string $phone,
+        bool $isDefault
+    ): int {
         if ($isDefault) {
             self::clearDefault($userId);
         }
 
         $stmt = self::db()->prepare(
-            'INSERT INTO user_addresses (user_id, label, address, phone, is_default)
-             VALUES (:uid, :label, :address, :phone, :def)'
+            'INSERT INTO user_addresses
+               (user_id, label, recipient_name, address, city, state, postcode, phone, is_default)
+             VALUES
+               (:uid, :label, :recipient, :address, :city, :state, :postcode, :phone, :def)'
         );
         $stmt->execute([
-            'uid'     => $userId,
-            'label'   => $label,
-            'address' => $address,
-            'phone'   => $phone,
-            'def'     => $isDefault ? 1 : 0,
+            'uid'       => $userId,
+            'label'     => $label,
+            'recipient' => $recipientName,
+            'address'   => $address,
+            'city'      => $city !== '' && $city !== null ? $city : null,
+            'state'     => $state !== '' && $state !== null ? $state : null,
+            'postcode'  => $postcode !== '' && $postcode !== null ? $postcode : null,
+            'phone'     => $phone,
+            'def'       => $isDefault ? 1 : 0,
         ]);
         return (int) self::db()->lastInsertId();
+    }
+
+    /** UPDATE (Customer Profile CRUD) — all editable fields. */
+    public static function update(
+        int $id,
+        int $userId,
+        string $label,
+        string $recipientName,
+        string $address,
+        ?string $city,
+        ?string $state,
+        ?string $postcode,
+        string $phone
+    ): void {
+        $stmt = self::db()->prepare(
+            'UPDATE user_addresses
+                SET label = :label, recipient_name = :recipient, address = :address,
+                    city = :city, state = :state, postcode = :postcode, phone = :phone
+              WHERE id = :id AND user_id = :uid'
+        );
+        $stmt->execute([
+            'label'     => $label,
+            'recipient' => $recipientName,
+            'address'   => $address,
+            'city'      => $city !== '' && $city !== null ? $city : null,
+            'state'     => $state !== '' && $state !== null ? $state : null,
+            'postcode'  => $postcode !== '' && $postcode !== null ? $postcode : null,
+            'phone'     => $phone,
+            'id'        => $id,
+            'uid'       => $userId,
+        ]);
     }
 
     public static function delete(int $id, int $userId): void

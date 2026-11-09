@@ -276,16 +276,98 @@ Notes:
 | paid_at | DATETIME | NULL | Timestamp of successful payment |
 | created_at / updated_at | DATETIME | NOT NULL | Timestamps |
 
-### fulfilments
+### reviews (customer ratings + staff replies + admin moderation)
 | Column | Type | Constraints | Purpose |
 |---|---|---|---|
-| id | INT UNSIGNED | PK, AI | Fulfilment record identifier |
+| id | INT UNSIGNED | PK, AI | Review identifier |
+| order_id | INT UNSIGNED | NOT NULL, UNIQUE, FK → orders (RESTRICT) | One review per order (completed orders only) |
+| customer_id / restaurant_id | INT UNSIGNED | NOT NULL, FK | Reviewer and reviewed tenant |
+| rating | TINYINT UNSIGNED | NOT NULL | 1–5 stars |
+| comment | VARCHAR(500) | NULL | Customer comment |
+| reply / replied_by / replied_at | VARCHAR(500) / FK users / DATETIME | NULL | Restaurant staff reply |
+| is_hidden / hidden_by / hidden_at | TINYINT(1) / FK users / DATETIME | NOT NULL 0 / NULL | Admin moderation (hidden reviews excluded from public pages) |
+| created_at | DATETIME | NOT NULL | Timestamp |
+
+### user_addresses (Customer Profile module — Student 2)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | Address identifier |
+| user_id | INT UNSIGNED | NOT NULL, FK → users (CASCADE) | Owner (customers manage only their own) |
+| label | VARCHAR(50) | NOT NULL | e.g. Home / Office |
+| recipient_name | VARCHAR(100) | NOT NULL | Who receives the delivery |
+| address | VARCHAR(255) | NOT NULL | Address line |
+| city / state / postcode | VARCHAR | NULL | Locality fields |
+| phone | VARCHAR(20) | NOT NULL | Contact number |
+| is_default | TINYINT(1) | NOT NULL, DEFAULT 0 | One default per customer |
+| created_at | DATETIME | NOT NULL | Timestamp |
+
+### user_favourites (customer-saved restaurants)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| user_id + restaurant_id | INT UNSIGNED | Composite PK, FK → users/restaurants (CASCADE) | Saved restaurant per customer |
+| created_at | DATETIME | NOT NULL | Timestamp |
+
+### fulfilments (also the DELIVERY record — no separate deliveries table)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | Fulfilment/delivery record identifier |
 | order_id | INT UNSIGNED | NOT NULL, UNIQUE, FK → orders (CASCADE) | One fulfilment record per order |
 | type | VARCHAR(20) | NOT NULL | `delivery` \| `pickup` |
 | address / phone | VARCHAR | NULL | Delivery snapshot |
-| status | VARCHAR(30) | NOT NULL, DEFAULT 'pending' | `pending` \| `out_for_delivery` \| `ready_for_collection` \| `completed` \| `cancelled` |
+| rider_id | INT UNSIGNED | NULL, FK → users (SET NULL) | Currently assigned rider |
+| assigned_by | INT UNSIGNED | NULL, FK → users (SET NULL) | Admin who made the assignment |
+| assigned_at / accepted_at / rejected_at / picked_up_at / out_for_delivery_at / delivered_at | DATETIME | NULL | Delivery workflow timestamps (admin manual assignment unique feature) |
+| rejection_reason | VARCHAR(255) | NULL | Rider's reason for rejecting |
+| status | VARCHAR(30) | NOT NULL, DEFAULT 'pending' | delivery: `pending_assignment` \| `assigned` \| `accepted` \| `picked_up` \| `out_for_delivery` \| `delivered` \| `cancelled`; pickup: `pending` \| `ready_for_collection` \| `completed` \| `cancelled` |
 | completed_at | DATETIME | NULL | Completion timestamp |
 | created_at / updated_at | DATETIME | NOT NULL | Timestamps |
+
+### vouchers (Promotion & Voucher module)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | Voucher identifier |
+| code | VARCHAR(30) | NOT NULL, UNIQUE | Redemption code e.g. `WELCOME10` |
+| title | VARCHAR(100) | NOT NULL | Display name |
+| discount_type | VARCHAR(10) | NOT NULL | `percent` \| `fixed` |
+| discount_value | DECIMAL(10,2) | NOT NULL | Percent (1–100) or RM amount |
+| min_order | DECIMAL(10,2) | NOT NULL, DEFAULT 0 | Minimum subtotal to qualify |
+| max_discount | DECIMAL(10,2) | NULL | Cap for percent vouchers |
+| starts_at / ends_at | DATETIME | NOT NULL | Validity window (indexed) |
+| usage_limit / used_count | INT UNSIGNED | NOT NULL | Total redemptions allowed / used |
+| restaurant_id | INT UNSIGNED | NULL, FK → restaurants (CASCADE) | NULL = all restaurants; else one tenant |
+| is_active | TINYINT(1) | NOT NULL, DEFAULT 1 | Archive switch (voucher DELETE = soft) |
+| created_at / updated_at | DATETIME | NOT NULL | Timestamps |
+
+### voucher_usages (redemption audit)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | Usage record |
+| voucher_id | INT UNSIGNED | NOT NULL, FK → vouchers (RESTRICT) | Redeemed voucher |
+| order_id | INT UNSIGNED | NOT NULL, FK → orders (RESTRICT) | Order it was applied to; UNIQUE(voucher_id, order_id) |
+| customer_id | INT UNSIGNED | NOT NULL, FK → users (RESTRICT) | Customer who redeemed |
+| discount_amount | DECIMAL(10,2) | NOT NULL | Actual discount applied (snapshot) |
+| used_at | DATETIME | NOT NULL | Redemption time |
+
+### rider_profiles (Delivery & Rider module)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | Profile identifier |
+| user_id | INT UNSIGNED | NOT NULL, UNIQUE, FK → users (RESTRICT) | The rider account |
+| vehicle_type / vehicle_plate | VARCHAR(30)/(20) | NULL | Vehicle info shown to customers |
+| is_active | TINYINT(1) | NOT NULL, DEFAULT 1 | 0 = suspended (rider DELETE = suspend) |
+| is_available | TINYINT(1) | NOT NULL, DEFAULT 0 | On shift; must be 1 to receive assignments |
+| created_at / updated_at | DATETIME | NOT NULL | Timestamps |
+
+### rider_assignment_history (every assignment attempt preserved)
+| Column | Type | Constraints | Purpose |
+|---|---|---|---|
+| id | INT UNSIGNED | PK, AI | History row |
+| fulfilment_id | INT UNSIGNED | NOT NULL, FK → fulfilments (CASCADE) | The delivery |
+| rider_id | INT UNSIGNED | NOT NULL, FK → users (RESTRICT) | Assigned rider |
+| assigned_by | INT UNSIGNED | NOT NULL, FK → users (RESTRICT) | Admin who assigned |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'Assigned' | `Assigned` \| `Accepted` \| `Rejected` \| `Reassigned` |
+| assigned_at / responded_at | DATETIME | NOT NULL / NULL | Assignment and response times |
+| rejection_reason | VARCHAR(255) | NULL | Rider's rejection reason |
 
 ### activity_logs (supporting table)
 | Column | Type | Constraints | Purpose |

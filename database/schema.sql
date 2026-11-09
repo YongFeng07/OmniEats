@@ -341,32 +341,42 @@ CREATE TABLE payments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------
--- fulfilments
+-- fulfilments (delivery / pickup execution — reused as the delivery
+-- record per the assignment; NO separate deliveries table)
 -- ------------------------------------------------------------
 CREATE TABLE fulfilments (
-  id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  order_id       INT UNSIGNED NOT NULL,
-  type           VARCHAR(20)  NOT NULL COMMENT 'delivery|pickup',
-  address        VARCHAR(255) NULL COMMENT 'snapshot for delivery',
-  phone          VARCHAR(20)  NULL,
-  driver_name    VARCHAR(100) NULL COMMENT 'assigned rider name (owner-entered)',
-  driver_vehicle VARCHAR(20)  NULL COMMENT 'assigned rider vehicle plate',
-  driver_phone   VARCHAR(20)  NULL COMMENT 'assigned rider contact',
-  status         VARCHAR(30)  NOT NULL DEFAULT 'pending'
-                 COMMENT 'pending|out_for_delivery|ready_for_collection|completed|cancelled',
-  completed_at   DATETIME     NULL,
-  created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_id         INT UNSIGNED NOT NULL,
+  type             VARCHAR(20)  NOT NULL COMMENT 'delivery|pickup',
+  address          VARCHAR(255) NULL COMMENT 'snapshot for delivery',
+  phone            VARCHAR(20)  NULL,
+  rider_id         INT UNSIGNED NULL COMMENT 'currently assigned rider (users.id)',
+  assigned_by      INT UNSIGNED NULL COMMENT 'admin who made the assignment (users.id)',
+  assigned_at      DATETIME     NULL,
+  accepted_at      DATETIME     NULL,
+  rejected_at      DATETIME     NULL,
+  rejection_reason VARCHAR(255) NULL,
+  picked_up_at     DATETIME     NULL,
+  out_for_delivery_at DATETIME  NULL,
+  delivered_at     DATETIME     NULL,
+  status           VARCHAR(30)  NOT NULL DEFAULT 'pending'
+                   COMMENT 'delivery: pending_assignment|assigned|accepted|picked_up|out_for_delivery|delivered|cancelled; pickup: pending|ready_for_collection|completed|cancelled',
+  completed_at     DATETIME     NULL,
+  created_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_fulfilments_order (order_id),
   KEY idx_fulfilments_status (status),
-  CONSTRAINT fk_fulfilments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+  KEY idx_fulfilments_rider (rider_id, status),
+  CONSTRAINT fk_fulfilments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  CONSTRAINT fk_fulfilments_rider FOREIGN KEY (rider_id) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_fulfilments_admin FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------
 -- reviews (customer ratings; restaurants.rating is recomputed from
--- these after every submission — supporting table, technically
--- necessary because the rating column needs a real data source)
+-- these after every submission. Restaurant staff may reply; admins may
+-- hide inappropriate reviews — moderation is recorded)
 -- ------------------------------------------------------------
 CREATE TABLE reviews (
   id            INT UNSIGNED  NOT NULL AUTO_INCREMENT,
@@ -375,29 +385,124 @@ CREATE TABLE reviews (
   restaurant_id INT UNSIGNED  NOT NULL,
   rating        TINYINT UNSIGNED NOT NULL COMMENT '1-5 stars',
   comment       VARCHAR(500)  NULL,
+  reply         VARCHAR(500)  NULL COMMENT 'restaurant reply',
+  replied_by    INT UNSIGNED  NULL COMMENT 'staff/owner who replied',
+  replied_at    DATETIME      NULL,
+  is_hidden     TINYINT(1)    NOT NULL DEFAULT 0 COMMENT 'admin-moderated hide',
+  hidden_by     INT UNSIGNED  NULL,
+  hidden_at     DATETIME      NULL,
   created_at    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_reviews_order (order_id),
   KEY idx_reviews_restaurant (restaurant_id, created_at),
   CONSTRAINT fk_reviews_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT,
   CONSTRAINT fk_reviews_customer FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE RESTRICT,
-  CONSTRAINT fk_reviews_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE RESTRICT
+  CONSTRAINT fk_reviews_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_reviews_replier FOREIGN KEY (replied_by) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_reviews_hider FOREIGN KEY (hidden_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------
 -- user_addresses (customer address book — checkout picker)
 -- ------------------------------------------------------------
 CREATE TABLE user_addresses (
-  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  user_id    INT UNSIGNED NOT NULL,
-  label      VARCHAR(50)  NOT NULL,
-  address    VARCHAR(255) NOT NULL,
-  phone      VARCHAR(20)  NOT NULL,
-  is_default TINYINT(1)   NOT NULL DEFAULT 0,
-  created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id        INT UNSIGNED NOT NULL,
+  label          VARCHAR(50)  NOT NULL,
+  recipient_name VARCHAR(100) NOT NULL DEFAULT '',
+  address        VARCHAR(255) NOT NULL,
+  city           VARCHAR(100) NULL,
+  state          VARCHAR(100) NULL,
+  postcode       VARCHAR(10)  NULL,
+  phone          VARCHAR(20)  NOT NULL,
+  is_default     TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_addresses_user (user_id),
   CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- vouchers (promotion module — Student 1)
+-- ------------------------------------------------------------
+CREATE TABLE vouchers (
+  id             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  code           VARCHAR(30)   NOT NULL COMMENT 'e.g. WELCOME10',
+  title          VARCHAR(100)  NOT NULL COMMENT 'display name',
+  discount_type  VARCHAR(10)   NOT NULL COMMENT 'percent|fixed',
+  discount_value DECIMAL(10,2) NOT NULL COMMENT 'percent (1-100) or RM amount',
+  min_order      DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'minimum subtotal to qualify',
+  max_discount   DECIMAL(10,2) NULL COMMENT 'cap for percent vouchers',
+  starts_at      DATETIME      NOT NULL,
+  ends_at        DATETIME      NOT NULL,
+  usage_limit    INT UNSIGNED  NOT NULL DEFAULT 100 COMMENT 'total redemptions allowed',
+  used_count     INT UNSIGNED  NOT NULL DEFAULT 0,
+  restaurant_id  INT UNSIGNED  NULL COMMENT 'NULL = all restaurants; else one tenant',
+  is_active      TINYINT(1)    NOT NULL DEFAULT 1 COMMENT 'archive switch',
+  created_at     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_vouchers_code (code),
+  KEY idx_vouchers_restaurant (restaurant_id),
+  KEY idx_vouchers_dates (starts_at, ends_at),
+  CONSTRAINT fk_vouchers_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- voucher_usages (redemption audit — one use per order per voucher)
+-- ------------------------------------------------------------
+CREATE TABLE voucher_usages (
+  id              INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  voucher_id      INT UNSIGNED  NOT NULL,
+  order_id        INT UNSIGNED  NOT NULL,
+  customer_id     INT UNSIGNED  NOT NULL,
+  discount_amount DECIMAL(10,2) NOT NULL COMMENT 'actual discount applied (snapshot)',
+  used_at         DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_usage_voucher_order (voucher_id, order_id),
+  KEY idx_usage_order (order_id),
+  CONSTRAINT fk_usage_voucher FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_usage_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_usage_customer FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- rider_profiles (rider module — Student 3; the account itself is a
+-- users row with the rider role)
+-- ------------------------------------------------------------
+CREATE TABLE rider_profiles (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id       INT UNSIGNED NOT NULL COMMENT 'account holding the rider role',
+  vehicle_type  VARCHAR(30)  NULL COMMENT 'e.g. Motorcycle',
+  vehicle_plate VARCHAR(20)  NULL,
+  is_active     TINYINT(1)   NOT NULL DEFAULT 1 COMMENT 'account active (0 = suspended)',
+  is_available  TINYINT(1)   NOT NULL DEFAULT 0 COMMENT 'on shift, can receive assignments',
+  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_rider_user (user_id),
+  CONSTRAINT fk_rider_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ------------------------------------------------------------
+-- rider_assignment_history (every assignment attempt is preserved —
+-- rejections and reassignments included, per the assignment rules)
+-- ------------------------------------------------------------
+CREATE TABLE rider_assignment_history (
+  id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  fulfilment_id    INT UNSIGNED NOT NULL,
+  rider_id         INT UNSIGNED NOT NULL COMMENT 'users.id of the assigned rider',
+  assigned_by      INT UNSIGNED NOT NULL COMMENT 'admin users.id',
+  status           VARCHAR(20)  NOT NULL DEFAULT 'Assigned' COMMENT 'Assigned|Accepted|Rejected|Reassigned',
+  assigned_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  responded_at     DATETIME     NULL,
+  rejection_reason VARCHAR(255) NULL,
+  PRIMARY KEY (id),
+  KEY idx_assignment_fulfilment (fulfilment_id),
+  KEY idx_assignment_rider (rider_id),
+  CONSTRAINT fk_assignment_fulfilment FOREIGN KEY (fulfilment_id) REFERENCES fulfilments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignment_rider FOREIGN KEY (rider_id) REFERENCES users(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_assignment_admin FOREIGN KEY (assigned_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------

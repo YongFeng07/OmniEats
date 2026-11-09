@@ -143,7 +143,6 @@ $router->post('/owner/payments/{id}/delete', 'App\Controllers\Owner\PaymentContr
 // Restaurant fulfilment management (Module 6)
 $router->get('/owner/fulfilments', 'App\Controllers\Owner\FulfilmentController@index', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/fulfilments/{id}/transition', 'App\Controllers\Owner\FulfilmentController@transition', ['roles:restaurant_owner,restaurant_staff']);
-$router->post('/owner/fulfilments/{id}/driver', 'App\Controllers\Owner\FulfilmentController@driver', ['roles:restaurant_owner,restaurant_staff']);
 $router->post('/owner/fulfilments/{id}/delete', 'App\Controllers\Owner\FulfilmentController@delete', ['roles:restaurant_owner']);
 
 // Role dashboards

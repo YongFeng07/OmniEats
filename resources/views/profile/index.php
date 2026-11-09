@@ -79,7 +79,9 @@ $roles = $user['roles'] ?? [];
                                     <?php endif; ?>
                                 </p>
                                 <p class="small text-muted mb-0">
-                                    <?= e($address['address']) ?> · 📞 <?= e($address['phone']) ?>
+                                    <?= e($address['recipient_name']) ?> · <?= e($address['address']) ?>,
+                                    <?= e($address['postcode'] ?? '') ?> <?= e($address['city'] ?? '') ?>,
+                                    <?= e($address['state'] ?? '') ?> · 📞 <?= e($address['phone']) ?>
                                 </p>
                             </div>
                             <div class="d-flex gap-1">
@@ -110,18 +112,35 @@ $roles = $user['roles'] ?? [];
                         <input type="text" class="form-control" id="label" name="label"
                                placeholder="e.g. Home" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <label class="form-label" for="recipient_name">Recipient name</label>
+                        <input type="text" class="form-control" id="recipient_name" name="recipient_name" required>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label" for="address">Address</label>
                         <input type="text" class="form-control" id="address" name="address" required>
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label" for="city">City</label>
+                        <input type="text" class="form-control" id="city" name="city">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" for="state">State</label>
+                        <input type="text" class="form-control" id="state" name="state">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label" for="postcode">Postcode</label>
+                        <input type="text" class="form-control" id="postcode" name="postcode"
+                               maxlength="5" placeholder="e.g. 47300">
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label" for="phone">Phone</label>
                         <input type="tel" class="form-control" id="phone" name="phone" required>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end gap-3">
-                        <div class="form-check form-check-inline mb-0">
+                    <div class="col-12 d-flex align-items-center gap-3">
+                        <div class="form-check mb-0">
                             <input class="form-check-input" type="checkbox" id="is_default" name="is_default" value="1">
-                            <label class="form-check-label small" for="is_default">Default</label>
+                            <label class="form-check-label small" for="is_default">Default address</label>
                         </div>
                         <button type="submit" class="btn omnieats-btn btn-sm">Add</button>
                     </div>

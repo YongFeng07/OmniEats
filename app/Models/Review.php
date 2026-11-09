@@ -16,7 +16,11 @@ class Review extends Model
         return $stmt->fetch() ?: null;
     }
 
-    /** Latest reviews for one restaurant (public restaurant page). */
+    /**
+     * Latest VISIBLE reviews for one restaurant (public restaurant page).
+     * Admin-hidden reviews are excluded here; staff/admin views use
+     * allForRestaurant() which keeps them flagged.
+     */
     public static function listForRestaurant(int $restaurantId, int $limit = 5): array
     {
         $stmt = self::db()->prepare(
@@ -24,11 +28,44 @@ class Review extends Model
                FROM reviews r
                JOIN users u ON u.id = r.customer_id
               WHERE r.restaurant_id = :rid
+                AND r.is_hidden = 0
               ORDER BY r.id DESC
               LIMIT ' . max(1, min(20, $limit))
         );
         $stmt->execute(['rid' => $restaurantId]);
         return $stmt->fetchAll();
+    }
+
+    /** ALL reviews for one restaurant incl. hidden (staff/admin). */
+    public static function allForRestaurant(int $restaurantId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT r.*, u.name AS customer_name
+               FROM reviews r
+               JOIN users u ON u.id = r.customer_id
+              WHERE r.restaurant_id = :rid
+              ORDER BY r.id DESC'
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return $stmt->fetchAll();
+    }
+
+    /** Restaurant staff reply to a review (M2 — review management). */
+    public static function setReply(int $id, string $reply, int $repliedBy): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE reviews SET reply = :reply, replied_by = :uid, replied_at = NOW() WHERE id = :id'
+        );
+        $stmt->execute(['reply' => $reply, 'uid' => $repliedBy, 'id' => $id]);
+    }
+
+    /** Admin moderation: hide / unhide an inappropriate review. */
+    public static function setHidden(int $id, bool $hidden, int $hiddenBy): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE reviews SET is_hidden = :h, hidden_by = :uid, hidden_at = ' . ($hidden ? 'NOW()' : 'NULL') . ' WHERE id = :id'
+        );
+        $stmt->execute(['h' => $hidden ? 1 : 0, 'uid' => $hiddenBy, 'id' => $id]);
     }
 
     /** Average rating for a restaurant, or null when it has no reviews. */

@@ -18,7 +18,8 @@ INSERT INTO roles (name, description) VALUES
 ('super_admin',       'Platform administrator with full platform access'),
 ('restaurant_owner',  'Owns and manages one restaurant tenant'),
 ('restaurant_staff',  'Staff of a restaurant; manages menu and orders'),
-('customer',          'Registered customer who orders food');
+('customer',          'Registered customer who orders food'),
+('rider',             'Delivery rider who executes assigned deliveries');
 
 -- ------------------------------------------------------------
 -- Subscription plans (limits configurable by Super Admin)
@@ -155,3 +156,34 @@ VALUES
 ((SELECT id FROM restaurants WHERE slug = 'pizza-pasta-corner'),
  (SELECT id FROM subscription_plans WHERE name = 'Free'), 'Free', 0.00,
  DATE_SUB(NOW(), INTERVAL 40 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY), 'expired');
+
+-- ------------------------------------------------------------
+-- Rider demo account (rider role + profile) — Student 3 module
+-- ------------------------------------------------------------
+INSERT INTO users (name, email, password_hash, phone, is_active)
+VALUES ('Raj Kumar', 'rider.raj@omnieats.com', '$2y$10$UAMf6wXnlO92ga97Na1p8uFxL/.xVXMVKWzN.E9HBZQ.40f1S8B.m', '012-345 6789', 1);
+
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id FROM users u JOIN roles r ON r.name = 'rider'
+WHERE u.email = 'rider.raj@omnieats.com';
+
+INSERT INTO rider_profiles (user_id, vehicle_type, vehicle_plate, is_active, is_available)
+SELECT id, 'Motorcycle', 'WXY 1234', 1, 1 FROM users WHERE email = 'rider.raj@omnieats.com';
+
+-- ------------------------------------------------------------
+-- Demo vouchers (Promotion & Voucher module — Student 1)
+-- WELCOME10/FREE5OFF are platform-wide; NASILEMAK8 is tenant-specific;
+-- OLDDISC is expired so the smart-validation rejection path is demoable.
+-- ------------------------------------------------------------
+INSERT INTO vouchers
+  (code, title, discount_type, discount_value, min_order, max_discount,
+   starts_at, ends_at, usage_limit, restaurant_id, is_active)
+VALUES
+('WELCOME10',  'Welcome 10% Off',              'percent', 10.00, 20.00, 8.00,
+ NOW() - INTERVAL 7 DAY, NOW() + INTERVAL 30 DAY, 100, NULL, 1),
+('FREE5OFF',   'RM5 Off Your Order',           'fixed',    5.00, 15.00, NULL,
+ NOW() - INTERVAL 7 DAY, NOW() + INTERVAL 30 DAY, 200, NULL, 1),
+('NASILEMAK8', 'Nasi Lemak House RM8 Off',     'fixed',    8.00, 30.00, NULL,
+ NOW() - INTERVAL 7 DAY, NOW() + INTERVAL 14 DAY, 50, (SELECT id FROM restaurants WHERE slug = 'nasi-lemak-house'), 1),
+('OLDDISC',    'Expired Demo Voucher',         'fixed',    3.00, 10.00, NULL,
+ NOW() - INTERVAL 60 DAY, NOW() - INTERVAL 10 DAY, 10, NULL, 1);
