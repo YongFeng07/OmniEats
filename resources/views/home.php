@@ -30,12 +30,12 @@ $categories = [
         </div>
     </section>
 
-    <!-- Promo banner -->
+    <!-- Voucher banner -->
     <section class="mb-5">
         <div class="promo-banner">
             <div>
-                <h2 class="h4 mb-1">First order? Use code OMNIEATS5</h2>
-                <p class="mb-0 small" style="opacity: .9;">Get RM 5 off your first checkout — apply it in your cart.</p>
+                <h2 class="h4 mb-1">🎟️ Vouchers are waiting for you</h2>
+                <p class="mb-0 small" style="opacity: .9;">Tap a voucher in your cart — up to RM 8 off. Smart validation applies it instantly.</p>
             </div>
             <a class="promo-cta" href="<?= url('/restaurants') ?>">Order now →</a>
         </div>

@@ -91,7 +91,7 @@ $total = max(0, $contents['subtotal'] - $discount);
                     </div>
                     <div class="d-flex justify-content-between mb-1 text-success" id="promo-row"
                          style="<?= $discount > 0 ? '' : 'display: none;' ?>">
-                        <span>Promo (<?= e($promoCode) ?>)</span>
+                        <span>Voucher<?= $voucher !== null ? ' (' . e($voucher['code']) . ')' : '' ?></span>
                         <span data-discount>− RM <?= e(number_format($discount, 2)) ?></span>
                     </div>
                     <div class="d-flex justify-content-between mb-3 small text-muted">
@@ -102,13 +102,31 @@ $total = max(0, $contents['subtotal'] - $discount);
                         <span>Total</span><span data-total>RM <?= e(number_format($total, 2)) ?></span>
                     </div>
 
-                    <!-- Promo code -->
-                    <div class="input-group mb-1">
-                        <input type="text" id="promo-input" class="form-control"
-                               placeholder="Promo code" aria-label="Promo code">
-                        <button class="btn btn-primary" type="button" id="promo-apply">Apply</button>
-                    </div>
-                    <p class="small mb-3" id="promo-message" style="min-height: 1.2rem;"></p>
+                    <!-- Voucher tray (Grab-style: tap a voucher to apply) -->
+                    <?php if ($voucherTray !== []): ?>
+                        <p class="small text-muted text-uppercase mb-2">🎟️ Vouchers</p>
+                        <div class="d-flex flex-column gap-2 mb-3" id="voucher-tray">
+                            <?php foreach ($voucherTray as $trayVoucher): ?>
+                                <button type="button" class="voucher-card btn text-start w-100 <?= $voucher !== null && (int) $voucher['id'] === (int) $trayVoucher['id'] ? 'selected' : '' ?>"
+                                        data-voucher-id="<?= (int) $trayVoucher['id'] ?>"
+                                        <?= !$trayVoucher['eligible'] ? 'disabled title="' . e($trayVoucher['reason']) . '"' : '' ?>>
+                                    <span class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <strong class="text-dark d-block"><?= e($trayVoucher['title']) ?></strong>
+                                            <span class="small text-muted">
+                                                <?= e($trayVoucher['code']) ?>
+                                                <?php if (!$trayVoucher['eligible']): ?> · <?= e($trayVoucher['reason']) ?><?php endif; ?>
+                                            </span>
+                                        </span>
+                                        <span class="text-primary fw-bold small">
+                                            <?= $trayVoucher['eligible'] ? 'Apply' : '—' ?>
+                                        </span>
+                                    </span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                    <p class="small mb-3" id="voucher-message" style="min-height: 1.2rem;"></p>
 
                     <a class="btn btn-primary btn-lg w-100 fw-bold <?= (int) $restaurant['is_open'] !== 1 ? 'disabled' : '' ?>"
                        href="<?= url('/checkout') ?>">Proceed to checkout →</a>
@@ -131,8 +149,8 @@ $total = max(0, $contents['subtotal'] - $discount);
         const csrf = document.getElementById('csrf-token')?.value ?? '';
         const updateUrl = <?= json_encode(url('/cart/update')) ?>;
         const removeUrl = <?= json_encode(url('/cart/remove')) ?>;
-        const promoUrl  = <?= json_encode(url('/cart/promo')) ?>;
-        const noteUrl   = <?= json_encode(url('/cart/note')) ?>;
+        const voucherUrl = <?= json_encode(url('/cart/voucher')) ?>;
+        const noteUrl    = <?= json_encode(url('/cart/note')) ?>;
 
         const money = v => 'RM ' + Number(v).toFixed(2);
 
@@ -226,16 +244,21 @@ $total = max(0, $contents['subtotal'] - $discount);
         });
 
         // Promo code
-        document.getElementById('promo-apply')?.addEventListener('click', async () => {
-            const input = document.getElementById('promo-input');
-            const msg = document.getElementById('promo-message');
-            const data = await post(promoUrl, { code: input.value });
-            if (data.ok) {
-                msg.innerHTML = '<span class="text-success">' + data.message + '</span>';
-                applySummary({ subtotal: data.subtotal, total: data.total, discount: data.discount, count: undefined });
-            } else {
-                msg.innerHTML = '<span class="text-danger">' + data.message + '</span>';
-            }
+        // Voucher tray: tapping a voucher applies it (smart validation
+        // runs server-side and the summary updates without a reload).
+        document.querySelectorAll('#voucher-tray .voucher-card').forEach(card => {
+            card.addEventListener('click', async () => {
+                const msg = document.getElementById('voucher-message');
+                const data = await post(voucherUrl, { voucher_id: card.dataset.voucherId });
+                if (data.ok) {
+                    msg.innerHTML = '<span class="text-success">' + data.message + '</span>';
+                    document.querySelectorAll('#voucher-tray .voucher-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    applySummary({ subtotal: data.subtotal, total: data.total, discount: data.discount, count: undefined });
+                } else {
+                    msg.innerHTML = '<span class="text-danger">' + data.message + '</span>';
+                }
+            });
         });
     })();
 </script>

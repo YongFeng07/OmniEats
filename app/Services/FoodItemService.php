@@ -67,6 +67,14 @@ class FoodItemService
             return false;
         }
 
+        // Business rule: an item referenced by past orders is part of
+        // financial/order history and cannot be deleted — mark it
+        // unavailable instead (order snapshots keep the old name/price).
+        if (FoodItem::referencedByOrders($foodId)) {
+            flash('error', 'This item appears in past orders and cannot be deleted. Mark it unavailable instead.');
+            return false;
+        }
+
         FoodItem::delete($foodId);
 
         activity('delete_food_item', 'food_item', $foodId);

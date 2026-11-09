@@ -69,6 +69,21 @@ $router->post('/admin/restaurants/{id}/toggle-status', 'App\Controllers\Admin\Re
 // Admin platform activity overview (monitoring)
 $router->get('/admin/activity', 'App\Controllers\Admin\ActivityController@index', ['roles:super_admin']);
 
+// Voucher management (Promotion & Voucher — Student 1)
+// Admin: full CRUD on every voucher; Owner: own restaurant's vouchers.
+$router->get('/admin/vouchers', 'App\Controllers\Admin\VoucherController@index', ['roles:super_admin']);
+$router->get('/admin/vouchers/create', 'App\Controllers\Admin\VoucherController@create', ['roles:super_admin']);
+$router->post('/admin/vouchers/create', 'App\Controllers\Admin\VoucherController@store', ['roles:super_admin']);
+$router->get('/admin/vouchers/{id}/edit', 'App\Controllers\Admin\VoucherController@edit', ['roles:super_admin']);
+$router->post('/admin/vouchers/{id}/edit', 'App\Controllers\Admin\VoucherController@update', ['roles:super_admin']);
+$router->post('/admin/vouchers/{id}/toggle', 'App\Controllers\Admin\VoucherController@toggle', ['roles:super_admin']);
+$router->get('/owner/vouchers', 'App\Controllers\Owner\VoucherController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->get('/owner/vouchers/create', 'App\Controllers\Owner\VoucherController@create', ['roles:restaurant_owner']);
+$router->post('/owner/vouchers/create', 'App\Controllers\Owner\VoucherController@store', ['roles:restaurant_owner']);
+$router->get('/owner/vouchers/{id}/edit', 'App\Controllers\Owner\VoucherController@edit', ['roles:restaurant_owner']);
+$router->post('/owner/vouchers/{id}/edit', 'App\Controllers\Owner\VoucherController@update', ['roles:restaurant_owner']);
+$router->post('/owner/vouchers/{id}/toggle', 'App\Controllers\Owner\VoucherController@toggle', ['roles:restaurant_owner']);
+
 // Public food item detail (Module 3)
 $router->get('/foods/{id}', 'App\Controllers\FoodController@show');
 
@@ -109,7 +124,7 @@ $router->post('/cart/add', 'App\Controllers\CartController@add', ['roles:custome
 $router->post('/cart/update', 'App\Controllers\CartController@update', ['roles:customer']);
 $router->post('/cart/remove', 'App\Controllers\CartController@remove', ['roles:customer']);
 $router->post('/cart/note', 'App\Controllers\CartController@note', ['roles:customer']);
-$router->post('/cart/promo', 'App\Controllers\CartController@promo', ['roles:customer']);
+$router->post('/cart/voucher', 'App\Controllers\CartController@voucher', ['roles:customer']);
 $router->post('/cart/clear', 'App\Controllers\CartController@clear', ['roles:customer']);
 
 // Checkout (Module 5)

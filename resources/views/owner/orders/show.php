@@ -90,7 +90,7 @@ $actionButtons = [
                     </div>
                     <?php if ((float) $order['discount'] > 0): ?>
                         <div class="d-flex justify-content-between mb-1 text-success">
-                            <span>Promo discount</span><span>− RM <?= e(number_format((float) $order['discount'], 2)) ?></span>
+                            <span>Voucher discount</span><span>− RM <?= e(number_format((float) $order['discount'], 2)) ?></span>
                         </div>
                     <?php endif; ?>
                     <div class="d-flex justify-content-between fw-bold">

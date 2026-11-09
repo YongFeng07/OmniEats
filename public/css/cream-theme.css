@@ -677,3 +677,15 @@ hr { border-color: var(--cream-line); opacity: 1; }
 /* Star picker buttons */
 .star-btn { border: none; background: none; }
 .star-btn:hover { transform: scale(1.15); }
+
+/* Voucher tray cards (Grab-style tap-to-apply) */
+.voucher-card {
+    border: 1.5px dashed var(--cream-primary);
+    border-radius: 14px;
+    background: #fff;
+    padding: .6rem .8rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.voucher-card:hover:not(:disabled) { border-style: solid; box-shadow: var(--cream-shadow); }
+.voucher-card.selected { border-style: solid; border-width: 2px; background: #FDF0E9; }
+.voucher-card:disabled { opacity: .55; cursor: not-allowed; }

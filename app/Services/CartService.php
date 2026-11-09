@@ -22,30 +22,20 @@ class CartService
 {
     public const DELIVERY_FEE = 5.00;
 
-    /** Demo promo code (session-based; consumed when an order is placed). */
-    public const PROMO_CODE = 'OMNIEATS5';
-    public const PROMO_VALUE = 5.00;
-
-    /** Apply the promo code. Returns false for an unknown code. */
-    public static function applyPromo(string $code): bool
+    /**
+     * Vouchers (Promotion & Voucher module) replaced the old hardcoded
+     * demo promo. The selection lives in the session; every discount
+     * goes through VoucherService's smart validation.
+     */
+    public static function voucherDiscount(int $customerId, float $subtotal, int $restaurantId): float
     {
-        if (strtoupper(trim($code)) !== self::PROMO_CODE) {
-            return false;
-        }
-        $_SESSION['promo'] = self::PROMO_CODE;
-        return true;
+        return VoucherService::selectedDiscount($customerId, $subtotal, $restaurantId);
     }
 
-    /** Current promo discount (0.00 when no code applied). */
-    public static function promoDiscount(): float
+    /** The voucher currently selected for the cart, or null. */
+    public static function voucherSelected(int $customerId): ?array
     {
-        return isset($_SESSION['promo']) ? self::PROMO_VALUE : 0.0;
-    }
-
-    /** Consume the promo code after a successful checkout. */
-    public static function clearPromo(): void
-    {
-        unset($_SESSION['promo']);
+        return VoucherService::selected($customerId);
     }
 
     public static function addItem(int $customerId, int $foodItemId, int $quantity, bool $silent = false): bool

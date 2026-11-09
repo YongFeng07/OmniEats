@@ -66,6 +66,7 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/users') ?>">Users</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/plans') ?>">Plans</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/vouchers') ?>">Vouchers</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/subscriptions') ?>">Subscriptions</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/activity') ?>">Activity</a></li>
                     <?php endif; ?>
@@ -76,6 +77,7 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/branches') ?>">Branches</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/foods') ?>">My Menu</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/orders') ?>">Incoming Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/owner/vouchers') ?>">Vouchers</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/payments') ?>">Payments</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/fulfilments') ?>">Fulfilments</a></li>
                         <?php if (in_array('restaurant_owner', $user['roles'], true)): ?>

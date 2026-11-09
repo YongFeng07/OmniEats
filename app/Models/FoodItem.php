@@ -102,4 +102,14 @@ class FoodItem extends Model
         $stmt = self::db()->prepare('DELETE FROM food_items WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    /** Is this item referenced by any past order (history protection)? */
+    public static function referencedByOrders(int $id): bool
+    {
+        $stmt = self::db()->prepare(
+            'SELECT COUNT(*) FROM order_items WHERE food_item_id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
 }

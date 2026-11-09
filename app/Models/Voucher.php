@@ -48,6 +48,16 @@ class Voucher extends Model
         return $stmt->fetchAll();
     }
 
+    /** Vouchers belonging to ONE restaurant (owner management). */
+    public static function listingForRestaurant(int $restaurantId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT * FROM vouchers WHERE restaurant_id = :rid ORDER BY id DESC'
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return $stmt->fetchAll();
+    }
+
     /**
      * Vouchers a customer can currently see/choose for one restaurant
      * (Grab-style voucher tray): active, within the date window, not

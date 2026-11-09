@@ -7,6 +7,8 @@ use App\Models\FoodItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
+use App\Models\Voucher;
+use App\Models\VoucherUsage;
 
 /**
  * Order business logic (Module 5) including the unique feature:
@@ -101,12 +103,21 @@ class OrderService
         // Totals are computed HERE, never trusted from the browser.
         // Real business rule: a restaurant with free_delivery = 1 pays
         // no delivery fee on delivery orders (matches the card badge).
-        // The demo promo code (applied in the cart) is deducted and
-        // stored on the order; it is consumed by this checkout.
+        // The voucher (Promotion module) is re-validated server-side
+        // and recorded with its usage row inside this transaction.
         $subtotal = $contents['subtotal'];
         $freeDelivery = $type === 'delivery' && (int) $restaurant['free_delivery'] === 1;
         $deliveryFee = $freeDelivery ? 0.00 : ($type === 'delivery' ? CartService::DELIVERY_FEE : 0.00);
-        $discount = min(CartService::promoDiscount(), $subtotal + $deliveryFee);
+
+        $voucherId = (int) ($_SESSION[VoucherService::SESSION_KEY] ?? 0);
+        $voucherDiscount = 0.0;
+        if ($voucherId > 0) {
+            $voucherResult = VoucherService::validate($voucherId, $subtotal, (int) $restaurant['id'], $customerId);
+            if ($voucherResult['ok']) {
+                $voucherDiscount = $voucherResult['discount'];
+            }
+        }
+        $discount = min($voucherDiscount, $subtotal + $deliveryFee);
         $total = $subtotal + $deliveryFee - $discount;
 
         $pdo = db();
@@ -141,9 +152,17 @@ class OrderService
 
             OrderStatusHistory::add($orderId, null, 'pending_payment', $customerId, 'Order placed');
 
-            // The cart is consumed by the order; so is the promo code.
+            // Voucher redemption: usage row + counter, in the same
+            // transaction as the order (all-or-nothing).
+            if ($voucherId > 0 && $voucherDiscount > 0) {
+                VoucherUsage::create($voucherId, $orderId, $customerId, $discount);
+                Voucher::incrementUsed($voucherId);
+                activity('voucher_redeem', 'voucher', $voucherId, 'order=' . $orderId);
+            }
+
+            // The cart is consumed by the order; so is the voucher.
             Cart::delete((int) $contents['cart']['id']);
-            CartService::clearPromo();
+            VoucherService::clearSelection();
 
             $pdo->commit();
         } catch (\Throwable $e) {

@@ -115,7 +115,7 @@ $subtotal = $contents['subtotal'];
                     </div>
                     <?php if ($discount > 0): ?>
                         <div class="d-flex justify-content-between mb-1 text-success">
-                            <span>Promo (<?= e($promoCode) ?>)</span>
+                            <span>Voucher<?= $voucher !== null ? " (" . e($voucher["code"]) . ")" : "" ?></span>
                             <span>− RM <?= e(number_format($discount, 2)) ?></span>
                         </div>
                     <?php endif; ?>

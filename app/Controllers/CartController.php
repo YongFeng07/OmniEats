@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Services\AuthService;
 use App\Services\CartService;
+use App\Services\VoucherService;
 
 /**
  * Shopping cart (Module 5) — customer only.
@@ -23,12 +24,18 @@ class CartController
     {
         $contents = CartService::contents($this->customerId());
 
+        $customerId = $this->customerId();
+        $voucher = CartService::voucherSelected($customerId);
+
         view('cart/index', [
-            'title'      => 'My Cart',
-            'contents'   => $contents,
-            'deliveryFee'=> CartService::DELIVERY_FEE,
-            'discount'   => CartService::promoDiscount(),
-            'promoCode'  => CartService::PROMO_CODE,
+            'title'       => 'My Cart',
+            'contents'    => $contents,
+            'deliveryFee' => CartService::DELIVERY_FEE,
+            'discount'    => $this->voucherDiscountFor($contents),
+            'voucher'     => $voucher,
+            'voucherTray' => $contents['restaurant'] !== null
+                ? VoucherService::trayFor((int) $contents['restaurant']['id'], $contents['subtotal'])
+                : [],
         ]);
     }
 
@@ -60,6 +67,7 @@ class CartController
 
         $ok = CartService::updateQuantity($customerId, $foodId, $quantity);
         $contents = CartService::contents($customerId);
+        $discount = $this->voucherDiscountFor($contents);
 
         if ($this->wantsJson()) {
             $this->json([
@@ -68,8 +76,8 @@ class CartController
                 'line_subtotal' => number_format($this->lineSubtotal($contents, $foodId), 2),
                 'subtotal' => number_format($contents['subtotal'], 2),
                 'count'    => $contents['count'],
-                'discount' => number_format(CartService::promoDiscount(), 2),
-                'total'    => number_format(max(0, $contents['subtotal'] - CartService::promoDiscount()), 2),
+                'discount' => number_format($discount, 2),
+                'total'    => number_format(max(0, $contents['subtotal'] - $discount), 2),
             ]);
         }
 
@@ -84,6 +92,7 @@ class CartController
 
         $ok = CartService::removeItem($customerId, $foodId);
         $contents = CartService::contents($customerId);
+        $discount = $this->voucherDiscountFor($contents);
 
         if ($this->wantsJson()) {
             $this->json([
@@ -91,8 +100,8 @@ class CartController
                 'removed'  => true,
                 'subtotal' => number_format($contents['subtotal'], 2),
                 'count'    => $contents['count'],
-                'discount' => number_format(CartService::promoDiscount(), 2),
-                'total'    => number_format(max(0, $contents['subtotal'] - CartService::promoDiscount()), 2),
+                'discount' => number_format($discount, 2),
+                'total'    => number_format(max(0, $contents['subtotal'] - $discount), 2),
             ]);
         }
 
@@ -118,37 +127,68 @@ class CartController
         redirect('/cart');
     }
 
-    /** Apply (or reject) the demo promo code — AJAX endpoint. */
-    public function promo(): void
+    /**
+     * Apply (or reject) a voucher by id — AJAX endpoint, Grab-style
+     * voucher tray: the customer taps a voucher and the server runs
+     * the smart validation (VoucherService).
+     */
+    public function voucher(): void
     {
-        $code = trim((string) ($_POST['code'] ?? ''));
+        $voucherId = (int) ($_POST['voucher_id'] ?? 0);
         $customerId = $this->customerId();
+        $contents = CartService::contents($customerId);
 
-        if (!CartService::applyPromo($code)) {
+        if ($contents['restaurant'] === null) {
+            $this->json(['ok' => false, 'message' => 'Your cart is empty.', 'discount' => '0.00']);
+        }
+
+        $result = VoucherService::apply(
+            $voucherId,
+            $customerId,
+            $contents['subtotal'],
+            (int) $contents['restaurant']['id']
+        );
+
+        if ($this->wantsJson()) {
             $this->json([
-                'ok'      => false,
-                'message' => 'Invalid promo code. Try ' . CartService::PROMO_CODE . '.',
-                'discount'=> '0.00',
+                'ok'       => $result['ok'],
+                'message'  => $result['ok']
+                    ? 'Voucher applied — RM ' . number_format($result['discount'], 2) . ' off!'
+                    : $result['message'],
+                'discount' => number_format($result['ok'] ? $result['discount'] : 0.0, 2),
+                'subtotal' => number_format($contents['subtotal'], 2),
+                'total'    => number_format(max(0, $contents['subtotal'] - ($result['ok'] ? $result['discount'] : 0.0)), 2),
             ]);
         }
 
-        $contents = CartService::contents($customerId);
-        $this->json([
-            'ok'       => true,
-            'message'  => 'Promo applied — RM ' . number_format(CartService::PROMO_VALUE, 2) . ' off!',
-            'discount' => number_format(CartService::promoDiscount(), 2),
-            'subtotal' => number_format($contents['subtotal'], 2),
-            'total'    => number_format(max(0, $contents['subtotal'] - CartService::promoDiscount()), 2),
-        ]);
+        if ($result['ok']) {
+            flash('success', 'Voucher applied.');
+        } else {
+            flash('error', $result['message']);
+        }
+        redirect('/cart');
     }
 
     public function clear(): void
     {
         CartService::clear($this->customerId());
-        CartService::clearPromo();
+        VoucherService::clearSelection();
 
         flash('success', 'Your cart has been cleared.');
         redirect('/cart');
+    }
+
+    /** Voucher discount for the current cart (0 when none/invalid). */
+    private function voucherDiscountFor(array $contents): float
+    {
+        if ($contents['restaurant'] === null) {
+            return 0.0;
+        }
+        return CartService::voucherDiscount(
+            $this->customerId(),
+            $contents['subtotal'],
+            (int) $contents['restaurant']['id']
+        );
     }
 
     /** Line subtotal for one item after an update. */
