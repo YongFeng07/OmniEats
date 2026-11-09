@@ -41,18 +41,19 @@ TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code (commit `
 
 ```
 app/
-├── Controllers/   Admin/ · Owner/ · top-level (public + customer pages)
+├── Controllers/   Admin/ · Owner/ · Rider/ · top-level (public + customer pages)
 ├── Core/          Router
 ├── Helpers/       functions.php (e, url, redirect, flash, csrf, view, activity, badge_class)
-├── Middleware/    AuthMiddleware · CsrfMiddleware
+├── Middleware/    AuthMiddleware (4 roles incl. rider) · CsrfMiddleware
 ├── Models/        Model (base) + one class per table
 ├── Services/      Auth · User · Restaurant · Branch · Category · FoodItem ·
-│                  Subscription · Plan · Cart · Order · Payment · Fulfilment · Upload
+│                  Subscription · Plan · Cart · Order · Payment · Fulfilment ·
+│                  Upload · Voucher · Review · Rider
 └── Validators/    Validator (base) + one validator per form
 config/            app.php (.env loader) · database.php (PDO singleton)
-database/          schema.sql (canonical) · seed.sql
+database/          schema.sql (canonical, 24 tables) · seed.sql
 public/            index.php · .htaccess · assets/ · uploads/ (PHP execution blocked)
-resources/views/   shared/ auth/ admin/ owner/ orders/ cart/ checkout/ restaurants/ foods/
+resources/views/   shared/ auth/ admin/ owner/ rider/ orders/ cart/ checkout/ restaurants/ foods/
 routes/web.php     route table with per-route RBAC guards
 ```
 
@@ -64,10 +65,12 @@ routes/web.php     route table with per-route RBAC guards
 | Plain PHP, no framework | Every line is explainable (Diploma level); nothing hidden |
 | Services hold business rules | Controllers stay thin; rules are testable and not duplicated |
 | Tenant id from session only | Browser values are never trusted (cross-tenant protection) |
-| Snapshot columns (order_items, subscriptions) | History must survive later menu/plan changes |
-| Soft delete (is_active/status) + payment void | Audit trail; completed financial records never deleted |
+| Snapshot columns (order_items, voucher_usages, orders) | History must survive later menu/voucher changes |
+| Soft delete (is_active/status/is_archived/is_hidden) + payment void | Audit trail; completed financial records never deleted |
 | Simulated payments only | Academic scope; no card data stored, no real gateway |
-| Auto-expiry sweep on relevant requests | No cron needed — expiry is enforced when the platform runs |
+| Separate order vs delivery state machines | Order status and delivery status are different business processes; the timeline merges them for display |
+| Admin manual rider assignment | No automatic assignment, no rider self-claim, one active delivery per rider, full assignment history |
+| Smart voucher validation in three places | Tray → tap → checkout transaction; the browser is never trusted |
 
 ## 5. Security Controls (implemented)
 

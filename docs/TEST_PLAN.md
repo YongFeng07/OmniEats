@@ -34,19 +34,26 @@ assignment:
 | Area | Tests | Passed | Failed |
 |---|---|---|---|
 | Phase 4 core (routing/auth/CSRF/RBAC) | T1–T12 | 12 | 0 |
-| M1 User & Authentication | T13–T31 | 19 | 0 |
-| M2 Restaurant & Branch | T32–T40 | 9 | 0 |
-| M3 Menu & Catalogue | T41–T52 | 12 | 0 |
-| M4 Subscription | T53–T63 | 11 | 0 |
-| M5 Ordering & Orders | T64–T77 | 14 | 0 |
-| M6 Payment & Fulfilment | T78–T91 | 14 | 0 |
+| M1 User & Authentication (original allocation) | T13–T31 | 19 | 0 |
+| M2 Restaurant & Branch (original allocation) | T32–T40 | 9 | 0 |
+| M3 Menu & Catalogue (original allocation) | T41–T52 | 12 | 0 |
+| M4 Subscription (original allocation) | T53–T63 | 11 | 0 |
+| M5 Ordering & Orders (original allocation) | T64–T77 | 14 | 0 |
+| M6 Payment & Fulfilment (original allocation) | T78–T91 | 14 | 0 |
 | Integration workflows | E2E-1–E2E-15 | 15 | 0 |
 | Cross-tenant matrix | CT-1–CT-10 | 10 | 0 |
-| **Total** | | **116** | **0** |
+| UI/AJAX round (§8) | T92–T102 | 11 | 0 |
+| Audit round (§11) | T103–T108 | 20 | 0 |
+| Grab/Foodpanda benchmark round (§12) | T109–T113 | 25 | 0 |
+| Voucher module (§13) | T121–T125 | 41 | 0 |
+| Customer Profile & timeline (Wong) | T115, T126–T127 | 14 | 0 |
+| Rider & review modules (Leong) | T128–T132 | 50 | 0 |
+| **Total executed** | | **277** | **0** |
 
-Two defects were found and fixed during testing: (1) a stale per-request auth cache
-caused a 500 on login, fixed by resetting the cache when the session changes;
-(2) logged-out users hitting role-guarded pages got 403 instead of a login redirect.
+Defects found and fixed during testing (all re-tested): auth cache staleness,
+guest-role 403, PDO repeated-placeholder HY093 (site search 500), hardcoded card
+data replaced with real columns, review/reply controller missing Review::find,
+nested-transaction conflict in rider creation.
 
 ## 4. Module Test Cases
 

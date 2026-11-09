@@ -74,27 +74,37 @@ Notes:
 - `orders` ↔ `payments` and `orders` ↔ `fulfilments` are **one-to-one** (UNIQUE FK) —
   one payment record and one fulfilment record per order.
 
-## 3. Table List (17 tables)
+## 3. Table List (24 tables)
 
 | # | Table | Purpose | Module |
 |---|---|---|---|
-| 1 | roles | The four platform roles | M1 |
-| 2 | users | All accounts (admin, owners, staff, customers) | M1 |
-| 3 | user_roles | Many-to-many user ↔ role assignment (composite PK) | M1 |
-| 4 | restaurants | Restaurant tenants, profiles, approval & open status | M2 |
-| 5 | restaurant_branches | Branches of each restaurant (plan-limited) | M2 |
-| 6 | categories | Food categories per restaurant | M3 |
-| 7 | food_items | Menu items with price, image, availability | M3 |
-| 8 | subscription_plans | Plan definitions & limits (Free/Basic/Premium) | M4 |
-| 9 | subscriptions | Subscription history per restaurant (snapshots) | M4 |
-| 10 | carts | One active cart per customer, one restaurant each | M5 |
-| 11 | cart_items | Cart lines with quantity | M5 |
-| 12 | orders | Customer orders with totals and status | M5 |
-| 13 | order_items | Order lines — historical name/price snapshots | M5 |
-| 14 | order_status_history | Status timeline for live tracking (unique feature) | M5 |
-| 15 | payments | Payment records with simulated gateway audit trail | M6 |
-| 16 | fulfilments | Delivery / self-pickup execution records | M6 |
-| 17 | activity_logs | Platform activity monitoring (supporting table) | M1/Admin |
+| 1 | roles | The five platform roles (incl. rider) | Shared |
+| 2 | users | All accounts (admin, owners, staff, riders, customers) | Shared |
+| 3 | user_roles | Many-to-many user ↔ role assignment (composite PK) | Shared |
+| 4 | restaurants | Restaurant tenants, profiles, approval, rating, delivery settings | Restaurant Menu |
+| 5 | restaurant_branches | Branches of each restaurant (plan-limited) | Restaurant Menu |
+| 6 | categories | Food categories per restaurant | Restaurant Menu |
+| 7 | food_items | Menu items with price, image, availability | Restaurant Menu |
+| 8 | vouchers | Voucher rules (global or per-restaurant) | Promotion & Voucher |
+| 9 | voucher_usages | Redemption audit — one use per order per voucher | Promotion & Voucher |
+| 10 | user_addresses | Customer saved addresses (checkout picker) | Customer Profile |
+| 11 | user_favourites | Customer-saved restaurants (composite PK) | Customer Profile |
+| 12 | carts | One active cart per customer, one restaurant each | Order Processing |
+| 13 | cart_items | Cart lines with quantity + per-item note | Order Processing |
+| 14 | orders | Customer orders with totals, snapshots, status | Order Processing |
+| 15 | order_items | Order lines — historical name/price/note snapshots | Order Processing |
+| 16 | order_status_history | Status timeline for live tracking (unique feature) | Order Processing |
+| 17 | payments | Payment records with simulated gateway audit trail | Payment & Review |
+| 18 | reviews | Customer ratings + staff replies + admin moderation | Payment & Review |
+| 19 | fulfilments | Delivery / self-pickup execution — also THE delivery record with rider assignment fields | Delivery & Rider |
+| 20 | rider_assignment_history | Every assignment attempt (assigned/accepted/rejected/reassigned) | Delivery & Rider |
+| 21 | rider_profiles | Rider-specific info: vehicle, availability, status | Delivery & Rider |
+| 22 | subscription_plans | Plan definitions & limits (Free/Basic/Premium) | (legacy SaaS — retained) |
+| 23 | subscriptions | Subscription history per restaurant (snapshots) | (legacy SaaS — retained) |
+| 24 | activity_logs | Platform activity monitoring (supporting table) | Shared |
+
+(The subscription tables remain from the original SaaS design and still
+function — the final module allocation focuses on the six assignment modules.)
 
 ## 4. Data Dictionary
 
@@ -385,6 +395,16 @@ Notes:
 | Relationship | Cardinality | Business meaning |
 |---|---|---|
 | roles ↔ user_roles ↔ users | M : N | A user can hold more than one role (e.g. owner of their restaurant); composite PK prevents duplicates |
+| users → restaurants (owner_id) | 1 : N | Each restaurant has exactly one owner account; owners cannot be deleted while owning a restaurant (RESTRICT) |
+| users → rider_profiles (user_id) | 1 : 1 | A rider's account has exactly one rider profile (UNIQUE); profiles are admin-created |
+| users → fulfilments (rider_id) | 1 : N | One rider has many deliveries; assignment is set by the admin only |
+| users → fulfilments (assigned_by) | 1 : N | The admin who made each assignment is recorded |
+| fulfilments → rider_assignment_history | 1 : N | EVERY assignment attempt is kept — rejections and reassignments included |
+| vouchers → voucher_usages | 1 : N | Redemption audit; UNIQUE(voucher_id, order_id) prevents double use on one order |
+| orders → voucher_usages | 1 : N | Each usage references the order that redeemed it |
+| users → user_addresses | 1 : N | A customer manages their own addresses only (CASCADE on user) |
+| users ↔ user_favourites ↔ restaurants | M : N | Composite PK (user_id, restaurant_id) — one save per pair |
+| orders → reviews | 1 : 1 | One review per order (UNIQUE), completed orders only; replies and moderation columns record who acted |
 | users → restaurants (owner_id) | 1 : N | Each restaurant has exactly one owner account; owners cannot be deleted while owning a restaurant (RESTRICT) |
 | restaurants → users (restaurant_id) | 1 : N | Tenant membership for owner/staff; NULL for admins and customers |
 | restaurants → restaurant_branches | 1 : N | Branches belong to one tenant; deleting a restaurant deletes its branches |

@@ -1,74 +1,85 @@
-# OmniEats — Module Specifications
+# OmniEats — Module Specifications (Final Allocation)
 
 TAR UMT AMCS2194 · Chapter 3 material · matches the implemented code
+Allocation approved 2026-11-09: three members, six modules, one unique feature each.
 
-## M1 — User & Authentication Management (Member A)
+## Student 1 — LIM LI ZHE
 
-| Item | Implementation |
-|---|---|
-| Create | Public registration (`/register` customer, `/register/restaurant` owner — fixed role per route, no escalation); admin create user (`/admin/users/create`) with role whitelist + tenant requirement for owner/staff |
-| Retrieve | Admin list with search + role/status filters (`/admin/users`), user detail with recent activity (`/admin/users/{id}`) |
-| Update | Own profile (`/profile`), password change (`/profile/password`), admin edit (name/email/phone/role/tenant/status/optional password) |
-| Delete | Soft delete via deactivate/activate toggle; self-deactivation blocked; deactivated users lose access on next request |
-| Business rules | Email unique; role from whitelist (`Role::NAMES`); only super_admin can grant super_admin; admins cannot demote/deactivate themselves; password strength (8+, letters+numbers) |
-| Integration | Auth drives every route guard; registration auto-logs-in and starts Workflow 1; activity log rows for every action |
-| Tests | T13–T31 |
-
-## M2 — Restaurant & Branch Management (Member B)
+### M1 — Restaurant Menu Management
 
 | Item | Implementation |
 |---|---|
-| Create | Owner registers tenant (`/owner/restaurant/create`, status=pending, slug generated, logo/cover upload, owner linked as tenant); branches (`/owner/branches/create`, M4 quota enforced) |
-| Retrieve | Public listing with search + open/closed filter (approved only), public detail with branches; admin listing with approval filter |
-| Update | Profile edit (address, hours, images, estimated delivery time, free-delivery offer); branch edit; admin approval lifecycle |
-| Delete | Restaurant deactivate (archive — records preserved) / reactivate; branch delete (only-branch protected) |
-| ★ UNIQUE FEATURE | **Availability Control**: `toggleOpen` flips OPEN/CLOSED; CLOSED → profile still visible, new orders blocked (re-checked in cart add AND checkout), status shown everywhere |
-| Business rules | Pending restaurants hidden from public (404); cross-tenant ids rejected as "not found"; rating/delivery-time/free-delivery come from real columns (rating NULL → "New"; seeded demo values only) |
-| Tests | T32–T40, CT-1, CT-7, CT-9 |
+| Create | Restaurant application (owner), categories, food items (with image upload) |
+| Retrieve | Public restaurant listing (search + OPEN/CLOSED filter), restaurant detail with grouped menu, public food detail, owner management lists |
+| Update | Restaurant profile (hours, delivery time, free-delivery, images), category edit, food edit (name/description/price/image/availability) |
+| Delete | Restaurant deactivate/archive; category delete blocked while it contains items; **food delete blocked when referenced by past orders** (mark unavailable instead — order snapshots preserve history) |
+| Business rules | Pending restaurants hidden from public (404); cross-tenant ids rejected as "not found"; availability re-checked at checkout; order items store name/price/note snapshots |
+| Tests | Original T32–T52 (legacy allocation), T125 (food-delete protection), GET/POST sweeps |
 
-## M3 — Menu & Food Catalogue Management (Member B)
-
-| Item | Implementation |
-|---|---|
-| Create | Categories + food items (owner/staff); food image upload |
-| Retrieve | Public menu grouped by category with server-side search + category filter; owner list with the same filters; public food detail |
-| Update | Name/description/price/category/image; availability toggle per item |
-| Delete | Item delete; category delete blocked while it contains items |
-| Business rules | Category names unique per tenant; category must belong to the tenant (validated server-side); price > 0 (DECIMAL); availability re-checked at checkout; order items keep name/price snapshots |
-| Tests | T41–T52, CT-2, CT-3 |
-
-## M4 — Subscription Management (Member A)
+### M2 — Promotion & Voucher Management
 
 | Item | Implementation |
 |---|---|
-| Create | Admin creates plans (price, branch/item limits — max_food_items NULL = unlimited); restaurant chooses a plan (simulated payment); **registration bootstraps an initial Free subscription** (Workflow 1) |
-| Retrieve | Owner: current plan + quota usage bars + full history; Admin: plan list with subscriber counts + subscription monitoring with status filter |
-| Update | Plan edit; renew (extends same row), upgrade/downgrade (old row cancelled, new row with snapshots) |
-| Delete | Cancel subscription (soft); archive plan (blocked while it has active subscribers) |
-| ★ UNIQUE FEATURE | **Automatic Expiry & Quota Enforcement**: `syncExpiry()` marks overdue subscriptions expired on relevant requests (no cron); `enforceForBranch/FoodItem` called by Branch/FoodItem services BEFORE creating records; clear upgrade/expiry messages |
-| Business rules | History never deleted (plan_name/price_paid snapshots); simulated payments only (activity log records the amount) |
-| Tests | T53–T63 |
+| Create | Vouchers — admin creates platform-wide or per-restaurant; owners create vouchers for their own restaurant (tenant forced from session) |
+| Retrieve | Admin list (search + status filter, used counts), owner list, customer voucher tray (eligible only, Grab-style) |
+| Update | Voucher rules: code, title, discount type (percent/fixed), value, min order, max discount, date window, usage limit, restaurant, active switch |
+| Delete | Soft archive (`is_active`) — redemption history is never deleted |
+| ★ UNIQUE FEATURE | **Smart Voucher Validation**: one `VoucherService::validate()` checks active status, validity window, usage limit, minimum spending, discount cap and applicable restaurant, returning the exact discount or a clear reason. Runs in the tray, on tap, and AGAIN inside the checkout transaction. Redemption records a `voucher_usages` row and increments the counter atomically with the order |
+| Business rules | Duplicate codes rejected; percent 1–100; expiry after start; usage limit ≥ 1; discount never exceeds the subtotal |
+| Tests | T121–T124 (41 checks) |
 
-## M5 — Ordering & Order Management (Member C)
+## Student 2 — WONG YONG FENG
 
-| Item | Implementation |
-|---|---|
-| Create | Cart + cart items (`UNIQUE(customer_id)` = one active cart); orders via checkout transaction (order + snapshot items + first history row, cart consumed); **"Order again" re-adds a past order's items** (all rules re-checked) |
-| Retrieve | Cart page, customer order history (active / archived views), restaurant order list (status filter), order detail for both sides |
-| Update | Cart quantities; order status via validated transitions |
-| Delete | Remove/clear cart items; cancel eligible orders; **archive terminal orders (soft, reversible)** |
-| ★ UNIQUE FEATURE | **Live Order Status Tracking**: DB-backed `order_status_history` timeline (pending_payment → confirmed → preparing → ready → completed / cancelled); transitions validated against `OrderService::TRANSITIONS`; JS polls `/orders/{id}/status` every 5 s (customer) and `/owner/orders/poll` every 10 s (merchant dashboard) — both sides update live |
-| Business rules | One restaurant per cart; totals backend-computed (subtotal + RM 5.00 delivery fee, waived for restaurants with free_delivery = 1); unavailable items and CLOSED restaurants re-checked at checkout; customers cannot modify completed orders; snapshots preserve history |
-| Tests | T64–T77, CT-4, CT-6, CT-8 |
-
-## M6 — Payment & Fulfilment Management (Member C) — no unique feature (mandated)
+### M1 — Customer Profile (Saved Addresses)
 
 | Item | Implementation |
 |---|---|
-| Create | Payment record (pending) when the customer pays; fulfilment record created automatically on payment success (delivery address snapshot) |
-| Retrieve | Payment receipt on the order page; restaurant payment list + detail; fulfilment list |
-| Update | Payment status via the simulated gateway (success/failed/void); fulfilment status transitions (pending → out_for_delivery/ready_for_collection → completed, type-validated) |
-| Delete | Pending/failed test payment records deletable; **success/void records never deleted** (audit trail — void only); **eligible (pending/cancelled) fulfilment records deletable, completed ones kept** |
-| Payment simulation | Method selection (cash/online) → record created → simulated result (deterministic "simulate decline" demo control) → success advances the order via `transitionBySystem` + creates fulfilment; failure never marks the order paid |
-| Business rules | One payment per order (UNIQUE); duplicate payment blocked; no card data stored |
-| Tests | T78–T91, CT-5 |
+| Create | Saved delivery address (label, recipient, address, city, state, postcode, phone, default flag) |
+| Retrieve | Address book on the profile page; checkout picker |
+| Update | Address edit form (`/profile/addresses/{id}/edit`); make-default |
+| Delete | Address delete; ownership enforced (other users' addresses are unreachable) |
+| Business rules | Required fields; phone format; 5-digit postcode; profile name/email/phone edit as the supporting function; customers manage ONLY their own addresses |
+| Tests | T115, T126 (14 checks) |
+
+### M2 — Order Processing & Checkout
+
+| Item | Implementation |
+|---|---|
+| Create | Orders via checkout transaction (order + item snapshots + first history row; cart consumed; voucher redeemed) |
+| Retrieve | Order history (active/archived), order details, cart page |
+| Update | Cart quantities (AJAX), per-item notes, order remarks at checkout, cancel eligible orders |
+| Delete | Remove/clear cart items; archive terminal orders (soft, reversible) |
+| ★ UNIQUE FEATURE | **Order Status Timeline**: DB-backed `order_status_history` MERGED with delivery timestamps (picked_up / out_for_delivery / delivered) into one Grab-style progress bar — Payment → Confirmed → Preparing → Ready for Pickup → Picked Up → Out for Delivery → Delivered (pickup orders end at Completed). JS polls `/orders/{id}/status` (which also returns the fulfilment status) every 5 s and reloads on either change |
+| Business rules | One restaurant per cart; server-side totals; recipient/address/phone required for delivery; vouchers applied via the voucher tray; snapshots preserve prices/names/notes/addresses; customers see only their own orders |
+| Tests | Original T64–T77, T109–T110, T127 (14 checks) |
+
+## Student 3 — LEONG HONG JUN
+
+### M1 — Delivery & Rider Management
+
+| Item | Implementation |
+|---|---|
+| Create | Rider accounts created by Super Admin ONLY (users + rider role + rider profile in one transaction — no public registration) |
+| Retrieve | Admin rider list (status, availability, vehicle), Rider Portal (own task, own history, own profile) |
+| Update | Rider vehicle details (admin), availability (rider + admin), suspension/reactivation, delivery status via the validated workflow |
+| Delete | Suspend rider (soft — records preserved; pending assignment returned to the pool) |
+| ★ UNIQUE FEATURE | **Admin Manual Rider Assignment**: the admin picks an eligible rider (active account + active profile + available + no other active delivery) for each READY delivery order. Every attempt is recorded in `rider_assignment_history`; rejection (with reason) returns the delivery to the pool; reassignment marks the previous attempt "Reassigned" — history is never overwritten. Rider workflow: assigned → accepted/rejected → picked_up → out_for_delivery → delivered (each step validated in order; delivery auto-completes the order) |
+| Business rules | Riders cannot claim deliveries; riders see only their own assignments; suspended/unavailable riders receive nothing; one active delivery per rider |
+| Tests | T128–T131 |
+
+### M2 — Payment & Review Management
+
+| Item | Implementation |
+|---|---|
+| Create | Payment transaction (cash / simulated online) when the customer pays; customer reviews on completed orders (1–5 stars + comment, one per order) |
+| Retrieve | Payment receipts and lists; public reviews with staff replies; owner/admin review lists |
+| Update | Payment status via the simulated gateway (pending/success/failed/void — decline control included); **staff reply to reviews** |
+| Delete | Void payments (never physically deleted); delete eligible pending/failed test records; **admin hide/unhide reviews** (hidden reviews disappear from public pages; moderation recorded) |
+| Business rules | One payment per order; duplicate payment blocked; no card data stored; success marks the order paid and creates the fulfilment (delivery → pending_assignment, pickup → pending); reviews recompute the restaurant rating; COD follows the same simulated confirmation flow |
+| Tests | Original T78–T91, T132 |
+
+## Shared system functions (distributed across the team)
+
+Auth & RBAC (4 roles: Super Admin / Restaurant Owner+Staff / Customer / Rider),
+session + CSRF, activity log, role dashboards, warm-cream responsive UI,
+validation framework, and cross-module integration through shared database records.

@@ -49,6 +49,7 @@ classDiagram
     class CategoryValidator
     class FoodItemValidator
     class PlanValidator
+    class VoucherValidator
     Validator <|-- RegisterValidator
     Validator <|-- UserCreateValidator
     Validator <|-- UserUpdateValidator
@@ -59,6 +60,7 @@ classDiagram
     Validator <|-- CategoryValidator
     Validator <|-- FoodItemValidator
     Validator <|-- PlanValidator
+    Validator <|-- VoucherValidator
 
     %% ------------------- MODELS -------------------
     class Model {
@@ -87,8 +89,30 @@ classDiagram
     class OrderItem
     class OrderStatusHistory
     class Payment
-    class Fulfilment
+    class Fulfilment {
+        +assignRider(...) +clearAssignment(...) +markAccepted/PickedUp/OutForDelivery/Delivered(...)
+        +awaitingAssignment() +activeForRider(rid) +historyForRider(rid)
+    }
     class ActivityLog
+    class Voucher {
+        +find(id) +findByCode(code) +listing(q, active) +availableFor(rid)
+        +create(...) +update(...) +setActive(...) +incrementUsed(...)
+    }
+    class VoucherUsage
+    class RiderProfile {
+        +find(id) +findForUser(uid) +all() +availableForAssignment()
+        +create(...) +update(...) +setActive(...) +setAvailable(...)
+    }
+    class RiderAssignmentHistory {
+        +create(fid, rid, aid, status) +recordResponse(...)
+        +forFulfilment(fid) +latestForFulfilment(fid)
+    }
+    class Review {
+        +find(id) +findByOrder(oid) +listForRestaurant(rid) +allForRestaurant(rid)
+        +setReply(...) +setHidden(...) +averageForRestaurant(rid)
+    }
+    class UserAddress
+    class UserFavourite
     Model <|-- User
     Model <|-- Restaurant
     Model <|-- Branch
@@ -104,6 +128,13 @@ classDiagram
     Model <|-- Payment
     Model <|-- Fulfilment
     Model <|-- ActivityLog
+    Model <|-- Voucher
+    Model <|-- VoucherUsage
+    Model <|-- RiderProfile
+    Model <|-- RiderAssignmentHistory
+    Model <|-- Review
+    Model <|-- UserAddress
+    Model <|-- UserFavourite
 
     %% ------------------- SERVICES (business rules) -------------------
     class AuthService {
@@ -136,7 +167,19 @@ classDiagram
         +pay(oid, cid, method, simulateDecline) +markVoid(pid, tenant) +delete(pid, tenant)
     }
     class FulfilmentService {
-        +updateStatus(fid, tenant, status) +cancelForOrder(oid)
+        +updateStatus(fid, tenant, status) +cancelForOrder(oid) +delete(fid, tenant)
+    }
+    class VoucherService {
+        +validate(vid, subtotal, rid) array +calculateDiscount(v, subtotal)
+        +trayFor(rid, subtotal) +apply(...) +selectedDiscount(...) +clearSelection()
+    }
+    class ReviewService {
+        +submit(oid, cid, rating, comment)
+    }
+    class RiderService {
+        +assign(fid, rid, aid) +respond(fid, rid, action, reason)
+        +progress(fid, rid, step) +createRider(data)
+        +setSuspended(pid, suspended) +setAvailability(pid, available)
     }
     class UploadService {
         +store(file, subdir) array
@@ -165,6 +208,13 @@ classDiagram
     class OwnerOrderController
     class OwnerPaymentController
     class OwnerFulfilmentController
+    class AdminVoucherController
+    class OwnerVoucherController
+    class AdminRiderController
+    class AdminAssignmentController
+    class AdminReviewController
+    class OwnerReviewController
+    class RiderPortalController
 
     %% ------------------- RELATIONSHIPS -------------------
     HomeController ..> Restaurant
@@ -200,6 +250,25 @@ classDiagram
     BranchService ..> SubscriptionService : quota check
     FoodItemService ..> SubscriptionService : quota check
     FoodItemService ..> UploadService
+    AdminVoucherController ..> Voucher
+    OwnerVoucherController ..> Voucher
+    AdminRiderController ..> RiderService
+    AdminAssignmentController ..> RiderService
+    RiderPortalController ..> RiderService
+    OwnerReviewController ..> Review
+    AdminReviewController ..> Review
+    VoucherService ..> Voucher
+    VoucherService ..> VoucherUsage
+    RiderService ..> RiderProfile
+    RiderService ..> RiderAssignmentHistory
+    RiderService ..> Fulfilment
+    RiderService ..> OrderService : completes order on delivery
+    ReviewService ..> Review
+    ReviewService ..> Restaurant
+    OrderService ..> VoucherService : smart validation at checkout
+    OrderService ..> Voucher
+    OrderService ..> VoucherUsage
+    CartController ..> VoucherService
     RestaurantService ..> UploadService
     AuthService ..> User
     UserService ..> AuthService : auto login

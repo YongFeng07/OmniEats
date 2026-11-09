@@ -59,6 +59,7 @@ No frameworks. Plain PHP so every line can be explained in the report.
 | Restaurant Owner (Nasi Lemak House) | `owner.nasilemak@omnieats.com` |
 | Restaurant Owner (Pizza & Pasta Corner) | `owner.pizza@omnieats.com` |
 | Restaurant Staff | `staff.nasilemak@omnieats.com` |
+| Rider | `rider.raj@omnieats.com` |
 | Customer | `customer@omnieats.com` |
 
 ## Running the application (everyday)
