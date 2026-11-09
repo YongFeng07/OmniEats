@@ -109,14 +109,13 @@ $isRider = $user && in_array('rider', $user['roles'], true);
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="<?= url($roleHome) ?>">🏠 Dashboard</a></li>
                             <li><a class="dropdown-item" href="<?= url('/profile') ?>">👤 My Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="post" action="<?= url('/logout') ?>">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="dropdown-item text-danger">🚪 Sign out</button>
-                                </form>
-                            </li>
                         </ul>
+                    </li>
+                    <li class="nav-item ms-lg-1">
+                        <form method="post" action="<?= url('/logout') ?>" class="d-inline">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-sm btn-outline-light">Sign out</button>
+                        </form>
                     </li>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/register') ?>">Register</a></li>
