@@ -133,6 +133,62 @@ class ProfileController
         redirect('/profile');
     }
 
+    /** UPDATE (Customer Profile CRUD) — edit a saved address. */
+    public function editAddress(string $id): void
+    {
+        $userId = (int) AuthService::user()['id'];
+        $address = UserAddress::find((int) $id);
+        if ($address === null || (int) $address['user_id'] !== $userId) {
+            flash('error', 'Address not found.');
+            redirect('/profile');
+        }
+
+        view('profile/address_form', [
+            'title'   => 'Edit address',
+            'action'  => url('/profile/addresses/' . (int) $id . '/edit'),
+            'address' => $address,
+        ]);
+    }
+
+    public function updateAddress(string $id): void
+    {
+        $userId = (int) AuthService::user()['id'];
+        $address = UserAddress::find((int) $id);
+        if ($address === null || (int) $address['user_id'] !== $userId) {
+            flash('error', 'Address not found.');
+            redirect('/profile');
+        }
+
+        $label = trim((string) ($_POST['label'] ?? ''));
+        $recipient = trim((string) ($_POST['recipient_name'] ?? ''));
+        $line = trim((string) ($_POST['address'] ?? ''));
+        $city = trim((string) ($_POST['city'] ?? ''));
+        $state = trim((string) ($_POST['state'] ?? ''));
+        $postcode = trim((string) ($_POST['postcode'] ?? ''));
+        $phone = trim((string) ($_POST['phone'] ?? ''));
+
+        if ($label === '' || $recipient === '' || $line === '' || $phone === '') {
+            flash('error', 'Label, recipient, address and phone are required.');
+            redirect('/profile/addresses/' . (int) $id . '/edit');
+        }
+        if (mb_strlen($label) > 50 || mb_strlen($recipient) > 100 || mb_strlen($line) > 255) {
+            flash('error', 'The label, recipient or address is too long.');
+            redirect('/profile/addresses/' . (int) $id . '/edit');
+        }
+        if (!preg_match('/^[0-9+\-() ]{8,20}$/', $phone)) {
+            flash('error', 'Please enter a valid phone number (8-20 characters).');
+            redirect('/profile/addresses/' . (int) $id . '/edit');
+        }
+        if ($postcode !== '' && !preg_match('/^[0-9]{5}$/', $postcode)) {
+            flash('error', 'Postcode must be exactly 5 digits.');
+            redirect('/profile/addresses/' . (int) $id . '/edit');
+        }
+
+        UserAddress::update((int) $id, $userId, $label, $recipient, $line, $city, $state, $postcode, $phone);
+        flash('success', 'Address updated.');
+        redirect('/profile');
+    }
+
     public function defaultAddress(string $id): void
     {
         $userId = (int) AuthService::user()['id'];

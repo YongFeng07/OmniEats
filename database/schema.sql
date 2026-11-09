@@ -266,6 +266,7 @@ CREATE TABLE orders (
   branch_id        INT UNSIGNED  NULL,
   fulfilment_type  VARCHAR(20)   NOT NULL COMMENT 'delivery|pickup',
   delivery_address VARCHAR(255)  NULL,
+  recipient_name  VARCHAR(100)  NULL COMMENT 'delivery recipient name snapshot',
   delivery_phone   VARCHAR(20)   NULL,
   subtotal         DECIMAL(10,2) NOT NULL,
   delivery_fee     DECIMAL(10,2) NOT NULL DEFAULT 0.00,

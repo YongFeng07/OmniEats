@@ -85,6 +85,8 @@ $roles = $user['roles'] ?? [];
                                 </p>
                             </div>
                             <div class="d-flex gap-1">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="<?= url('/profile/addresses/' . (int) $address['id'] . '/edit') ?>">Edit</a>
                                 <?php if ((int) $address['is_default'] !== 1): ?>
                                     <form method="post" action="<?= url('/profile/addresses/' . (int) $address['id'] . '/default') ?>">
                                         <?= csrf_field() ?>

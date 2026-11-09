@@ -52,15 +52,20 @@ $subtotal = $contents['subtotal'];
                                     <option value="">Choose a saved address…</option>
                                     <?php foreach ($addresses as $address): ?>
                                         <option value="<?= (int) $address['id'] ?>"
+                                                data-recipient="<?= e($address['recipient_name']) ?>"
                                                 data-address="<?= e($address['address']) ?>"
                                                 data-phone="<?= e($address['phone']) ?>">
-                                            <?= e($address['label']) ?> — <?= e($address['address']) ?>
+                                            <?= e($address['label']) ?> — <?= e($address['recipient_name']) ?>, <?= e($address['address']) ?>
                                             <?= (int) $address['is_default'] === 1 ? '(default)' : '' ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                         <?php endif; ?>
+                        <div class="mb-3">
+                            <label class="form-label" for="recipient_name">Recipient name</label>
+                            <input type="text" class="form-control" id="recipient_name" name="recipient_name">
+                        </div>
                         <div class="mb-3">
                             <label class="form-label" for="delivery_address">Delivery address</label>
                             <textarea class="form-control" id="delivery_address" name="delivery_address" rows="2"></textarea>
@@ -149,6 +154,7 @@ $subtotal = $contents['subtotal'];
         const select = document.getElementById('saved_address');
         if (!select || id === '') return;
         const option = select.options[select.selectedIndex];
+        document.getElementById('recipient_name').value = option.dataset.recipient || '';
         document.getElementById('delivery_address').value = option.dataset.address || '';
         document.getElementById('delivery_phone').value = option.dataset.phone || '';
     }

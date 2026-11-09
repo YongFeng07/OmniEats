@@ -27,6 +27,8 @@ $router->post('/profile', 'App\Controllers\ProfileController@update', ['auth']);
 $router->get('/profile/password', 'App\Controllers\ProfileController@showPassword', ['auth']);
 $router->post('/profile/password', 'App\Controllers\ProfileController@changePassword', ['auth']);
 $router->post('/profile/addresses', 'App\Controllers\ProfileController@addAddress', ['auth']);
+$router->get('/profile/addresses/{id}/edit', 'App\Controllers\ProfileController@editAddress', ['auth']);
+$router->post('/profile/addresses/{id}/edit', 'App\Controllers\ProfileController@updateAddress', ['auth']);
 $router->post('/profile/addresses/{id}/delete', 'App\Controllers\ProfileController@deleteAddress', ['auth']);
 $router->post('/profile/addresses/{id}/default', 'App\Controllers\ProfileController@defaultAddress', ['auth']);
 

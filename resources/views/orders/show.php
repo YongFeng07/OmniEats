@@ -11,14 +11,27 @@ $statusHero = match ($order['status']) {
     'confirmed'       => ['icon' => '📋', 'message' => 'Merchant received your order'],
     'preparing'       => ['icon' => '🍳', 'message' => 'Merchant is preparing your food'],
     'ready'           => $order['fulfilment_type'] === 'delivery'
-                          ? ['icon' => '🛵', 'message' => 'Your rider is on the way!']
+                          ? ['icon' => '🛵', 'message' => 'Waiting for a rider to be assigned']
                           : ['icon' => '🎒', 'message' => 'Ready for collection!'],
     'completed'       => ['icon' => '⭐', 'message' => 'Order completed — enjoy your meal!'],
     'cancelled'       => ['icon' => '🚫', 'message' => 'Order cancelled'],
     default           => ['icon' => '🍽️', 'message' => 'Processing your order'],
 };
+
+// Delivery progress overrides the order-status hero once the rider
+// is moving (timeline unique feature — merged order + delivery data).
+if ($fulfilment !== null && $order['fulfilment_type'] === 'delivery') {
+    $statusHero = match ($fulfilment['status']) {
+        'picked_up'        => ['icon' => '🍱', 'message' => 'Your rider has picked up the food'],
+        'out_for_delivery' => ['icon' => '🛵', 'message' => 'Your rider is on the way!'],
+        'delivered'        => ['icon' => '⭐', 'message' => 'Delivered — enjoy your meal!'],
+        default            => $statusHero,
+    };
+}
 $showRider = $order['fulfilment_type'] === 'delivery'
-    && in_array($order['status'], ['ready', 'completed'], true);
+    && $fulfilment !== null
+    && !empty($fulfilment['rider_id'])
+    && in_array($fulfilment['status'], ['assigned', 'accepted', 'picked_up', 'out_for_delivery', 'delivered'], true);
 
 // Estimated ready/arrival time (real data: the restaurant's
 // delivery_minutes profile value + payment time). Clearly an estimate.
@@ -78,37 +91,27 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
     <?php endif; ?>
 
     <?php if ($showRider): ?>
-        <?php if ($fulfilment !== null && !empty($fulfilment['rider_id'])): ?>
-            <?php $riderUser = \App\Models\User::find((int) $fulfilment['rider_id']); ?>
-            <?php $riderProfile = $riderUser !== null ? \App\Models\RiderProfile::findForUser((int) $riderUser['id']) : null; ?>
-            <div class="rider-card mb-4">
-                <div class="rider-avatar">🧑‍✈️</div>
-                <div class="flex-grow-1">
-                    <p class="fw-bold mb-0 text-dark"><?= e($riderUser['name'] ?? 'Your rider') ?></p>
-                    <p class="small text-muted mb-0">
-                        <?= $riderProfile !== null && !empty($riderProfile['vehicle_plate'])
-                            ? 'Vehicle: ' . e($riderProfile['vehicle_plate']) . ' · ' : '' ?>
-                        <?= e($riderProfile['vehicle_type'] ?? 'Bike') ?>
-                    </p>
-                </div>
-                <a class="btn btn-outline-primary btn-sm"
-                   href="tel:<?= e($riderUser['phone'] ?? '') ?>">📞 Call rider</a>
+        <?php $riderUser = \App\Models\User::find((int) $fulfilment['rider_id']); ?>
+        <?php $riderProfile = $riderUser !== null ? \App\Models\RiderProfile::findForUser((int) $riderUser['id']) : null; ?>
+        <div class="rider-card mb-4">
+            <div class="rider-avatar">🧑‍✈️</div>
+            <div class="flex-grow-1">
+                <p class="fw-bold mb-0 text-dark"><?= e($riderUser['name'] ?? 'Your rider') ?></p>
+                <p class="small text-muted mb-0">
+                    <?= $riderProfile !== null && !empty($riderProfile['vehicle_plate'])
+                        ? 'Vehicle: ' . e($riderProfile['vehicle_plate']) . ' · ' : '' ?>
+                    <?= e($riderProfile['vehicle_type'] ?? 'Bike') ?>
+                </p>
             </div>
-        <?php else: ?>
-            <div class="rider-card mb-4" style="opacity: .75;">
-                <div class="rider-avatar">🛵</div>
-                <div class="flex-grow-1">
-                    <p class="fw-bold mb-0 text-dark">Rider is being assigned</p>
-                    <p class="small text-muted mb-0">The platform administrator will assign a rider shortly.</p>
-                </div>
-            </div>
-        <?php endif; ?>
+            <a class="btn btn-outline-primary btn-sm"
+               href="tel:<?= e($riderUser['phone'] ?? '') ?>">📞 Call rider</a>
+        </div>
     <?php endif; ?>
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
             <h2 class="h6 text-muted text-uppercase mb-3">Live status</h2>
-            <?php view('shared/order_timeline', ['order' => $order, 'history' => $history], null); ?>
+            <?php view('shared/order_timeline', ['order' => $order, 'history' => $history, 'fulfilment' => $fulfilment], null); ?>
             <p class="text-muted small mt-3 mb-0">
                 Updates automatically every few seconds — no refresh needed.
             </p>
@@ -267,7 +270,8 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
                         <?php if ($branch): ?> · <?= e($branch['name']) ?><?php endif; ?>
                     </p>
                     <?php if ($order['fulfilment_type'] === 'delivery'): ?>
-                        <p class="small mb-1"><strong>Deliver to:</strong><br>
+                        <p class="small mb-1"><strong>Deliver to:</strong>
+                            <?= e($order['recipient_name'] ?? '') ?><br>
                             <?= e($order['delivery_address']) ?></p>
                         <p class="small mb-0"><strong>Phone:</strong> <?= e($order['delivery_phone']) ?></p>
                     <?php endif; ?>
@@ -356,16 +360,18 @@ $isTerminal = in_array($order['status'], ['completed', 'cancelled'], true);
     }
     syncDecline();
 
-    // ★ Live tracking: poll the status endpoint; reload when the status
-    // changes (simple polling — no WebSockets needed).
+    // ★ Live tracking: poll the status endpoint; reload when the ORDER
+    // status or the DELIVERY (fulfilment) status changes — simple
+    // polling, no WebSockets needed.
     const endpoint = <?= json_encode(url('/orders/' . (int) $order['id'] . '/status')) ?>;
     const currentStatus = <?= json_encode($order['status']) ?>;
+    const currentFulfilment = <?= json_encode($fulfilment['status'] ?? null) ?>;
     setInterval(async () => {
         try {
             const res = await fetch(endpoint, { headers: { 'Accept': 'application/json' } });
             if (!res.ok) return;
             const data = await res.json();
-            if (data.status !== currentStatus) {
+            if (data.status !== currentStatus || data.fulfilment_status !== currentFulfilment) {
                 location.reload();
             }
         } catch (e) {

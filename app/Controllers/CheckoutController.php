@@ -53,6 +53,7 @@ class CheckoutController
         $data = [
             'fulfilment_type'  => (string) ($_POST['fulfilment_type'] ?? ''),
             'delivery_address' => (string) ($_POST['delivery_address'] ?? ''),
+            'recipient_name'   => (string) ($_POST['recipient_name'] ?? ''),
             'delivery_phone'   => (string) ($_POST['delivery_phone'] ?? ''),
             'branch_id'        => (string) ($_POST['branch_id'] ?? ''),
             'note'             => (string) ($_POST['note'] ?? ''),

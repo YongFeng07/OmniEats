@@ -22,7 +22,7 @@ $actionButtons = [
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
             <h2 class="h6 text-muted text-uppercase mb-3">Status timeline</h2>
-            <?php view('shared/order_timeline', ['order' => $order, 'history' => $history], null); ?>
+            <?php view('shared/order_timeline', ['order' => $order, 'history' => $history, 'fulfilment' => $fulfilment], null); ?>
 
             <?php if (in_array($order['status'], ['pending_payment', 'confirmed', 'preparing', 'ready'], true)): ?>
                 <hr class="mt-4">
@@ -112,7 +112,9 @@ $actionButtons = [
                     <p class="small mb-1"><strong>Fulfilment:</strong> <?= e(ucfirst($order['fulfilment_type'])) ?>
                         <?php if ($branch): ?> · <?= e($branch['name']) ?><?php endif; ?></p>
                     <?php if ($order['fulfilment_type'] === 'delivery'): ?>
-                        <p class="small mb-1"><strong>Address:</strong> <?= e($order['delivery_address']) ?></p>
+                        <p class="small mb-1"><strong>Deliver to:</strong>
+                            <?= e($order['recipient_name'] ?? '') ?><br>
+                            <?= e($order['delivery_address']) ?></p>
                         <p class="small mb-0"><strong>Phone:</strong> <?= e($order['delivery_phone']) ?></p>
                     <?php endif; ?>
                     <?php if ($fulfilment !== null): ?>

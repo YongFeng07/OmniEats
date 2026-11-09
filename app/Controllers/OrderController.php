@@ -145,11 +145,13 @@ class OrderController
     public function status(string $id): void
     {
         $order = $this->ownOrder((int) $id, true);
+        $fulfilment = Fulfilment::findByOrder((int) $order['id']);
 
         header('Content-Type: application/json');
         echo json_encode([
-            'status'     => $order['status'],
-            'updated_at' => $order['updated_at'],
+            'status'            => $order['status'],
+            'fulfilment_status' => $fulfilment['status'] ?? null,
+            'updated_at'        => $order['updated_at'],
         ]);
         exit;
     }

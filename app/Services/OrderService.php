@@ -76,15 +76,17 @@ class OrderService
         }
 
         $address = trim((string) ($data['delivery_address'] ?? ''));
+        $recipient = trim((string) ($data['recipient_name'] ?? ''));
         $phone = trim((string) ($data['delivery_phone'] ?? ''));
 
         if ($type === 'delivery') {
-            if ($address === '' || $phone === '') {
-                flash('error', 'Delivery address and phone are required for delivery orders.');
+            if ($address === '' || $phone === '' || $recipient === '') {
+                flash('error', 'Recipient name, delivery address and phone are required for delivery orders.');
                 return null;
             }
         } else {
             $address = null;
+            $recipient = null;
             $phone = null;
         }
 
@@ -130,6 +132,7 @@ class OrderService
                 'branch_id'        => $branchId,
                 'fulfilment_type'  => $type,
                 'delivery_address' => $address,
+                'recipient_name'   => $recipient,
                 'delivery_phone'   => $phone,
                 'subtotal'         => $subtotal,
                 'delivery_fee'     => $deliveryFee,
