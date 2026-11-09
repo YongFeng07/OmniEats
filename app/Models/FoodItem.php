@@ -112,4 +112,35 @@ class FoodItem extends Model
         $stmt->execute(['id' => $id]);
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Most-ordered items of a restaurant (real order history — the
+     * "Most ordered" section, Grab-style social proof).
+     */
+    public static function popularForRestaurant(int $restaurantId, int $limit = 4): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT f.*,
+                    COALESCE(SUM(oi.quantity), 0) AS times_ordered
+               FROM food_items f
+          LEFT JOIN order_items oi ON oi.food_item_id = f.id
+              WHERE f.restaurant_id = :rid
+                AND f.is_available = 1
+              GROUP BY f.id
+              ORDER BY times_ordered DESC, f.id ASC
+              LIMIT ' . max(1, min(8, $limit))
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return $stmt->fetchAll();
+    }
+
+    /** How many portions of this item have been ordered (social proof). */
+    public static function timesOrdered(int $foodId): int
+    {
+        $stmt = self::db()->prepare(
+            'SELECT COALESCE(SUM(quantity), 0) FROM order_items WHERE food_item_id = :id'
+        );
+        $stmt->execute(['id' => $foodId]);
+        return (int) $stmt->fetchColumn();
+    }
 }

@@ -88,6 +88,7 @@ class RestaurantController
             'reviewCount' => Review::countForRestaurant((int) $restaurant['id']),
             'isFavourite' => $isFavourite,
             'ordersDone'  => \App\Models\Order::countCompletedForRestaurant((int) $restaurant['id']),
+            'popular'     => FoodItem::popularForRestaurant((int) $restaurant['id'], 4),
         ]);
     }
 }

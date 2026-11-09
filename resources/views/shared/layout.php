@@ -77,6 +77,7 @@ $isRider = $user && in_array('rider', $user['roles'], true);
             <ul class="navbar-nav ms-lg-auto align-items-lg-center gap-lg-1">
                 <li class="nav-item"><a class="nav-link" href="<?= url('/') ?>">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= url('/restaurants') ?>">Restaurants</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?= url('/categories') ?>">Categories</a></li>
                 <?php if ($user): ?>
                     <?php if (in_array('customer', $user['roles'], true)): ?>
                         <?php $cartCount = App\Services\CartService::cartCount((int) $user['id']); ?>

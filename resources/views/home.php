@@ -1,32 +1,48 @@
 <?php
 /**
  * Home page (customer view) — Cream Soft UI:
- * category chips → promo banner → featured restaurant cards.
- * Categories link into the real restaurant search; the promo banner is
- * a static marketing element. No hardcoded restaurant data.
+ * REAL category chips (DB-distinct categories across approved
+ * restaurants) → voucher banner → featured restaurant cards.
+ * No hardcoded category data.
  */
-$categories = [
-    ['label' => 'Nasi Lemak', 'icon' => '🍛', 'q' => 'nasi'],
-    ['label' => 'Fast Food',  'icon' => '🍔', 'q' => 'pizza'],
-    ['label' => 'Drinks',     'icon' => '🥤', 'q' => 'drinks'],
-    ['label' => 'Dessert',    'icon' => '🍰', 'q' => 'dessert'],
-    ['label' => 'Pasta',      'icon' => '🍝', 'q' => 'pasta'],
-    ['label' => 'Breakfast',  'icon' => '🥞', 'q' => 'roti'],
-];
+$iconByKeyword = function (string $name): string {
+    $name = strtolower($name);
+    return match (true) {
+        str_contains($name, 'drink'), str_contains($name, 'beverage'), str_contains($name, 'coffee'), str_contains($name, 'tea') => '🥤',
+        str_contains($name, 'pizza')           => '🍕',
+        str_contains($name, 'pasta')           => '🍝',
+        str_contains($name, 'dessert'), str_contains($name, 'sweet') => '🍰',
+        str_contains($name, 'nasi'), str_contains($name, 'rice')     => '🍛',
+        str_contains($name, 'breakfast'), str_contains($name, 'roti') => '🥞',
+        str_contains($name, 'burger')          => '🍔',
+        str_contains($name, 'side'), str_contains($name, 'snack')    => '🍟',
+        str_contains($name, 'main')            => '🍽️',
+        default                                 => '🍴',
+    };
+};
 ?>
 <div class="container py-4">
-    <!-- Categories row: round icons -->
+    <!-- Categories row: REAL database categories -->
     <section class="mb-4">
-        <h2 class="h6 text-muted text-uppercase mb-3">Categories</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 text-muted text-uppercase mb-0">Categories</h2>
+            <a class="small text-decoration-none" href="<?= url('/categories') ?>">All categories →</a>
+        </div>
         <div class="row row-cols-3 row-cols-md-6 g-3 text-center">
             <?php foreach ($categories as $category): ?>
                 <div class="col">
-                    <a class="category-chip" href="<?= url('/restaurants?q=' . urlencode($category['q'])) ?>">
-                        <span class="category-chip-circle"><?= e($category['icon']) ?></span>
-                        <span class="category-chip-label"><?= e($category['label']) ?></span>
+                    <a class="category-chip" href="<?= url('/categories/' . urlencode($category['name'])) ?>">
+                        <span class="category-chip-circle"><?= e($iconByKeyword($category['name'])) ?></span>
+                        <span class="category-chip-label"><?= e($category['name']) ?></span>
+                        <span class="small text-muted d-block"><?= (int) $category['restaurant_count'] ?> restaurant(s)</span>
                     </a>
                 </div>
             <?php endforeach; ?>
+            <?php if ($categories === []): ?>
+                <div class="col-12">
+                    <p class="text-muted small mb-0">Categories appear as restaurants join the platform.</p>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 

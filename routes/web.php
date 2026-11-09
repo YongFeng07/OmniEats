@@ -46,6 +46,10 @@ $router->get('/restaurants', 'App\Controllers\RestaurantController@index');
 $router->get('/restaurants/{id}', 'App\Controllers\RestaurantController@show');
 $router->post('/restaurants/{id}/favourite', 'App\Controllers\RestaurantController@toggleFavourite');
 
+// Public category browse (Grab/Foodpanda-style, real DB categories)
+$router->get('/categories', 'App\Controllers\CategoryController@index');
+$router->get('/categories/{name}', 'App\Controllers\CategoryController@show');
+
 // Owner restaurant management (Module 2) — tenant from session
 $router->get('/owner/restaurant/create', 'App\Controllers\Owner\RestaurantController@create', ['roles:restaurant_owner']);
 $router->post('/owner/restaurant/create', 'App\Controllers\Owner\RestaurantController@store', ['roles:restaurant_owner']);

@@ -2,11 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Models\Category;
 use App\Models\Restaurant;
 
 /**
- * Public landing page with a featured-restaurant teaser fed from the
- * database (approved + OPEN restaurants only — no hardcoded data).
+ * Public landing page: REAL database-driven category chips (distinct
+ * categories across approved restaurants) and a featured-restaurant
+ * teaser (approved + OPEN restaurants only — no hardcoded data).
  */
 class HomeController
 {
@@ -15,8 +17,9 @@ class HomeController
         $featured = array_slice(Restaurant::publicListing(null, 'open'), 0, 3);
 
         view('home', [
-            'title'    => 'Order from your favourite restaurants',
-            'featured' => $featured,
+            'title'      => 'Order from your favourite restaurants',
+            'featured'   => $featured,
+            'categories' => Category::distinctAcrossPlatform(),
         ]);
     }
 }

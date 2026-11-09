@@ -145,6 +145,38 @@ $isOpen = (int) $restaurant['is_open'] === 1;
         </div>
     </div>
 
+    <!-- ★ Most ordered (Grab-style social proof — REAL order history) -->
+    <?php if ($popular !== []): ?>
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h2 class="h6 text-muted text-uppercase mb-3">🔥 Most ordered</h2>
+                <div class="row g-3">
+                    <?php foreach ($popular as $line): ?>
+                        <div class="col-6 col-md-3">
+                            <a class="card h-100 border-0 shadow-sm text-decoration-none card-hover"
+                               href="<?= url('/foods/' . (int) $line['id']) ?>">
+                                <?php if (!empty($line['image'])): ?>
+                                    <img src="<?= asset($line['image']) ?>" class="card-img-top"
+                                         style="height: 90px; object-fit: cover;" alt="<?= e($line['name']) ?>">
+                                <?php else: ?>
+                                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light"
+                                         style="height: 90px;"><span style="font-size: 1.8rem;">🍽️</span></div>
+                                <?php endif; ?>
+                                <div class="card-body p-2">
+                                    <p class="small fw-semibold text-dark mb-0 text-truncate"><?= e($line['name']) ?></p>
+                                    <p class="small omnieats-price mb-0">
+                                        RM <?= e(number_format((float) $line['price'], 2)) ?>
+                                        <span class="text-muted">· <?= (int) $line['times_ordered'] ?> ordered</span>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- ★ Customer reviews (Grab/Foodpanda-style) -->
     <div class="card border-0 shadow-sm mt-4">
         <div class="card-body p-4">

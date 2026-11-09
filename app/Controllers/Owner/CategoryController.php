@@ -39,10 +39,11 @@ class CategoryController
         }
 
         view('owner/categories/form', [
-            'title'    => 'New category',
-            'heading'  => 'Add a category',
-            'action'   => url('/owner/categories/create'),
-            'category' => null,
+            'title'       => 'New category',
+            'heading'     => 'Add a category',
+            'action'      => url('/owner/categories/create'),
+            'category'    => null,
+            'suggestions' => Category::distinctAcrossPlatform(),
         ]);
     }
 
@@ -84,10 +85,11 @@ class CategoryController
         }
 
         view('owner/categories/form', [
-            'title'    => 'Edit category',
-            'heading'  => 'Edit category — ' . $category['name'],
-            'action'   => url('/owner/categories/' . (int) $category['id'] . '/edit'),
-            'category' => $category,
+            'title'       => 'Edit category',
+            'heading'     => 'Edit category — ' . $category['name'],
+            'action'      => url('/owner/categories/' . (int) $category['id'] . '/edit'),
+            'category'    => $category,
+            'suggestions' => Category::distinctAcrossPlatform(),
         ]);
     }
 

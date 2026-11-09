@@ -47,6 +47,9 @@ $isOpen = (int) $restaurant['is_open'] === 1;
                         <?php else: ?>
                             <span class="badge text-bg-success">Available</span>
                         <?php endif; ?>
+                        <?php if ((int) $timesOrdered > 0): ?>
+                            <span class="badge text-bg-light border">🔥 Ordered <?= (int) $timesOrdered ?> time(s)</span>
+                        <?php endif; ?>
                         <?php if ($restaurant['rating'] !== null): ?>
                             <span class="badge text-bg-warning">⭐ <?= e(number_format((float) $restaurant['rating'], 1)) ?></span>
                         <?php endif; ?>

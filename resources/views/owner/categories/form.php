@@ -21,7 +21,19 @@ $value = function (string $field, string $default = '') use ($category) {
                 <div class="mb-3">
                     <label class="form-label" for="name">Category name</label>
                     <input type="text" class="form-control" id="name" name="name"
+                           list="platform-categories"
                            value="<?= e($value('name')) ?>" required autofocus>
+                    <datalist id="platform-categories">
+                        <?php foreach ($suggestions as $suggestion): ?>
+                            <option value="<?= e($suggestion['name']) ?>">
+                                Used by <?= (int) $suggestion['restaurant_count'] ?> restaurant(s)
+                            </option>
+                        <?php endforeach; ?>
+                    </datalist>
+                    <div class="form-text">
+                        Pick an existing platform category (so customers find your items when
+                        browsing categories) or type a new one.
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="description">Description <span class="text-muted">(optional)</span></label>

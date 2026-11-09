@@ -34,6 +34,48 @@ class Category extends Model
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Platform-level category browse (Grab/Foodpanda-style): distinct
+     * category names across APPROVED restaurants, with live item and
+     * restaurant counts. The home-page category chips are driven by
+     * this query — no hardcoded category lists.
+     */
+    public static function distinctAcrossPlatform(): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT c.name,
+                    COUNT(DISTINCT fi.id) AS item_count,
+                    COUNT(DISTINCT r.id) AS restaurant_count
+               FROM categories c
+               JOIN restaurants r ON r.id = c.restaurant_id AND r.status = :status
+          LEFT JOIN food_items fi ON fi.category_id = c.id
+              WHERE fi.id IS NULL OR fi.is_available = 1
+              GROUP BY c.name
+              ORDER BY item_count DESC, c.name ASC
+              LIMIT 16'
+        );
+        $stmt->execute(['status' => 'approved']);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * The restaurants that offer a category with this name (approved,
+     * with their matching category id for item lookups).
+     */
+    public static function restaurantsForCategoryName(string $name): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT r.*, c.id AS category_id
+               FROM categories c
+               JOIN restaurants r ON r.id = c.restaurant_id
+              WHERE c.name = :name
+                AND r.status = :status
+              ORDER BY r.rating DESC, r.name ASC'
+        );
+        $stmt->execute(['name' => $name, 'status' => 'approved']);
+        return $stmt->fetchAll();
+    }
+
     /** How many food items live in a category (delete eligibility). */
     public static function countItems(int $categoryId): int
     {

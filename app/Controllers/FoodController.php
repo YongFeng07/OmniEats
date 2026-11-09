@@ -38,6 +38,7 @@ class FoodController
             'restaurant' => $restaurant,
             'category'   => Category::find((int) $item['category_id']),
             'related'    => $related,
+            'timesOrdered' => FoodItem::timesOrdered((int) $item['id']),
         ]);
     }
 }
