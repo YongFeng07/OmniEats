@@ -109,6 +109,21 @@ class Review extends Model
         return (int) $stmt->fetchColumn();
     }
 
+    /** Reviews written by one customer (profile page). */
+    public static function listForCustomer(int $customerId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT r.*, res.name AS restaurant_name
+               FROM reviews r
+               JOIN restaurants res ON res.id = r.restaurant_id
+              WHERE r.customer_id = :cid
+              ORDER BY r.id DESC
+              LIMIT 5'
+        );
+        $stmt->execute(['cid' => $customerId]);
+        return $stmt->fetchAll();
+    }
+
     public static function create(int $orderId, int $customerId, int $restaurantId, int $rating, ?string $comment): int
     {
         $stmt = self::db()->prepare(

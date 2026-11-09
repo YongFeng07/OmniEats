@@ -132,6 +132,16 @@ class Order extends Model
         return (int) $stmt->fetchColumn();
     }
 
+    /** Completed orders for one restaurant (public social proof). */
+    public static function countCompletedForRestaurant(int $restaurantId): int
+    {
+        $stmt = self::db()->prepare(
+            "SELECT COUNT(*) FROM orders WHERE restaurant_id = :rid AND status = 'completed'"
+        );
+        $stmt->execute(['rid' => $restaurantId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** The complete set of order statuses (see docs/DATABASE_DESIGN.md §7). */
     public static function statuses(): array
     {

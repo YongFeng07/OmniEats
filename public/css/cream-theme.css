@@ -689,3 +689,49 @@ hr { border-color: var(--cream-line); opacity: 1; }
 .voucher-card:hover:not(:disabled) { border-style: solid; box-shadow: var(--cream-shadow); }
 .voucher-card.selected { border-style: solid; border-width: 2px; background: #FDF0E9; }
 .voucher-card:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Navbar avatar (Shopee-style user dropdown) */
+.nav-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--cream-primary);
+}
+.nav-avatar-fallback {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--cream-primary);
+    color: #fff; font-weight: 700; font-size: .9rem;
+}
+
+/* Profile avatar */
+.profile-avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: var(--cream-shadow);
+}
+.profile-avatar-fallback {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--cream-primary);
+    color: #fff; font-size: 2.2rem; font-weight: 700;
+    border: 3px solid #fff;
+    box-shadow: var(--cream-shadow);
+}
+
+/* Category quick-nav chips on the restaurant page */
+.cat-nav-chip {
+    display: inline-block;
+    padding: .35rem .9rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1.5px solid var(--cream-line);
+    color: var(--cream-ink);
+    text-decoration: none;
+    font-size: .85rem;
+}
+.cat-nav-chip:hover { border-color: var(--cream-primary); color: var(--cream-primary); }

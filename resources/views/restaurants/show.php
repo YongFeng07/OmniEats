@@ -11,6 +11,16 @@ $isOpen = (int) $restaurant['is_open'] === 1;
     <?php if (!empty($restaurant['cover_image'])): ?>
         <img src="<?= asset($restaurant['cover_image']) ?>" class="rounded-4 w-100 mb-4"
              alt="<?= e($restaurant['name']) ?> cover" style="max-height: 260px; object-fit: cover;">
+    <?php else: ?>
+        <div class="rounded-4 w-100 mb-4 d-flex align-items-center justify-content-center"
+             style="height: 180px; background: linear-gradient(120deg, var(--cream-primary), #d9a58c);">
+            <?php if (!empty($restaurant['logo'])): ?>
+                <img src="<?= asset($restaurant['logo']) ?>" alt="logo" class="rounded-circle bg-white p-2"
+                     style="height: 110px; width: 110px; object-fit: cover; box-shadow: var(--cream-shadow);">
+            <?php else: ?>
+                <span style="font-size: 4rem;">🍽️</span>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
@@ -48,6 +58,47 @@ $isOpen = (int) $restaurant['is_open'] === 1;
         <div class="alert alert-warning mt-3">
             This restaurant is currently <strong>closed</strong> and not accepting new orders.
             You can still browse its profile and menu.
+        </div>
+    <?php endif; ?>
+
+    <!-- Social proof strip (Grab-style) -->
+    <div class="row g-3 mt-2 mb-1">
+        <div class="col-6 col-md-3">
+            <div class="stat-tile text-center h-100 py-3">
+                <p class="h4 stat-value mb-0"><?= (int) $ordersDone ?></p>
+                <p class="text-muted small mb-0">📦 Orders delivered</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-tile text-center h-100 py-3">
+                <p class="h4 stat-value mb-0">
+                    <?= $restaurant['rating'] !== null ? e(number_format((float) $restaurant['rating'], 1)) : '—' ?>
+                </p>
+                <p class="text-muted small mb-0">⭐ Rating<?= $reviewCount > 0 ? ' (' . (int) $reviewCount . ' reviews)' : '' ?></p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-tile text-center h-100 py-3">
+                <p class="h4 stat-value mb-0">
+                    <?= $restaurant['delivery_minutes'] !== null ? (int) $restaurant['delivery_minutes'] . ' min' : '—' ?>
+                </p>
+                <p class="text-muted small mb-0">🛵 Delivery time</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-tile text-center h-100 py-3">
+                <p class="h4 stat-value mb-0"><?= (int) $restaurant['free_delivery'] === 1 ? 'FREE' : 'RM 5' ?></p>
+                <p class="text-muted small mb-0">🛵 Delivery fee</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category quick-nav (Grab-style sticky chips) -->
+    <?php if ($categories !== []): ?>
+        <div class="d-flex flex-wrap gap-2 mt-3 mb-4">
+            <?php foreach ($categories as $category): ?>
+                <a class="cat-nav-chip" href="#cat-<?= (int) $category['id'] ?>"><?= e($category['name']) ?></a>
+            <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
@@ -176,7 +227,7 @@ $isOpen = (int) $restaurant['is_open'] === 1;
                 continue;
             }
             ?>
-            <h3 class="h5 mt-4 mb-3"><?= e($category['name']) ?></h3>
+            <h3 class="h5 mt-4 mb-3" id="cat-<?= (int) $category['id'] ?>"><?= e($category['name']) ?></h3>
             <div class="row g-3">
                 <?php foreach ($categoryItems as $item): ?>
                     <div class="col-md-6 col-lg-4">

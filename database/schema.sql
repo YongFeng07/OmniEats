@@ -60,6 +60,7 @@ CREATE TABLE users (
   email         VARCHAR(191) NOT NULL,
   password_hash VARCHAR(255) NOT NULL COMMENT 'PHP password_hash() output; never expose in responses',
   phone         VARCHAR(20)  NULL,
+  avatar        VARCHAR(255) NULL COMMENT 'profile picture path under public/uploads/',
   restaurant_id INT UNSIGNED NULL COMMENT 'tenant link for owner/staff accounts',
   is_active     TINYINT(1)   NOT NULL DEFAULT 1 COMMENT '0 = deactivated (soft delete)',
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -94,6 +95,7 @@ CREATE TABLE restaurants (
   logo           VARCHAR(255) NULL COMMENT 'path under public/uploads/',
   cover_image    VARCHAR(255) NULL,
   phone          VARCHAR(20)  NULL,
+
   email          VARCHAR(191) NULL,
   address        VARCHAR(255) NULL,
   city           VARCHAR(100) NULL,
@@ -128,7 +130,6 @@ CREATE TABLE restaurant_branches (
   restaurant_id INT UNSIGNED NOT NULL,
   name          VARCHAR(100) NOT NULL,
   address       VARCHAR(255) NULL,
-  phone         VARCHAR(20)  NULL,
   opening_hours VARCHAR(255) NULL,
   is_main       TINYINT(1)   NOT NULL DEFAULT 0,
   is_active     TINYINT(1)   NOT NULL DEFAULT 1,

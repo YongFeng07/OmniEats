@@ -2,8 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\ActivityLog;
+use App\Models\Order;
+use App\Models\Review;
+use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\UserFavourite;
 use App\Services\AuthService;
+use App\Services\UploadService;
 use App\Services\UserService;
 use App\Validators\PasswordValidator;
 use App\Validators\ProfileValidator;
@@ -11,15 +17,36 @@ use App\Validators\ProfileValidator;
 /**
  * Own profile, password and address book management (Module 1) —
  * available to every logged-in user, regardless of role.
+ * Shopee-style profile: avatar, account stats, reviews, activity.
  */
 class ProfileController
 {
     public function show(): void
     {
+        $user = AuthService::user();
+        $userId = (int) $user['id'];
+
+        $orders = Order::listForCustomer($userId);
+        $completed = 0;
+        foreach ($orders as $order) {
+            if ($order['status'] === 'completed') {
+                $completed++;
+            }
+        }
+
         view('profile/index', [
-            'title'     => 'My Profile',
-            'user'      => AuthService::user(),
-            'addresses' => UserAddress::allForUser((int) AuthService::user()['id']),
+            'title'      => 'My Profile',
+            'user'       => $user,
+            'addresses'  => UserAddress::allForUser($userId),
+            'stats'      => [
+                'orders'     => count($orders),
+                'completed'  => $completed,
+                'reviews'    => count(Review::listForCustomer($userId)),
+                'favourites' => count(UserFavourite::restaurantsForUser($userId)),
+                'addresses'  => count(UserAddress::allForUser($userId)),
+            ],
+            'myReviews'  => Review::listForCustomer($userId),
+            'activity'   => ActivityLog::latestForUser($userId, 6),
         ]);
     }
 
@@ -40,6 +67,15 @@ class ProfileController
 
         if (!UserService::updateProfile((int) AuthService::user()['id'], $data)) {
             redirect('/profile');
+        }
+
+        // Optional avatar upload (Shopee-style profile picture).
+        $avatar = UploadService::store($_FILES['avatar'] ?? [], 'avatars');
+        if (!$avatar['ok']) {
+            redirect('/profile');
+        }
+        if ($avatar['path'] !== null) {
+            User::setAvatar((int) AuthService::user()['id'], $avatar['path']);
         }
 
         unset($_SESSION['_old']);

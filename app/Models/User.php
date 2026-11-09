@@ -116,6 +116,13 @@ class User extends Model
         $stmt->execute(['uid' => $userId, 'rid' => $roleId]);
     }
 
+    /** Profile picture (Shopee-style avatar). */
+    public static function setAvatar(int $id, ?string $avatar): void
+    {
+        $stmt = self::db()->prepare('UPDATE users SET avatar = :avatar WHERE id = :id');
+        $stmt->execute(['avatar' => $avatar, 'id' => $id]);
+    }
+
     public static function setRoles(int $userId, array $roleIds): void
     {
         $pdo = self::db();
