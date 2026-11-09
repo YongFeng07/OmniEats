@@ -71,6 +71,32 @@ $router->post('/admin/restaurants/{id}/toggle-status', 'App\Controllers\Admin\Re
 // Admin platform activity overview (monitoring)
 $router->get('/admin/activity', 'App\Controllers\Admin\ActivityController@index', ['roles:super_admin']);
 
+// Rider management + manual assignment (Delivery & Rider — Student 3)
+$router->get('/admin/riders', 'App\Controllers\Admin\RiderController@index', ['roles:super_admin']);
+$router->get('/admin/riders/create', 'App\Controllers\Admin\RiderController@create', ['roles:super_admin']);
+$router->post('/admin/riders/create', 'App\Controllers\Admin\RiderController@store', ['roles:super_admin']);
+$router->get('/admin/riders/{id}/edit', 'App\Controllers\Admin\RiderController@edit', ['roles:super_admin']);
+$router->post('/admin/riders/{id}/edit', 'App\Controllers\Admin\RiderController@update', ['roles:super_admin']);
+$router->post('/admin/riders/{id}/toggle-active', 'App\Controllers\Admin\RiderController@toggleActive', ['roles:super_admin']);
+$router->post('/admin/riders/{id}/toggle-available', 'App\Controllers\Admin\RiderController@toggleAvailable', ['roles:super_admin']);
+$router->get('/admin/assignments', 'App\Controllers\Admin\AssignmentController@index', ['roles:super_admin']);
+$router->post('/admin/assignments/{id}/assign', 'App\Controllers\Admin\AssignmentController@assign', ['roles:super_admin']);
+
+// Review moderation (Payment & Review — Student 3)
+$router->get('/admin/reviews', 'App\Controllers\Admin\ReviewController@index', ['roles:super_admin']);
+$router->post('/admin/reviews/{id}/toggle', 'App\Controllers\Admin\ReviewController@toggle', ['roles:super_admin']);
+$router->get('/owner/reviews', 'App\Controllers\Owner\ReviewController@index', ['roles:restaurant_owner,restaurant_staff']);
+$router->post('/owner/reviews/{id}/reply', 'App\Controllers\Owner\ReviewController@reply', ['roles:restaurant_owner,restaurant_staff']);
+
+// Rider Portal (Delivery & Rider — Student 3)
+$router->get('/rider', 'App\Controllers\Rider\RiderController@dashboard', ['roles:rider']);
+$router->get('/rider/tasks', 'App\Controllers\Rider\RiderController@tasks', ['roles:rider']);
+$router->post('/rider/tasks/{id}/respond', 'App\Controllers\Rider\RiderController@respond', ['roles:rider']);
+$router->post('/rider/tasks/{id}/progress', 'App\Controllers\Rider\RiderController@progress', ['roles:rider']);
+$router->get('/rider/history', 'App\Controllers\Rider\RiderController@history', ['roles:rider']);
+$router->get('/rider/profile', 'App\Controllers\Rider\RiderController@profile', ['roles:rider']);
+$router->post('/rider/toggle-available', 'App\Controllers\Rider\RiderController@toggleAvailable', ['roles:rider']);
+
 // Voucher management (Promotion & Voucher — Student 1)
 // Admin: full CRUD on every voucher; Owner: own restaurant's vouchers.
 $router->get('/admin/vouchers', 'App\Controllers\Admin\VoucherController@index', ['roles:super_admin']);

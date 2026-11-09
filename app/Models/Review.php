@@ -9,6 +9,13 @@ namespace App\Models;
  */
 class Review extends Model
 {
+    public static function find(int $id): ?array
+    {
+        $stmt = self::db()->prepare('SELECT * FROM reviews WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch() ?: null;
+    }
+
     public static function findByOrder(int $orderId): ?array
     {
         $stmt = self::db()->prepare('SELECT * FROM reviews WHERE order_id = :oid');
@@ -47,6 +54,19 @@ class Review extends Model
               ORDER BY r.id DESC'
         );
         $stmt->execute(['rid' => $restaurantId]);
+        return $stmt->fetchAll();
+    }
+
+    /** Every review platform-wide with restaurant names (admin moderation). */
+    public static function allWithRestaurants(): array
+    {
+        $stmt = self::db()->query(
+            'SELECT r.*, u.name AS customer_name, res.name AS restaurant_name
+               FROM reviews r
+               JOIN users u ON u.id = r.customer_id
+               JOIN restaurants res ON res.id = r.restaurant_id
+              ORDER BY r.id DESC'
+        );
         return $stmt->fetchAll();
     }
 

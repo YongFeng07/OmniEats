@@ -8,7 +8,7 @@ namespace App\Models;
 class Role extends Model
 {
     /** The four platform roles; whitelist for all role assignments. */
-    public const NAMES = ['super_admin', 'restaurant_owner', 'restaurant_staff', 'customer'];
+    public const NAMES = ['super_admin', 'restaurant_owner', 'restaurant_staff', 'rider', 'customer'];
 
     public static function all(): array
     {

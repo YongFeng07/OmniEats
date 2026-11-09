@@ -56,6 +56,7 @@ class AuthMiddleware
             'super_admin'      => '/admin',
             'restaurant_owner' => '/owner',
             'restaurant_staff' => '/owner',
+            'rider'            => '/rider',
             'customer'         => '/customer',
         ];
 

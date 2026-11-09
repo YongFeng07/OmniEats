@@ -66,6 +66,17 @@ Demo accounts (password for all: **`Password@123`**):
    runs automatically.
 6. **Activity**: the full platform audit trail (actor, action, entity, IP).
 
+## 3b. Rider Portal
+
+1. **Dashboard**: availability toggle (on/off shift) + current task card.
+2. **My Tasks**: accept/reject an assignment (rejection needs a reason),
+   confirm food pickup, mark out for delivery, confirm delivery.
+3. **History**: completed deliveries.
+4. **Profile**: vehicle details (managed by the administrator).
+
+Assignments come ONLY from the administrator (manual assignment); riders
+cannot claim deliveries themselves and can only see their own tasks.
+
 ## 4. Common Tasks
 
 | Task | Where |

@@ -29,6 +29,9 @@ $actionButtons = [
                 <div class="d-flex flex-wrap gap-2">
                     <?php foreach ($transitions as $next): ?>
                         <?php if ($next === 'cancelled') { continue; } ?>
+                        <?php // Delivery orders are COMPLETED by the rider (delivered event),
+                              // not by the restaurant — hide the Complete button for them. ?>
+                        <?php if ($next === 'completed' && $order['fulfilment_type'] === 'delivery') { continue; } ?>
                         <?php if (isset($actionButtons[$next])): ?>
                             <form method="post" action="<?= url('/owner/orders/' . (int) $order['id'] . '/transition') ?>">
                                 <?= csrf_field() ?>

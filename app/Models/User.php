@@ -106,6 +106,16 @@ class User extends Model
     }
 
     /** Replace a user's role assignments in one transaction. */
+    /** Single role insert WITHOUT a transaction (for callers that
+     *  already hold one, e.g. RiderService::createRider). */
+    public static function addRole(int $userId, int $roleId): void
+    {
+        $stmt = self::db()->prepare(
+            'INSERT INTO user_roles (user_id, role_id) VALUES (:uid, :rid)'
+        );
+        $stmt->execute(['uid' => $userId, 'rid' => $roleId]);
+    }
+
     public static function setRoles(int $userId, array $roleIds): void
     {
         $pdo = self::db();

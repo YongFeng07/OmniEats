@@ -337,3 +337,21 @@ implemented, all tested live.
 |---|---|---|
 | New-features round | T109–T113: archive round-trip, reorder (+ CLOSED block), fulfilment delete (eligible + protected + staff 403), poll JSON = DB, ETA + month tile render | **25/25 ✅** |
 | Full regression | GET sweep 83/83 · POST sweep 34/34 · model exercise 0 failures · registration E2E 14/14 | **all ✅** |
+
+## 13. Rider & Review Round (executed 2026-11-09)
+
+Final module allocation (Lim Li Zhe / Wong Yong Feng / Leong Hong Jun) —
+Delivery & Rider Management and the review-management half of Payment &
+Review were implemented and tested in this round.
+
+| ID | Scenario | Result |
+|---|---|---|
+| T128 | Rider Portal pages (dashboard/tasks/history/profile) render; customer → /rider 403; rider → /admin 403 | ✅ |
+| T129 | Rider availability toggle (off shift → on shift, DB verified) | ✅ |
+| T130 | Admin rider CRUD: create account+profile, duplicate email rejected, edit vehicle, suspend (soft delete) + reactivate | ✅ |
+| T131 | ★ Admin Manual Rider Assignment full workflow: delivery order → ready → assignment page lists delivery + eligible riders → unavailable rider rejected → busy rider rejected (one active delivery per rider) → assign → rider sees Accept/Reject → **reject with reason recorded** → delivery returns to pending_assignment → **reassign preserves both history attempts** → accept → skip-step rejected (out_for_delivery before pickup) → pickup → out for delivery → delivered → **ORDER auto-completed** with history note → customer sees real rider card + delivered hero + merged timeline → rider history lists the delivery → cross-rider respond blocked | ✅ |
+| T132 | Review management: owner + staff reply to their restaurant's review (visible on the public page), admin hides a review (removed from public page) and unhides it (restored) | ✅ |
+
+Regression after the round: model exercise 0 failures, GET sweep 83/83,
+voucher round 41/41, POST sweep 34/34, Wong round 14/14, zero PHP errors
+in the Apache log.

@@ -11,6 +11,7 @@ $roleHome = $user ? App\Middleware\AuthMiddleware::homeFor($user) : '/';
 $isAdmin = $user && in_array('super_admin', $user['roles'], true);
 $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
     || in_array('restaurant_staff', $user['roles'], true));
+$isRider = $user && in_array('rider', $user['roles'], true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,6 +68,9 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/restaurants') ?>">Tenants</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/plans') ?>">Plans</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/vouchers') ?>">Vouchers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/riders') ?>">Riders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/assignments') ?>">Assignments</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/admin/reviews') ?>">Reviews</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/subscriptions') ?>">Subscriptions</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/admin/activity') ?>">Activity</a></li>
                     <?php endif; ?>
@@ -78,11 +82,18 @@ $isRestaurant = $user && (in_array('restaurant_owner', $user['roles'], true)
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/foods') ?>">My Menu</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/orders') ?>">Incoming Orders</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/vouchers') ?>">Vouchers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/owner/reviews') ?>">Reviews</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/payments') ?>">Payments</a></li>
                         <li class="nav-item"><a class="nav-link" href="<?= url('/owner/fulfilments') ?>">Fulfilments</a></li>
                         <?php if (in_array('restaurant_owner', $user['roles'], true)): ?>
                             <li class="nav-item"><a class="nav-link" href="<?= url('/owner/subscription') ?>">Subscription</a></li>
                         <?php endif; ?>
+                    <?php endif; ?>
+                    <?php if ($isRider): ?>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/rider') ?>">Rider Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/rider/tasks') ?>">My Tasks</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/rider/history') ?>">History</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?= url('/rider/profile') ?>">Rider Profile</a></li>
                     <?php endif; ?>
                     <li class="nav-item">
                         <span class="navbar-text me-lg-2">Hi, <?= e($user['name']) ?></span>

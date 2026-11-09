@@ -119,7 +119,15 @@ $isOpen = (int) $restaurant['is_open'] === 1;
                             <?= e(date('d M Y', strtotime($review['created_at']))) ?></span>
                     </p>
                     <?php if (!empty($review['comment'])): ?>
-                        <p class="small mb-0">"<?= e($review['comment']) ?>"</p>
+                        <p class="small mb-1">"<?= e($review['comment']) ?>"</p>
+                    <?php endif; ?>
+                    <?php if (!empty($review['reply'])): ?>
+                        <div class="p-3 rounded-4" style="background: #FDF0E9;">
+                            <p class="small mb-1"><strong>Restaurant reply</strong>
+                                <span class="text-muted">· <?= e(date('d M Y', strtotime($review['replied_at']))) ?></span>
+                            </p>
+                            <p class="small mb-0"><?= e($review['reply']) ?></p>
+                        </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
