@@ -6,7 +6,19 @@
  */
 ?>
 <div class="container" style="max-width: 480px;">
-    <div class="card shadow-sm mt-5 mb-5">
+    <?php if (!$isOwner): ?>
+        <div class="mt-4 p-4 rounded-4" style="background: #FDF0E9; border: 1.5px solid var(--cream-line);">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <p class="fw-bold text-dark mb-1">🍽️ Own a restaurant?</p>
+                    <p class="small text-muted mb-0">Start selling on OmniEats — set up your menu and receive orders.</p>
+                </div>
+                <a class="btn omnieats-btn btn-sm" href="<?= url('/register/restaurant') ?>">Partner with us →</a>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div class="card shadow-sm mt-4 mb-5">
         <div class="card-body p-4">
             <h1 class="h4 mb-1"><?= e($heading) ?></h1>
             <p class="text-muted small mb-4"><?= e($subtext) ?></p>

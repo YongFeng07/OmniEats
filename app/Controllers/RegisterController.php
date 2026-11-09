@@ -43,10 +43,12 @@ class RegisterController
 
     public function owner(): void
     {
-        $this->register('restaurant_owner', '/register/restaurant');
+        // Grab/Foodpanda merchant onboarding: right after sign-up the
+        // owner lands DIRECTLY in the restaurant setup form.
+        $this->register('restaurant_owner', '/register/restaurant', '/owner/restaurant/create');
     }
 
-    private function register(string $role, string $backPath): void
+    private function register(string $role, string $backPath, ?string $successPath = null): void
     {
         $data = [
             'name'                  => trim((string) ($_POST['name'] ?? '')),
@@ -68,6 +70,6 @@ class RegisterController
         }
 
         flash('success', 'Welcome to OmniEats! Your account has been created.');
-        redirect(AuthMiddleware::homeFor(AuthService::user()));
+        redirect($successPath ?? AuthMiddleware::homeFor(AuthService::user()));
     }
 }

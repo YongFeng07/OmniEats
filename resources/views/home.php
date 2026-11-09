@@ -41,6 +41,22 @@ $categories = [
         </div>
     </section>
 
+    <!-- Merchant CTA (Grab/Foodpanda "partner with us" strip) -->
+    <section class="mb-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h2 class="h5 mb-1">🍽️ Own a restaurant?</h2>
+                    <p class="text-muted small mb-0">
+                        Register your restaurant, upload your menu and start receiving orders —
+                        your profile goes live after platform approval.
+                    </p>
+                </div>
+                <a class="btn omnieats-btn" href="<?= url('/register/restaurant') ?>">Partner with us →</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Featured restaurants -->
     <section>
         <div class="d-flex justify-content-between align-items-center mb-3">

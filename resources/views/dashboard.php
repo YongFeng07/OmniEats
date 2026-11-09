@@ -151,7 +151,15 @@ $statusBadge = 'badge_class'; // shared helper in app/Helpers/functions.php
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <?php if ($isAdmin || $isRestaurant): ?>
+                    <?php if ($isRestaurant && !$tenant): ?>
+                        <h2 class="h5">Set up your restaurant</h2>
+                        <p class="text-muted small">
+                            Complete your restaurant profile — name, address, opening
+                            hours, logo and delivery settings. After platform approval
+                            it appears in the public restaurant list.
+                        </p>
+                        <a class="btn omnieats-btn btn-sm" href="<?= url('/owner/restaurant/create') ?>">Start setup</a>
+                    <?php elseif ($isAdmin || $isRestaurant): ?>
                         <h2 class="h5">My Profile</h2>
                         <p class="text-muted small">Update your name, email, phone and password.</p>
                         <a class="btn btn-outline-secondary btn-sm" href="<?= url('/profile') ?>">Edit profile</a>

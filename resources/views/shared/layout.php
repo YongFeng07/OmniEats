@@ -107,6 +107,7 @@ $isRider = $user && in_array('rider', $user['roles'], true);
                     </li>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="<?= url('/register') ?>">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= url('/register/restaurant') ?>">🍽️ Partner with us</a></li>
                     <li class="nav-item ms-lg-2">
                         <a class="btn btn-sm btn-light px-4" href="<?= url('/login') ?>">Sign in</a>
                     </li>
